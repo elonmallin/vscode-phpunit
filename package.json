@@ -13,7 +13,7 @@
 	],
     "homepage": "https://github.com/elonmallin/vscode-phpunit",
     "bugs": "https://github.com/elonmallin/vscode-phpunit/issues",
-    "license": "See LICENSE.md",
+    "license": "SEE LICENSE IN LICENSE.md",
     "repository": {
         "Github": "https://github.com/elonmallin/vscode-phpunit"
     },
