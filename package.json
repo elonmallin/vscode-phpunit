@@ -11,11 +11,11 @@
 	"categories": [
 		"Other"
 	],
-    "homepage": "",
-    "bugs": "",
+    "homepage": "https://github.com/elonmallin/vscode-phpunit",
+    "bugs": "https://github.com/elonmallin/vscode-phpunit/issues",
     "license": "See LICENSE.md",
     "repository": {
-        "Github": ""
+        "Github": "https://github.com/elonmallin/vscode-phpunit"
     },
     "keywords": [
         "phpunit",
