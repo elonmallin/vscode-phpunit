@@ -9,9 +9,11 @@ var phpunittest = require('./phpunittest');
 export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	let disposable = vscode.commands.registerCommand('extension.phpunitTest', phpunittest.runTest);
+	let disposable = vscode.commands.registerCommand('phpunit.Test', phpunittest.runTest);
+    let disposable2 = vscode.commands.registerCommand('phpunit.TestDirectory', phpunittest.runTestDirectory);
 
 	context.subscriptions.push(disposable);
+    context.subscriptions.push(disposable2);
 }
 
 // this method is called when your extension is deactivated

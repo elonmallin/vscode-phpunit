@@ -11,13 +11,17 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.phpunitTest"
+		"onCommand:phpunit.Test",
+        "onCommand:phpunit.TestDirectory"
 	],
 	"main": "./out/src/extension",
 	"contributes": {
 		"commands": [{
-			"command": "extension.phpunitTest",
+			"command": "phpunit.Test",
 			"title": "phpunit"
+		},{
+			"command": "phpunit.TestDirectory",
+			"title": "phpunit directory"
 		}],
         "configuration": {
             "type": "object",
@@ -25,7 +29,7 @@
             "properties": {
                 "phpunit.execPath": {
                     "type": "string",
-                    "default": "C:/xampp/php/phpunit.bat",
+                    "default": "phpunit",
                     "description": "Path to phpunit executable."
                 },
                 "phpunit.args": {

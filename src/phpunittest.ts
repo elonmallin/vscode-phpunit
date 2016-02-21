@@ -3,48 +3,63 @@
 import * as vscode from 'vscode';
 import cp = require('child_process');
 
-export function runTest() {
-    let config = vscode.workspace.getConfiguration("phpunit");
+var channelCount = 0;
+
+export function runTestDirectory() {
     const editor = vscode.window.activeTextEditor;
-    
-    let range = editor.document.getWordRangeAtPosition(editor.selection.active);
-    if (range != undefined) {
-        var wordOnCursor = editor.document.getText(range);
-        var line = editor.document.lineAt(range.start.line);
-        var isFunction = line.text.indexOf("function") != -1;
+    if (editor != undefined) {
+        let index = editor.document.fileName.lastIndexOf("\\");
+        if (index != -1) {
+            let path = editor.document.fileName.substring(0, index);
+            let relPath = vscode.workspace.asRelativePath(path);
+            runTest("." + relPath);
+            return;
+        }
     }
     
-    let outputChannel = vscode.window.createOutputChannel("phpunittest");
+    console.error("Couldn't determine directory. Make sure you have a file open in the directory you want to test.");
+}
+
+export function runTest(directory: string) {
+    let config = vscode.workspace.getConfiguration("phpunit");
+    const editor = vscode.window.activeTextEditor;
+    if (editor != undefined) {
+        let range = editor.document.getWordRangeAtPosition(editor.selection.active);
+        if (range != undefined) {
+            var wordOnCursor = editor.document.getText(range);
+            let line = editor.document.lineAt(range.start.line);
+            var isFunction = line.text.indexOf("function") != -1;
+        }
+    }
+    
+    let outputChannel = vscode.window.createOutputChannel("phpunit");
     outputChannel.show();
     
     let args = [];
     if (config.args.length > 0)
     {
-        args.concat(config.args);
+        args = args.concat(config.args);
     }
-    if (args.indexOf("--bootstrap") == -1)
+    if (directory != null && directory != "")
     {
-        // TODO: Search bootstrap file.
-        args.push("--bootstrap");
-        args.push("./app/bootstrap.php.cache");
+        args.push(directory);
     }
-    if (args.indexOf("-c") == -1 && args.indexOf("--configuration") == -1)
+    else
     {
-        // TODO: Search for phpunit.xml.dist
-        args.push("-c");
-        args.push("./app/phpunit.xml.dist");
-    }
-    if (isFunction && wordOnCursor != null)
-    {
-        args.push("--filter");
-        args.push(wordOnCursor);
-    }
-    if (editor.document.fileName != null)
-    {
-        args.push(editor.document.fileName);
+        if (isFunction && wordOnCursor != null)
+        {
+            args.push("--filter");
+            args.push(wordOnCursor);
+        }
+        if (editor != undefined && editor.document.fileName != null)
+        {
+            let relPath = vscode.workspace.asRelativePath(editor.document.fileName);
+            args.push("." + relPath);
+        }
     }
     
     let phpunitProcess = cp.spawn(config.execPath, args, { cwd: vscode.workspace.rootPath });
+    outputChannel.appendLine(config.execPath + ' ' + args.join(' '));
     
     phpunitProcess.stderr.on("data", (buffer: Buffer) => {
         outputChannel.append(buffer.toString());
@@ -55,14 +70,4 @@ export function runTest() {
     phpunitProcess.on("close", (code: string) => {
         outputChannel.hide();
     });
-}
-
-function GetBootstrap() {
-    let bootstrap = vscode.workspace.getConfiguration("config.bootstrap");
-    if (bootstrap != undefined) {
-        return bootstrap;
-    } else {
-        vscode.workspace.findFiles
-        let files = vscode.workspace.findFiles("*composer.json", null);
-    }
 }

@@ -1,13 +1,30 @@
-# README
-## This is the README for your extension "phpunit" 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+# Phpunit for VSCode
+## Setup
+* Install [phpunit](https://phpunit.de/).
+* Set the config values:
+```JSON
+{
+    "phpunit.execPath": "path/to/phpunit", // Recommended to put in your 'user settings'. Having phpunit in PATH doesn't work =(
+    "phpunit.args": [
+        "--configuration", "./phpunit.xml.dist" // Recommended to put in your 'workspace settings'. Example: Add a configuration found in root.
+    ]
+}
+```
 
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
+## How to use
+Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execute the `phpunit` command.
+* **Test a function**: Place cursor on a function and run.
 
-### For more information
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+![vscode-phpunit-test-function](vscode-phpunit-test-function.gif)
 
-** Enjoy!**
+* **Test a class**: Place cursor anywhere in class (except on a function) and run.
+
+![vscode-phpunit-test-class](vscode-phpunit-test-class.gif)
+
+* **Test everything according to --configuration**: Close editor window and run.
+
+![vscode-phpunit-test-all](vscode-phpunit-test-all.gif)
+
+* **Test everything in a directory**: Open a file in the directory to test and run the `phpunit directory` command.
+
+![vscode-phpunit-test-directory](vscode-phpunit-test-directory.gif)
