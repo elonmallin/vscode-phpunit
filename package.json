@@ -1,0 +1,48 @@
+{
+	"name": "phpunit",
+	"displayName": "phpunit",
+	"description": "Start phpunit tests from VSCode.",
+	"version": "0.0.1",
+	"publisher": "emallin",
+	"engines": {
+		"vscode": "^0.10.6"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.phpunitTest"
+	],
+	"main": "./out/src/extension",
+	"contributes": {
+		"commands": [{
+			"command": "extension.phpunitTest",
+			"title": "phpunit"
+		}],
+        "configuration": {
+            "type": "object",
+            "title": "Phpunit Configuration",
+            "properties": {
+                "phpunit.execPath": {
+                    "type": "string",
+                    "default": "C:/xampp/php/phpunit.bat",
+                    "description": "Path to phpunit executable."
+                },
+                "phpunit.args": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Any phpunit args (phpunit --help)"
+                }
+            }
+        }
+	},
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"devDependencies": {
+		"typescript": "^1.7.5",
+		"vscode": "^0.11.0"
+	}
+}
