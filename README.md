@@ -4,9 +4,9 @@
 * Set the config values:
 ```JSON
 {
-    "phpunit.execPath": "path/to/phpunit", // Recommended to put in your 'user settings'. Having phpunit in PATH doesn't work =(
+    "phpunit.execPath": "path/to/phpunit",
     "phpunit.args": [
-        "--configuration", "./phpunit.xml.dist" // Recommended to put in your 'workspace settings'. Example: Add a configuration found in root.
+        "--configuration", "./phpunit.xml.dist"
     ]
 }
 ```
@@ -28,3 +28,7 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 * **Test everything in a directory**: Open a file in the directory to test and run the `phpunit directory` command.
 
 ![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)
+
+## Notes
+* **execPath** is recommended to set in your 'user settings'. Having phpunit in PATH doesn't work =(.
+* **args** is recommended to set in your 'workspace settings'.
