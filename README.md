@@ -15,16 +15,16 @@
 Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execute the `phpunit` command.
 * **Test a function**: Place cursor on a function and run.
 
-![vscode-phpunit-test-function](vscode-phpunit-test-function.gif)
+![vscode-phpunit-test-function](images/vscode-phpunit-test-function.gif)
 
 * **Test a class**: Place cursor anywhere in class (except on a function) and run.
 
-![vscode-phpunit-test-class](vscode-phpunit-test-class.gif)
+![vscode-phpunit-test-class](images/vscode-phpunit-test-class.gif)
 
 * **Test everything according to --configuration**: Close editor window and run.
 
-![vscode-phpunit-test-all](vscode-phpunit-test-all.gif)
+![vscode-phpunit-test-all](images/vscode-phpunit-test-all.gif)
 
 * **Test everything in a directory**: Open a file in the directory to test and run the `phpunit directory` command.
 
-![vscode-phpunit-test-directory](vscode-phpunit-test-directory.gif)
+![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)

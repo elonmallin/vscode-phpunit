@@ -4,12 +4,25 @@
 	"description": "Start phpunit tests from VSCode.",
 	"version": "0.0.1",
 	"publisher": "emallin",
+    "icon": "images/phpunit.png",
 	"engines": {
 		"vscode": "^0.10.6"
 	},
 	"categories": [
 		"Other"
 	],
+    "homepage": "",
+    "bugs": "",
+    "license": "See LICENSE.md",
+    "repository": {
+        "Github": ""
+    },
+    "keywords": [
+        "phpunit",
+        "test",
+        "unittest",
+        "php"
+    ],
 	"activationEvents": [
 		"onCommand:phpunit.Test",
         "onCommand:phpunit.TestDirectory"
