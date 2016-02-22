@@ -3,7 +3,9 @@
 import * as vscode from 'vscode';
 import cp = require('child_process');
 
-var channelCount = 0;
+export function runTest() {
+    execTest(null);
+}
 
 export function runTestDirectory() {
     const editor = vscode.window.activeTextEditor;
@@ -12,7 +14,7 @@ export function runTestDirectory() {
         if (index != -1) {
             let path = editor.document.fileName.substring(0, index);
             let relPath = vscode.workspace.asRelativePath(path);
-            runTest("." + relPath);
+            execTest("." + relPath);
             return;
         }
     }
@@ -20,8 +22,11 @@ export function runTestDirectory() {
     console.error("Couldn't determine directory. Make sure you have a file open in the directory you want to test.");
 }
 
-export function runTest(directory: string) {
+function execTest(directory: string) {
     let config = vscode.workspace.getConfiguration("phpunit");
+    let execPath = config.get<string>("execPath", "phpunit");
+    let configArgs = config.get<Array<string>>("args", []);
+    
     const editor = vscode.window.activeTextEditor;
     if (editor != undefined) {
         let range = editor.document.getWordRangeAtPosition(editor.selection.active);
@@ -35,11 +40,7 @@ export function runTest(directory: string) {
     let outputChannel = vscode.window.createOutputChannel("phpunit");
     outputChannel.show();
     
-    let args = [];
-    if (config.args.length > 0)
-    {
-        args = args.concat(config.args);
-    }
+    let args = [].concat(configArgs);
     if (directory != null && directory != "")
     {
         args.push(directory);
@@ -58,8 +59,8 @@ export function runTest(directory: string) {
         }
     }
     
-    let phpunitProcess = cp.spawn(config.execPath, args, { cwd: vscode.workspace.rootPath });
-    outputChannel.appendLine(config.execPath + ' ' + args.join(' '));
+    let phpunitProcess = cp.spawn(execPath, args, { cwd: vscode.workspace.rootPath });
+    outputChannel.appendLine(execPath + ' ' + args.join(' '));
     
     phpunitProcess.stderr.on("data", (buffer: Buffer) => {
         outputChannel.append(buffer.toString());
@@ -67,7 +68,7 @@ export function runTest(directory: string) {
     phpunitProcess.stdout.on("data", (buffer: Buffer) => {
         outputChannel.append(buffer.toString());
     });
-    phpunitProcess.on("close", (code: string) => {
+    /*phpunitProcess.on("close", (code: string) => {
         outputChannel.hide();
-    });
+    });*/
 }

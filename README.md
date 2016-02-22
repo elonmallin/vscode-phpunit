@@ -29,6 +29,7 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 
 ![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)
 
-## Notes
-* **execPath** is recommended to set in your 'user settings'. Having phpunit in PATH doesn't work =(.
-* **args** is recommended to set in your 'workspace settings'.
+## Notes / Tips / Advanced
+* **execPath** is recommended to set in your 'user settings'. Having phpunit in PATH doesn't work (at least on windows 10) =(.
+* **args** is recommended to set in your 'workspace settings'. You can add any phpunit args, check phpunit --help.
+* To hook into the debugger ([github.com/felixfbecker/vscode-php-debug](https://github.com/felixfbecker/vscode-php-debug)). Add Key:`XDEBUG_CONFIG`, Value:`idekey=VSCODE` to your environment variables. (Tested on Windows 10)
