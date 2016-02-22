@@ -1,7 +1,7 @@
 {
 	"name": "phpunit",
 	"displayName": "phpunit",
-	"description": "Start phpunit tests from VSCode.",
+	"description": "Run phpunit tests from VSCode.",
 	"version": "0.0.1",
 	"publisher": "emallin",
     "icon": "images/phpunit.png",
@@ -11,12 +11,15 @@
 	"categories": [
 		"Other"
 	],
-    "homepage": "https://github.com/elonmallin/vscode-phpunit",
-    "bugs": "https://github.com/elonmallin/vscode-phpunit/issues",
-    "license": "SEE LICENSE IN LICENSE.md",
     "repository": {
-        "Github": "https://github.com/elonmallin/vscode-phpunit"
+        "type": "git",
+        "url": "https://github.com/elonmallin/vscode-phpunit"
     },
+    "homepage": "https://github.com/elonmallin/vscode-phpunit/blob/master/README.md",
+    "bugs": {
+        "url": "https://github.com/elonmallin/vscode-phpunit/issues"
+    },
+    "license": "SEE LICENSE IN LICENSE.md",
     "keywords": [
         "phpunit",
         "test",
