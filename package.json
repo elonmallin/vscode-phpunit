@@ -1,16 +1,16 @@
 {
-	"name": "phpunit",
-	"displayName": "phpunit",
-	"description": "Run phpunit tests from VSCode.",
-	"version": "0.0.1",
-	"publisher": "emallin",
+    "name": "phpunit",
+    "displayName": "PHPUnit",
+    "description": "Run PHPUnit tests from VSCode.",
+    "version": "1.0.0",
+    "publisher": "emallin",
     "icon": "images/phpunit.png",
-	"engines": {
-		"vscode": "^0.10.6"
-	},
-	"categories": [
-		"Other"
-	],
+    "engines": {
+        "vscode": "^0.10.6"
+    },
+    "categories": [
+        "Other"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/elonmallin/vscode-phpunit"
@@ -26,22 +26,22 @@
         "unittest",
         "php"
     ],
-	"activationEvents": [
-		"onCommand:phpunit.Test",
+    "activationEvents": [
+        "onCommand:phpunit.Test",
         "onCommand:phpunit.TestDirectory"
-	],
-	"main": "./out/src/extension",
-	"contributes": {
-		"commands": [{
-			"command": "phpunit.Test",
-			"title": "phpunit"
-		},{
-			"command": "phpunit.TestDirectory",
-			"title": "phpunit directory"
-		}],
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "commands": [{
+            "command": "phpunit.Test",
+            "title": "PHPUnit Test"
+        }, {
+            "command": "phpunit.TestDirectory",
+            "title": "PHPUnit Test Directory"
+        }],
         "configuration": {
             "type": "object",
-            "title": "Phpunit Configuration",
+            "title": "PHPUnit Configuration",
             "properties": {
                 "phpunit.execPath": {
                     "type": "string",
@@ -55,14 +55,14 @@
                 }
             }
         }
-	},
-	"scripts": {
-		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    },
+    "scripts": {
+        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install"
-	},
-	"devDependencies": {
-		"typescript": "^1.7.5",
-		"vscode": "^0.11.0"
-	}
+    },
+    "devDependencies": {
+        "typescript": "^1.7.5",
+        "vscode": "^0.11.0"
+    }
 }
