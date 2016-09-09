@@ -12,7 +12,7 @@
 ```
 
 ## How to use
-Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execute the `phpunit` command.
+Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execute the `PHPUnit Test` command.
 * **Test a function**: Place cursor on a function and run.
 
 ![vscode-phpunit-test-function](images/vscode-phpunit-test-function.gif)
@@ -25,7 +25,7 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 
 ![vscode-phpunit-test-all](images/vscode-phpunit-test-all.gif)
 
-* **Test everything in a directory**: Open a file in the directory to test and run the `phpunit directory` command.
+* **Test everything in a directory**: Open a file in the directory to test and run the `PHPUnit Test Directory` command.
 
 ![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)
 
