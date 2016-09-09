@@ -14,7 +14,8 @@ export function runTestDirectory() {
         if (index != -1) {
             let path = editor.document.fileName.substring(0, index);
             let relPath = vscode.workspace.asRelativePath(path);
-            execTest("." + relPath);
+            relPath = relPath.replace(/[\.\/\\]*/i, ''); // Strip beginning of path of (./\)
+            execTest("./" + relPath);
             return;
         }
     }
@@ -55,7 +56,8 @@ function execTest(directory: string) {
         if (editor != undefined && editor.document.fileName != null)
         {
             let relPath = vscode.workspace.asRelativePath(editor.document.fileName);
-            args.push("." + relPath);
+            relPath = relPath.replace(/[\.\/\\]*/i, ''); // Strip beginning of path of (./\)
+            args.push("./" + relPath);
         }
     }
     
