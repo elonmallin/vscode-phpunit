@@ -1,3 +1,4 @@
+![Latest Release](http://vsmarketplacebadge.apphb.com/version/emallin.phpunit.svg) ![Installs](http://vsmarketplacebadge.apphb.com/installs-short/emallin.phpunit.svg) ![Rating](http://vsmarketplacebadge.apphb.com/rating-short/emallin.phpunit.svg)
 # Phpunit for VSCode
 ## Setup
 * Install [phpunit](https://phpunit.de/).
