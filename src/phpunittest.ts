@@ -10,16 +10,10 @@ export function runTest() {
 export function runTestDirectory() {
     const editor = vscode.window.activeTextEditor;
     if (editor != undefined) {
-        let index = editor.document.fileName.lastIndexOf("\\");
-        if (index != -1) {
-            let path = editor.document.fileName.substring(0, index);
-            let relPath = vscode.workspace.asRelativePath(path);
-            relPath = relPath.replace(/[\.\/\\]*/i, ''); // Strip beginning of path of (./\)
-            execTest("./" + relPath);
-            return;
-        }
+        let currentDir = editor.document.uri.path.split('/').filter((item) => { return ! item.endsWith('.php')}).join('/');
+        execTest(`${currentDir}/`);
+        return;
     }
-    
     console.error("Couldn't determine directory. Make sure you have a file open in the directory you want to test.");
 }
 
@@ -27,7 +21,7 @@ function execTest(directory: string) {
     let config = vscode.workspace.getConfiguration("phpunit");
     let execPath = config.get<string>("execPath", "phpunit");
     let configArgs = config.get<Array<string>>("args", []);
-    
+
     const editor = vscode.window.activeTextEditor;
     if (editor != undefined) {
         let range = editor.document.getWordRangeAtPosition(editor.selection.active);
@@ -37,10 +31,10 @@ function execTest(directory: string) {
             var isFunction = line.text.indexOf("function") != -1;
         }
     }
-    
+
     let outputChannel = vscode.window.createOutputChannel("phpunit");
     outputChannel.show();
-    
+
     let args = [].concat(configArgs);
     if (directory != null && directory != "")
     {
@@ -55,9 +49,8 @@ function execTest(directory: string) {
         }
         if (editor != undefined && editor.document.fileName != null)
         {
-            let relPath = vscode.workspace.asRelativePath(editor.document.fileName);
-            relPath = relPath.replace(/[\.\/\\]*/i, ''); // Strip beginning of path of (./\)
-            args.push("./" + relPath);
+            let relPath = editor.document.uri.fsPath;
+            args.push(relPath);
         }
     }
     
