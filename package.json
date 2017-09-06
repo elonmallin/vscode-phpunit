@@ -2,7 +2,7 @@
     "name": "phpunit",
     "displayName": "PHPUnit",
     "description": "Run PHPUnit tests from VSCode.",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "publisher": "emallin",
     "icon": "images/phpunit.png",
     "engines": {
@@ -55,6 +55,11 @@
                     "type": "array",
                     "default": [],
                     "description": "Any phpunit args (phpunit --help)"
+                },
+                "phpunit.forceClassTest": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Force running whole class test if not on test definition (default) or pop up list of runnable tests."
                 }
             }
         }
