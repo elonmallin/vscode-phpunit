@@ -3,6 +3,11 @@
 import * as vscode from 'vscode';
 import cp = require('child_process');
 
+const regex = {
+    method: /\s*public*\s+function\s+(test\w*)\s*\(/gi,
+    class: /class\s+(\w*)\s*{?/gi
+};
+
 export function runTest() {
     execTest(null);
 }
@@ -17,8 +22,13 @@ export function runTestDirectory() {
     console.error("Couldn't determine directory. Make sure you have a file open in the directory you want to test.");
 }
 
-function execPhpUnit(execPath, args, outputChannel)
+function execPhpUnit(execPath, args, outputChannel, putFsPathIntoArgs = true)
 {
+    if (putFsPathIntoArgs)
+    {
+        args.push(vscode.window.activeTextEditor.document.uri.fsPath);
+    }
+
     let phpunitProcess = cp.spawn(execPath, args, { cwd: vscode.workspace.rootPath });
     outputChannel.appendLine(execPath + ' ' + args.join(' '));
 
@@ -30,11 +40,47 @@ function execPhpUnit(execPath, args, outputChannel)
     });
 }
 
+function _getObjectOrMethod(type: string): string|undefined
+{
+    if (!regex.hasOwnProperty(type))
+    {
+        throw new Error('Invalid type property passed: ' + type);
+    }
+
+    const editor = vscode.window.activeTextEditor;
+    const text = editor.document.getText();
+
+    let regexToUse = regex[type];
+    let result = undefined;
+    let position = 0;
+    let modifier = 1;
+
+    if (type === 'method')
+    {
+        position = editor.selection.active.line;
+        modifier = -1;
+    }  
+
+    while (result === undefined && position > -1)
+    {
+        let line = editor.document.lineAt(position);
+        let regexResult = null;
+
+        if ((regexResult = regexToUse.exec(line.text)))
+        {
+            result = regexResult[1].toString().trim();
+        }
+
+        position += modifier;
+    }
+
+    return result;
+}
+
 function execTest(directory: string) {
     let config = vscode.workspace.getConfiguration("phpunit");
     let execPath = config.get<string>("execPath", "phpunit");
     let configArgs = config.get<Array<string>>("args", []);
-    let forceClassRunWhenWithinTest = config.get<boolean>("forceClassTest", true);
 
     const editor = vscode.window.activeTextEditor;
     if (editor != undefined) {
@@ -42,7 +88,7 @@ function execTest(directory: string) {
         if (range != undefined) {
             var wordOnCursor = editor.document.getText(range);
             let line = editor.document.lineAt(range.start.line);
-            var isFunction = line.text.indexOf("function") != -1;
+            var isFunction = line.text.indexOf("function") != -1 && regex.method.test(line.text);
             var isClass = line.text.indexOf("class") != -1;
         }
     }
@@ -55,7 +101,7 @@ function execTest(directory: string) {
     {
         args.push(directory);
 
-        execPhpUnit(execPath, args, outputChannel);
+        execPhpUnit(execPath, args, outputChannel, false);
     }
     else
     {
@@ -63,41 +109,35 @@ function execTest(directory: string) {
             args.push("--filter");
             args.push(wordOnCursor);
 
-            let relPath = editor.document.uri.fsPath;
-            args.push(relPath);
-
             execPhpUnit(execPath, args, outputChannel);
         }
         else if (editor != undefined && editor.document.fileName != null)
         {
-            if (isClass || forceClassRunWhenWithinTest)
+            if (isClass)
             {
-                let relPath = editor.document.uri.fsPath;
-                args.push(relPath);
-
                 execPhpUnit(execPath, args, outputChannel);
             }
             else
             {
-                let windowText = editor.document.getText();
                 let testFunctions = [];
-                let regex = /\s*(abstract|final|private|protected|public|static)\s+function\s+(test.*)\s*\(/gi;
-                let result = null;
                 let currentTest = null;
+
+                if ((currentTest = _getObjectOrMethod('method')))
+                {
+                    testFunctions.push(currentTest);
+                }    
+
+                let testClassName = _getObjectOrMethod('class');
+
+                let windowText = editor.document.getText();
+                let regexToUse = regex.method;
+                let result = null;
                 let startPosition = editor.selection.active.line;
                 
-                while (!testFunctions.length && startPosition > -1) {
-                    let line = editor.document.lineAt(startPosition);
+                testFunctions.push(testClassName);
 
-                    if ((result = regex.exec(line.text))) {
-                        testFunctions.push(result[2].toString().trim());
-                    }
-
-                    startPosition--;
-                }
-
-                while ((result = regex.exec(windowText))) {
-                    let testToAdd = result[2].toString().trim();
+                while ((result = regexToUse.exec(windowText))) {
+                    let testToAdd = result[1].toString().trim();
 
                     if (!testFunctions.length || testFunctions[0] != testToAdd) {
                         testFunctions.push(testToAdd);
@@ -107,17 +147,18 @@ function execTest(directory: string) {
                 if (testFunctions.length > 0) {
                     vscode.window.showQuickPick(testFunctions, {}).then(function (selectedTest) {
                         if (undefined !== selectedTest) {
-                            args.push("--filter");
-                            args.push(selectedTest);
-
-                            let relPath = editor.document.uri.fsPath;
-                            args.push(relPath);
+                            // Assume methods are prefixed with 'test' while classes are not
+                            if (selectedTest.indexOf('test') === 0)
+                            {
+                                args.push("--filter");
+                                args.push(selectedTest);
+                            }
 
                             execPhpUnit(execPath, args, outputChannel);
                         }    
                     });
                 } else {
-                    execPhpUnit(execPath, args, outputChannel);
+                    execPhpUnit(execPath, args, outputChannel, false);
                 }    
             }    
         } 
