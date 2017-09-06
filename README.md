@@ -30,6 +30,10 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 
 ![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)
 
+* **Run entire class**: Place cursor on line declaring `class` and run.
+
+* **Run specific test**: Place cursor anywhere not on a line declaring `class` or `test` and run.  A dialog will display all possible tests within that class (excluding ones from inherited classes).  This will also look for the current test that you are in (if any) and place that first on the list.
+
 ## Notes / Tips / Advanced
 * **execPath** is recommended to set in your 'user settings'. Having phpunit in PATH doesn't work (at least on windows 10) =(.
 * **args** is recommended to set in your 'workspace settings'. You can add any phpunit args, check phpunit --help.
