@@ -1,19 +1,20 @@
 'use strict';
 
-import {commands, ExtensionContext} from 'vscode';
-import {runTest, runTestDirectory} from './phpunittest';
-
-export function runFile(): void {
-	runTest();
-}
-
-export function runDir(): void {
-	runTestDirectory();
-}
+import {window, commands, ExtensionContext} from 'vscode';
+import {TestRunner} from './phpunittest';
 
 export function activate(context: ExtensionContext) {
-	context.subscriptions.push(commands.registerCommand('phpunit.Test', runFile));
-    context.subscriptions.push(commands.registerCommand('phpunit.TestDirectory', runDir));
+
+	let outputChannel = window.createOutputChannel("phpunit");
+	let PHPUnitTestRunner: TestRunner = new TestRunner(outputChannel);
+
+	context.subscriptions.push(commands.registerCommand('phpunit.Test', () => {
+		PHPUnitTestRunner.runTest();
+	}));
+
+	context.subscriptions.push(commands.registerCommand('phpunit.TestDirectory', () => {
+		PHPUnitTestRunner.runTestDirectory()
+	}));
 }
 
 // this method is called when your extension is deactivated
