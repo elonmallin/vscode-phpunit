@@ -18,9 +18,13 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 
 ![vscode-phpunit-test-function](images/vscode-phpunit-test-function.gif)
 
-* **Test a class**: Place cursor anywhere in class (except on a function) and run.
+* **Test a class**: Place cursor on class name and run.
 
 ![vscode-phpunit-test-class](images/vscode-phpunit-test-class.gif)
+
+* **Pick test from a list**: Place cursor anywhere in class except on class name or on a function and run.
+
+![vscode-phpunit-quick-pick](images/vscode-phpunit-quick-pick.gif)
 
 * **Test everything according to --configuration**: Close editor window and run.
 
