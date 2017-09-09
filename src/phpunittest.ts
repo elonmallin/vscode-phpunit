@@ -21,99 +21,116 @@ export class TestRunner {
 
     public runTestDirectory() {
         const editor = vscode.window.activeTextEditor;
-        if (editor != undefined) {
-            let currentDir = editor.document.uri.path.split('/').filter((item) => { return !item.endsWith('.php') }).join('/');
-            this.execTest(`${currentDir}/`);
+        if (editor) {
+            let currentDir = vscode.workspace.asRelativePath(editor.document.uri).replace(/\/\w*\.php$/i, '');
+            this.execTest(`./${currentDir}`);
         } else {
             console.error("Couldn't determine directory. Make sure you have a file open in the directory you want to test.");
         }
     }
 
-    private execTest(directory: string) {
+    private execTest(directory: string)
+    {
         let config = vscode.workspace.getConfiguration("phpunit");
         let execPath = config.get<string>("execPath", "phpunit");
         let configArgs = config.get<Array<string>>("args", []);
 
         let args = [].concat(configArgs);
+
+        const editor = vscode.window.activeTextEditor;
+        let range = editor ? editor.document.getWordRangeAtPosition(editor.selection.active) : null;
+        
         if (directory != null && directory != "")
         {
             args.push(directory);
-            this.execPhpUnit(execPath, args, false);
 
+            // Run directory test.
+            this.execPhpUnit(execPath, args, false);
             return;
         }
-        else if (vscode.window.activeTextEditor == null)
+        else if (!editor)
         {
+            // Run test according to --configuration flag.
             this.execPhpUnit(execPath, args, false);
+            return;
         }
-        else
+        else if (range)
         {
-            const editor = vscode.window.activeTextEditor;
-            let range = editor.document.getWordRangeAtPosition(editor.selection.active);
-            if (range != undefined) {
-                let line = editor.document.lineAt(range.start.line);
-                var wordOnCursor = editor.document.getText(range);
-                var isFunction = line.text.indexOf("function") != -1 && this.regex.method.test(line.text);
-                var isClass = line.text.indexOf("class") != -1;
+            let line = editor.document.lineAt(range.start.line);
+            var wordOnCursor = editor.document.getText(range);
+            var isFunction = line.text.indexOf("function") != -1 && this.regex.method.test(line.text);
+            var isClass = line.text.indexOf("class") != -1;
 
-                if (isFunction && wordOnCursor != null) {
-                    args.push("--filter");
-                    args.push(wordOnCursor);
-        
-                    this.execPhpUnit(execPath, args);
-
-                    return;
-                }
-                else if (isClass)
-                {
-                    this.execPhpUnit(execPath, args);
-
-                    return;
-                }
-            }
-            
-            if (editor.document.fileName != null)
+            if (isFunction && wordOnCursor != null)
             {
-                let testFunctions = [];
-                let currentTest = null;
-
-                if ((currentTest = this.getObjectOrMethod('method')))
-                {
-                    testFunctions.push(currentTest);
-                }    
-
-                let testClassName = this.getObjectOrMethod('class');
-                testFunctions.push(testClassName);
-
-                let windowText = editor.document.getText();
-                let regexToUse = this.regex.method;
-                let result = null;
-                let startPosition = editor.selection.active.line;
-
-                while ((result = regexToUse.exec(windowText))) {
-                    let testToAdd = result[1].toString().trim();
-
-                    if (!testFunctions.length || testFunctions[0] != testToAdd) {
-                        testFunctions.push(testToAdd);
-                    }    
-                }
-
-                if (testFunctions.length > 0) {
-                    vscode.window.showQuickPick(testFunctions, {}).then((selectedTest) => {
-                        if (undefined !== selectedTest) {
-                            // Assume methods are prefixed with 'test' while classes are not
-                            if (selectedTest.indexOf('test') === 0)
-                            {
-                                args.push("--filter");
-                                args.push(selectedTest);
-                            }
-
-                            this.execPhpUnit(execPath, args);
-                        }
-                    });
-                }
+                args.push("--filter");
+                args.push(wordOnCursor);
+    
+                // Run test on function instantly.
+                this.execPhpUnit(execPath, args);
+                return;
+            }
+            else if (isClass)
+            {
+                // Run test on class instantly.
+                this.execPhpUnit(execPath, args);
+                return;
             }
         }
+        
+        var promise = this.getUserSelectedTest(editor);
+        if (promise)
+        {
+            promise.then((selectedTest) => {
+                if (selectedTest)
+                {
+                    if (selectedTest.indexOf('function - test') != -1)
+                    {
+                        args.push("--filter");
+                        args.push(selectedTest.replace('function - ', ''));
+                    }
+
+                    // Run test selected in quick pick window.
+                    this.execPhpUnit(execPath, args);
+                }
+            });
+        }
+    }
+    
+    private getUserSelectedTest(editor): Thenable<any> | null
+    {
+        if (editor.document.fileName != null)
+        {
+            let testFunctions = [];
+            
+            {
+                let currentTest = this.getObjectOrMethod(editor, 'method');
+                if (currentTest)
+                {
+                    testFunctions.push('function - ' + currentTest);
+                }
+            }
+    
+            testFunctions.push('class - ' + this.getObjectOrMethod(editor, 'class'));
+    
+            let windowText = editor.document.getText();
+            let startPosition = editor.selection.active.line;
+            let result = null;
+    
+            while ((result = this.regex.method.exec(windowText)))
+            {
+                let testToAdd = result[1].toString().trim();
+    
+                if (!testFunctions.length || testFunctions[0] != testToAdd)
+                {
+                    testFunctions.push('function - ' + testToAdd);
+                }
+            }
+    
+            return vscode.window.showQuickPick(testFunctions, {});
+        }
+
+        return null;
     }
 
     private execPhpUnit(execPath, args, putFsPathIntoArgs = true)
@@ -134,15 +151,12 @@ export class TestRunner {
         });
     }
 
-    private getObjectOrMethod(type: string): string|undefined
+    private getObjectOrMethod(editor, type: string): string|undefined
     {
         if (!this.regex.hasOwnProperty(type))
         {
             throw new Error('Invalid type property passed: ' + type);
         }
-    
-        const editor = vscode.window.activeTextEditor;
-        const text = editor.document.getText();
     
         let regexToUse = this.regex[type];
         let result = undefined;
