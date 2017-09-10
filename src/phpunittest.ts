@@ -22,8 +22,8 @@ export class TestRunner {
     public runTestDirectory() {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
-            let currentDir = vscode.workspace.asRelativePath(editor.document.uri).replace(/\/\w*\.php$/i, '');
-            this.execTest(`./${currentDir}`);
+            let currentDir = editor.document.uri.fsPath.replace(/\/\w*\.php$/i, '');
+            this.execTest(`${currentDir}`);
         } else {
             console.error("Couldn't determine directory. Make sure you have a file open in the directory you want to test.");
         }
