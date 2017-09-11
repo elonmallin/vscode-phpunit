@@ -7,9 +7,8 @@ export class TestRunner {
     private outputChannel: vscode.OutputChannel;
 
     private readonly regex = {
-        method: /\s*public*\s+function\s+(test\w*)\s*\(/gi,
-        class: /class\s+(\w*)\s*{?/gi,
-        methodOnce: /\s*public*\s+function\s+(test\w*)\s*\(/i
+        method: /\s*public*\s+function\s+(\w*)\s*\(/gi,
+        class: /class\s+(\w*)\s*{?/gi
     };
 
     constructor(channel) {
@@ -60,7 +59,7 @@ export class TestRunner {
         {
             let line = editor.document.lineAt(range.start.line);
             var wordOnCursor = editor.document.getText(range);
-            var isFunction = line.text.indexOf("function") != -1 && this.regex.methodOnce.test(line.text);
+            var isFunction = line.text.indexOf("function") != -1
             var isClass = line.text.indexOf("class") != -1;
 
             if (isFunction && wordOnCursor != null)
@@ -93,7 +92,7 @@ export class TestRunner {
             promise.then((selectedTest) => {
                 if (selectedTest)
                 {
-                    if (selectedTest.indexOf('function - test') != -1)
+                    if (selectedTest.indexOf('function - ') != -1)
                     {
                         args.push("--filter");
                         args.push(selectedTest.replace('function - ', ''));
