@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import cp = require('child_process');
 
 export class TestRunner {
-    private outputChannel;
+    private outputChannel: vscode.OutputChannel;
 
     private readonly regex = {
         method: /\s*public*\s+function\s+(test\w*)\s*\(/gi,
@@ -149,6 +149,8 @@ export class TestRunner {
         phpunitProcess.stdout.on("data", (buffer: Buffer) => {
             this.outputChannel.append(buffer.toString());
         });
+
+        this.outputChannel.show();
     }
 
     private getObjectOrMethod(editor, type: string): string|undefined
