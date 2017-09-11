@@ -8,7 +8,8 @@
     "phpunit.execPath": "path/to/phpunit",
     "phpunit.args": [
         "--configuration", "./phpunit.xml.dist"
-    ]
+    ],
+    "phpunit.preferRunClassTestOverQuickPickWindow": false // Default false
 }
 ```
 
