@@ -55,6 +55,11 @@
                     "type": "array",
                     "default": [],
                     "description": "Any phpunit args (phpunit --help)"
+                },
+                "phpunit.preferRunClassTestOverQuickPickWindow": {
+                    "type": "Boolean",
+                    "default": false,
+                    "description": "If we should test the whole class instead of showing the quick pick window when cursor is on anything but a function name."
                 }
             }
         }

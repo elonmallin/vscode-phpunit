@@ -35,6 +35,7 @@ export class TestRunner {
         let config = vscode.workspace.getConfiguration("phpunit");
         let execPath = config.get<string>("execPath", "phpunit");
         let configArgs = config.get<Array<string>>("args", []);
+        let preferRunClassTestOverQuickPickWindow = config.get<Boolean>("preferRunClassTestOverQuickPickWindow", false);
 
         let args = [].concat(configArgs);
 
@@ -77,6 +78,13 @@ export class TestRunner {
                 this.execPhpUnit(execPath, args);
                 return;
             }
+        }
+        
+        if (preferRunClassTestOverQuickPickWindow)
+        {
+            // Run test on class instantly.
+            this.execPhpUnit(execPath, args);
+            return;
         }
         
         var promise = this.getUserSelectedTest(editor);
