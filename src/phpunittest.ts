@@ -8,7 +8,8 @@ export class TestRunner {
 
     private readonly regex = {
         method: /\s*public*\s+function\s+(test\w*)\s*\(/gi,
-        class: /class\s+(\w*)\s*{?/gi
+        class: /class\s+(\w*)\s*{?/gi,
+        methodOnce: /\s*public*\s+function\s+(test\w*)\s*\(/i
     };
 
     constructor(channel) {
@@ -58,7 +59,7 @@ export class TestRunner {
         {
             let line = editor.document.lineAt(range.start.line);
             var wordOnCursor = editor.document.getText(range);
-            var isFunction = line.text.indexOf("function") != -1 && this.regex.method.test(line.text);
+            var isFunction = line.text.indexOf("function") != -1 && this.regex.methodOnce.test(line.text);
             var isClass = line.text.indexOf("class") != -1;
 
             if (isFunction && wordOnCursor != null)
