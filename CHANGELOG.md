@@ -1,3 +1,6 @@
+# [v2.1.1](https://github.com/elonmallin/vscode-phpunit/releases/tag/v2.1.1)
+- **Bugfix:** Function tests again allows `@test` docblocks and not just `test*` prefix.
+
 # [v2.1.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v2.1.0)
 - **Bugfix:** Run the instant tests reliably if the cursor is in the right place. Not every other try.
 - Add config option preferRunClassTestOverQuickPickWindow (default: false). Set to true to never show the quick pick window and just test the whole class if the cursor is on anything other than a function name.
