@@ -156,9 +156,13 @@ export class TestRunner {
         return null;
     }
 
-    private execPhpUnit(execPath, args, putFsPathIntoArgs = true)
+    private execPhpUnit(execPath: string, args: string[], putFsPathIntoArgs: boolean = true)
     {
-        this.lastCommand = {execPath: execPath, args: args, putFsPathIntoArgs: putFsPathIntoArgs};
+        this.lastCommand = {
+            execPath: execPath,
+            args: args.slice(),
+            putFsPathIntoArgs: putFsPathIntoArgs
+        };
 
         if (putFsPathIntoArgs)
         {
@@ -214,7 +218,7 @@ export class TestRunner {
 }
 
 class Command {
-    public execPath: String;
-    public args: Array<String>;
+    public execPath: string;
+    public args: Array<string>;
     public putFsPathIntoArgs: boolean;
 }
