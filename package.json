@@ -28,7 +28,8 @@
     ],
     "activationEvents": [
         "onCommand:phpunit.Test",
-        "onCommand:phpunit.TestDirectory"
+        "onCommand:phpunit.TestDirectory",
+        "onCommand:phpunit.RerunLastTest"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -40,6 +41,10 @@
             {
                 "command": "phpunit.TestDirectory",
                 "title": "PHPUnit Test Directory"
+            },
+            {
+                "command": "phpunit.RerunLastTest",
+                "title": "PHPUnit Rerun last test"
             }
         ],
         "configuration": {

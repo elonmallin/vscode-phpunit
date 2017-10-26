@@ -6,6 +6,8 @@ import cp = require('child_process');
 export class TestRunner {
     private outputChannel: vscode.OutputChannel;
 
+    private lastCommand: Command;
+
     private readonly regex = {
         method: /\s*public*\s+function\s+(\w*)\s*\(/gi,
         class: /class\s+(\w*)\s*{?/gi
@@ -26,6 +28,19 @@ export class TestRunner {
             this.execTest(`${currentDir}`);
         } else {
             console.error("Couldn't determine directory. Make sure you have a file open in the directory you want to test.");
+        }
+    }
+
+    public rerunLastTest()
+    {
+        if (this.lastCommand == null)
+        {
+            this.outputChannel.appendLine("No test was run yet.");
+            this.outputChannel.show();
+        }
+        else
+        {
+            this.execPhpUnit(this.lastCommand.execPath, this.lastCommand.args, this.lastCommand.putFsPathIntoArgs);
         }
     }
 
@@ -141,8 +156,14 @@ export class TestRunner {
         return null;
     }
 
-    private execPhpUnit(execPath, args, putFsPathIntoArgs = true)
+    private execPhpUnit(execPath: string, args: string[], putFsPathIntoArgs: boolean = true)
     {
+        this.lastCommand = {
+            execPath: execPath,
+            args: args.slice(),
+            putFsPathIntoArgs: putFsPathIntoArgs
+        };
+
         if (putFsPathIntoArgs)
         {
             args.push(vscode.window.activeTextEditor.document.uri.fsPath);
@@ -194,4 +215,10 @@ export class TestRunner {
     
         return result;
     }
+}
+
+class Command {
+    public execPath: string;
+    public args: Array<string>;
+    public putFsPathIntoArgs: boolean;
 }

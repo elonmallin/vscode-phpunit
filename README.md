@@ -35,6 +35,10 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 
 ![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)
 
+* **Rerun last Test**: Run the `PHPUnit Rerun last test` command. Is also possible set a keybinding to run this command:
+```
+{ "key": "cmd+shift+r", "command": "phpunit.RerunLastTest", "when": "editorFocus" }
+```
 ## Notes / Tips / Advanced
 * **execPath** is recommended to set in your 'user settings'. Having phpunit in PATH doesn't work (at least on windows 10) =(.
 * **args** is recommended to set in your 'workspace settings'. You can add any phpunit args, check phpunit --help.
