@@ -1,3 +1,6 @@
+# [v2.2.1](https://github.com/elonmallin/vscode-phpunit/releases/tag/v2.2.1)
+- Add command `phpunit.RerunLastCommand`. Will run the last command again and can be bound to hotkey.
+
 # [v2.1.1](https://github.com/elonmallin/vscode-phpunit/releases/tag/v2.1.1)
 - **Bugfix:** Function tests again allows `@test` docblocks and not just `test*` prefix.
 
