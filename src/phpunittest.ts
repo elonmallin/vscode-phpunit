@@ -214,12 +214,11 @@ export class TestRunner {
             currentPath = currentPath.replace(/(\/[^\/]*)$/, '');
         }
 
-        let existsXml = fs.existsSync(`${currentPath}/phpunit.xml`);
+        let phpUnitComposerBinFile = `${currentPath}/vendor/bin/phpunit`;
 
-        if (existsXml)
+        if (fs.existsSync(phpUnitComposerBinFile))
         {
-            execPath = `${currentPath}/vendor/bin/phpunit`;
-            this.execPhpUnit(execPath, args, putFsPathIntoArgs);
+            this.execPhpUnit(phpUnitComposerBinFile, args, putFsPathIntoArgs);
         }
         else if (currentPath != rootPath)
         {
@@ -227,7 +226,7 @@ export class TestRunner {
         }
         else
         {
-            vscode.window.showErrorMessage('Couldn\'t find a phpunit.xml');
+            vscode.window.showErrorMessage('Couldn\'t find a vendor/bin/phpunit file');
         }
     }
 
