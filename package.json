@@ -28,6 +28,7 @@
     ],
     "activationEvents": [
         "onCommand:phpunit.Test",
+        "onCommand:phpunit.TestNearest",
         "onCommand:phpunit.TestDirectory",
         "onCommand:phpunit.RerunLastTest"
     ],
@@ -37,6 +38,10 @@
             {
                 "command": "phpunit.Test",
                 "title": "PHPUnit Test"
+            },
+            {
+                "command": "phpunit.TestNearest",
+                "title": "PHPUnit Test Nearest"
             },
             {
                 "command": "phpunit.TestDirectory",
@@ -51,6 +56,11 @@
             "type": "object",
             "title": "PHPUnit Configuration",
             "properties": {
+                "phpunit.composer": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use the closest PHPUnit composer installation."
+                },
                 "phpunit.execPath": {
                     "type": "string",
                     "default": "phpunit",

@@ -2,6 +2,7 @@
 
 import * as vscode from 'vscode';
 import cp = require('child_process');
+const fs = require('fs');
 
 export class TestRunner {
     private outputChannel: vscode.OutputChannel;
@@ -19,6 +20,10 @@ export class TestRunner {
 
     public runTest() {
         this.execTest(null);
+    }
+
+    public runNearestTest() {
+        this.execTest(null, true);
     }
 
     public runTestDirectory() {
@@ -44,10 +49,9 @@ export class TestRunner {
         }
     }
 
-    private execTest(directory: string)
+    private execTest(directory: string, nearest = false)
     {
         let config = vscode.workspace.getConfiguration("phpunit");
-        let execPath = config.get<string>("execPath", "phpunit");
         let configArgs = config.get<Array<string>>("args", []);
         let preferRunClassTestOverQuickPickWindow = config.get<Boolean>("preferRunClassTestOverQuickPickWindow", false);
 
@@ -55,19 +59,19 @@ export class TestRunner {
 
         const editor = vscode.window.activeTextEditor;
         let range = editor ? editor.document.getWordRangeAtPosition(editor.selection.active) : null;
-        
+
         if (directory != null && directory != "")
         {
             args.push(directory);
 
             // Run directory test.
-            this.execPhpUnit(execPath, args, false);
+            this.resolvePhpUnit(args, false);
             return;
         }
         else if (!editor)
         {
             // Run test according to --configuration flag.
-            this.execPhpUnit(execPath, args, false);
+            this.resolvePhpUnit(args, false);
             return;
         }
         else if (range)
@@ -81,27 +85,37 @@ export class TestRunner {
             {
                 args.push("--filter");
                 args.push(wordOnCursor);
-    
+
                 // Run test on function instantly.
-                this.execPhpUnit(execPath, args);
+                this.resolvePhpUnit(args);
                 return;
             }
             else if (isClass)
             {
                 // Run test on class instantly.
-                this.execPhpUnit(execPath, args);
+                this.resolvePhpUnit(args);
                 return;
             }
         }
-        
-        if (preferRunClassTestOverQuickPickWindow)
+
+        if (!nearest && preferRunClassTestOverQuickPickWindow)
         {
             // Run test on class instantly.
-            this.execPhpUnit(execPath, args);
+            this.resolvePhpUnit(args);
             return;
         }
-        
-        var promise = this.getUserSelectedTest(editor);
+
+        var promise;
+
+        if (!nearest)
+        {
+            promise = this.getUserSelectedTest(editor);
+        }
+        else
+        {
+            promise = this.getNearestTest(editor);
+        }
+
         if (promise)
         {
             promise.then((selectedTest) => {
@@ -114,18 +128,34 @@ export class TestRunner {
                     }
 
                     // Run test selected in quick pick window.
-                    this.execPhpUnit(execPath, args);
+                    this.resolvePhpUnit(args);
                 }
             });
         }
     }
-    
+
+    private getNearestTest(editor): Thenable<any> | null
+    {
+        if (editor.document.fileName != null)
+        {
+            return new Promise((resolve, reject) => {
+                let currentTest = this.getObjectOrMethod(editor, 'method');
+
+                if (currentTest) {
+                    resolve(`function - ${currentTest}`);
+                } else {
+                    reject();
+                }
+            });
+        }
+    }
+
     private getUserSelectedTest(editor): Thenable<any> | null
     {
         if (editor.document.fileName != null)
         {
             let testFunctions = [];
-            
+
             {
                 let currentTest = this.getObjectOrMethod(editor, 'method');
                 if (currentTest)
@@ -133,31 +163,77 @@ export class TestRunner {
                     testFunctions.push('function - ' + currentTest);
                 }
             }
-    
+
             testFunctions.push('class - ' + this.getObjectOrMethod(editor, 'class'));
-    
+
             let windowText = editor.document.getText();
             let startPosition = editor.selection.active.line;
             let result = null;
-    
+
             while ((result = this.regex.method.exec(windowText)))
             {
                 let testToAdd = result[1].toString().trim();
-    
+
                 if (!testFunctions.length || testFunctions[0] != testToAdd)
                 {
                     testFunctions.push('function - ' + testToAdd);
                 }
             }
-    
+
             return vscode.window.showQuickPick(testFunctions, {});
         }
 
         return null;
     }
 
+    private resolvePhpUnit(args: string[], putFsPathIntoArgs: boolean = true)
+    {
+        let config = vscode.workspace.getConfiguration("phpunit");
+        let execPath = config.get<string>("execPath", "phpunit");
+
+        if (config.get<Boolean>("composer", true)) {
+            this.execThroughComposer(execPath, args, putFsPathIntoArgs);
+        }
+        else
+        {
+            this.execPhpUnit(execPath, args, putFsPathIntoArgs);
+        }
+    }
+
+    private execThroughComposer(execPath: string, args: string[], putFsPathIntoArgs: boolean, currentPath = '')
+    {
+        let rootPath = vscode.workspace.rootPath;
+
+        if (currentPath == '')
+        {
+            let filePath = vscode.window.activeTextEditor.document.uri.path;
+            currentPath = filePath.replace(/(\/[^\/]*\.[^\/]+)$/, '');
+        }
+        else
+        {
+            currentPath = currentPath.replace(/(\/[^\/]*)$/, '');
+        }
+
+        let existsXml = fs.existsSync(`${currentPath}/phpunit.xml`);
+
+        if (existsXml)
+        {
+            execPath = `${currentPath}/vendor/bin/phpunit`;
+            this.execPhpUnit(execPath, args, putFsPathIntoArgs);
+        }
+        else if (currentPath != rootPath)
+        {
+            this.execThroughComposer(execPath, args, putFsPathIntoArgs, currentPath);
+        }
+        else
+        {
+            vscode.window.showErrorMessage('Couldn\'t find a phpunit.xml');
+        }
+    }
+
     private execPhpUnit(execPath: string, args: string[], putFsPathIntoArgs: boolean = true)
     {
+        this.outputChannel.clear();
         this.lastCommand = {
             execPath: execPath,
             args: args.slice(),
@@ -168,10 +244,10 @@ export class TestRunner {
         {
             args.push(vscode.window.activeTextEditor.document.uri.fsPath);
         }
-    
+
         let phpunitProcess = cp.spawn(execPath, args, { cwd: vscode.workspace.rootPath });
         this.outputChannel.appendLine(execPath + ' ' + args.join(' '));
-    
+
         phpunitProcess.stderr.on("data", (buffer: Buffer) => {
             this.outputChannel.append(buffer.toString());
         });
@@ -188,31 +264,31 @@ export class TestRunner {
         {
             throw new Error('Invalid type property passed: ' + type);
         }
-    
+
         let regexToUse = this.regex[type];
         let result = undefined;
         let position = 0;
         let modifier = 1;
-    
+
         if (type === 'method')
         {
             position = editor.selection.active.line;
             modifier = -1;
-        }  
-    
+        }
+
         while (result === undefined && position > -1)
         {
             let line = editor.document.lineAt(position);
             let regexResult = null;
-    
+
             if ((regexResult = regexToUse.exec(line.text)))
             {
                 result = regexResult[1].toString().trim();
             }
-    
+
             position += modifier;
         }
-    
+
         return result;
     }
 }
