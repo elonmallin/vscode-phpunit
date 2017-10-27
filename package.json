@@ -56,15 +56,10 @@
             "type": "object",
             "title": "PHPUnit Configuration",
             "properties": {
-                "phpunit.composer": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Use the closest PHPUnit composer installation."
-                },
                 "phpunit.execPath": {
                     "type": "string",
-                    "default": "phpunit",
-                    "description": "Path to phpunit executable."
+                    "default": "",
+                    "description": "Path to phpunit executable (try to use composer if empty)."
                 },
                 "phpunit.args": {
                     "type": "array",

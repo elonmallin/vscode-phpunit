@@ -191,7 +191,7 @@ export class TestRunner {
         let config = vscode.workspace.getConfiguration("phpunit");
         let execPath = config.get<string>("execPath", "phpunit");
 
-        if (config.get<Boolean>("composer", true)) {
+        if (execPath == "") {
             this.execThroughComposer(execPath, args, putFsPathIntoArgs);
         }
         else
