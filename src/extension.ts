@@ -12,6 +12,10 @@ export function activate(context: ExtensionContext) {
 		PHPUnitTestRunner.runTest();
 	}));
 
+	context.subscriptions.push(commands.registerCommand('phpunit.TestNearest', () => {
+		PHPUnitTestRunner.runNearestTest();
+	}));
+
 	context.subscriptions.push(commands.registerCommand('phpunit.TestDirectory', () => {
 		PHPUnitTestRunner.runTestDirectory()
 	}));
