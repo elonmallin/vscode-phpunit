@@ -206,12 +206,12 @@ export class TestRunner {
 
         if (currentPath == '')
         {
-            let filePath = vscode.window.activeTextEditor.document.uri.path;
-            currentPath = filePath.replace(/(\/[^\/]*\.[^\/]+)$/, '');
+            let filePath = vscode.window.activeTextEditor.document.uri.fsPath;
+            currentPath = filePath.replace(/([\\\/][^\\\/]*\.[^\\\/]+)$/, '');
         }
         else
         {
-            currentPath = currentPath.replace(/(\/[^\/]*)$/, '');
+            currentPath = currentPath.replace(/[\\\/][^\\\/]*$/, '');
         }
 
         let phpUnitComposerBinFile = `${currentPath}/vendor/bin/phpunit`;
