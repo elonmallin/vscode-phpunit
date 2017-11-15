@@ -70,6 +70,36 @@ export class TestRunner {
             this.execPhpUnit(execPath, args, false);
             return;
         }
+        else if ('xml' === editor.document.languageId && editor.document.uri.path.match(/phpunit\.xml(\.dist)?$/)) 
+        {
+            args = this.addArgument( args, '--configuration', editor.document.uri.fsPath );
+            let testSuites = editor.document.getText().match( /<testsuite[^>]+name="[^"]+">/g );
+            if ( testSuites ) {
+                testSuites = testSuites.map((v) => v.match(/name="([^"]+)"/)[1]);
+                if ( 1 < testSuites.length ) {
+                    let promise = vscode.window.showQuickPick( testSuites, {
+                        placeHolder: 'Choose one of the defined testsuites',
+                    } );
+                    if ( promise ) {
+                        promise.then((selectedSuite) => {
+                            args = this.addArgument( args, '--testsuite', selectedSuite );
+                            this.outputChannel.appendLine( 'Running phpunit with currently open configuration and testsuite "' + selectedSuite + '"' );
+                            // Run test with new --configuration flag and the selected testsuite.
+                            this.execPhpUnit(execPath, args, false);
+                        });
+                        return;
+                    }
+                }
+                this.outputChannel.appendLine( 'Running phpunit with currently open configuration and testsuite "' + testSuites[0] + '"' );
+                // Run test with new --configuration flag and found testsuite.
+                this.execPhpUnit(execPath, args, false);
+                return;
+            }
+            this.outputChannel.appendLine( 'Running phpunit with currently open configuration' );
+            // Run test with new --configuration flag.
+            this.execPhpUnit(execPath, args, false);
+            return;
+        }
         else if (range)
         {
             let line = editor.document.lineAt(range.start.line);
@@ -118,6 +148,26 @@ export class TestRunner {
                 }
             });
         }
+    }
+    
+    private addArgument( args: string[], newArg: string, subsequentArgs ): string[]
+    {
+        let argPosition = args.indexOf( newArg );
+        subsequentArgs = subsequentArgs || [];
+        if ( !Array.isArray(subsequentArgs) ) {
+            subsequentArgs = [subsequentArgs];
+        }
+        if (-1 !== argPosition) {
+            Array.prototype.splice.apply(args,[
+                argPosition,
+                1 + subsequentArgs.length,
+                newArg
+            ].concat( subsequentArgs ));
+        } else {
+            args.push( newArg );
+            args.concat( subsequentArgs );
+        }
+        return args;
     }
     
     private getUserSelectedTest(editor): Thenable<any> | null
