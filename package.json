@@ -58,7 +58,7 @@
       "properties": {
         "phpunit.driverPriority": {
           "type": "array",
-          "default": ["AbsolutePath", "Composer", "Phar", "GlobalPhpUnit", "Docker", "Ssh"],
+          "default": ["AbsolutePath", "Composer", "Phar", "Docker", "Ssh", "GlobalPhpUnit"],
           "description": "Set the priority of drivers to try and run phpunit with. The drivers will try and find phpunit in common places."
         },
         "phpunit.php": {
