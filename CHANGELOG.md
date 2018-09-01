@@ -1,3 +1,9 @@
+# [v3.0.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v3.0.0)
+- Now uses global php if not set at `phpunit.php` (previously `phpunit.execPath`)
+  - `phpunit.execPath` still works for backwardscompatibility but is deprecated.
+- Now tries to find phpunit in the project folder (composers vendor dir and .phar files).
+- Will clear the output after each run (option: `clearOutputOnRun` default=true).
+
 # [v2.2.1](https://github.com/elonmallin/vscode-phpunit/releases/tag/v2.2.1)
 - Add command `phpunit.RerunLastCommand`. Will run the last command again and can be bound to hotkey.
 
