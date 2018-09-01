@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as fs from 'fs';
+import * as path from 'path';
 import * as cmdExists from 'command-exists';
 import * as escapeRegexp from 'escape-string-regexp';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
 
-export default class AbsolutePath implements PhpUnitDriverInterface {
-    name: string = 'AbsolutePath';
+export default class Path implements PhpUnitDriverInterface {
+    name: string = 'Path';
     private _phpPath: string;
     private _phpUnitPath: string;
 
@@ -71,7 +72,18 @@ export default class AbsolutePath implements PhpUnitDriverInterface {
                         }
                         else
                         {
-                            resolve();
+                            const absPhpUnitPath = path.join(vscode.workspace.rootPath, phpUnitPath)
+                            fs.exists(absPhpUnitPath, (exists) => {
+                                if (exists)
+                                {
+                                    this._phpUnitPath = absPhpUnitPath;
+                                    resolve(this._phpUnitPath);
+                                }
+                                else
+                                {
+                                    resolve();
+                                }
+                            });
                         }
                     });
                 }

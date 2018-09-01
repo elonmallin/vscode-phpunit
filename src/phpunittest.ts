@@ -171,7 +171,7 @@ export class TestRunner {
 
     async getDriver(order?: string[]): Promise<PhpUnitDriverInterface> {
         const drivers: PhpUnitDriverInterface[] = [
-            new PhpUnitDrivers.AbsolutePath(),
+            new PhpUnitDrivers.Path(),
             new PhpUnitDrivers.Composer(),
             new PhpUnitDrivers.Phar(),
             new PhpUnitDrivers.GlobalPhpUnit(),

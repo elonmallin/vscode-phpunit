@@ -1,7 +1,7 @@
 'use strict';
 
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
-import AbsolutePath from './AbsolutePathDriver';
+import Path from './PathDriver';
 import Composer from './ComposerDriver';
 import Phar from './PharDriver';
 import GlobalPhpUnit from './GlobalPhpUnitDriver';
@@ -10,7 +10,7 @@ import Ssh from './SshDriver';
 import Legacy from './LegacyDriver';
 
 export default {
-    AbsolutePath,
+    Path,
     Composer,
     Phar,
     GlobalPhpUnit,
