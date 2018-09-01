@@ -2,16 +2,18 @@
 # Phpunit for VSCode
 ## Setup
 * Install [phpunit](https://phpunit.de/).
-* Set the config values:
+* Config:
 ```JSON
 {
-    "phpunit.execPath": "path/to/phpunit",
+    "phpunit.php": "absolute/path/to/php",
+    "phpunit.phpunit": "path/to/phpunit",
     "phpunit.args": [
         "--configuration", "./phpunit.xml.dist"
-    ],
-    "phpunit.preferRunClassTestOverQuickPickWindow": false // Default false
+    ]
 }
 ```
+> No config needed if you have php in you environment variables and phpunit in your project (composers vendor dir or .phar file).
+See the configuration section in [package.json](package.json) for all values and their descriptions.
 
 ## How to use
 Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execute the `PHPUnit Test` command.
