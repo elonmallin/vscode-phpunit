@@ -211,6 +211,11 @@ export class TestRunner {
         const driver = await this.getDriver(order);
         if (driver)
         {
+            if (config.get<string>('clearOutputOnRun'))
+            {
+                this.channel.clear();
+            }
+            
             const configArgs = config.get<Array<string>>('args', []);
             const preferRunClassTestOverQuickPickWindow = config.get<Boolean>('preferRunClassTestOverQuickPickWindow', false);
 
