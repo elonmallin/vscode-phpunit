@@ -1,13 +1,17 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import cp = require('child_process');
-import * as fs from 'fs';
 import PhpUnitDriverInterface from './Drivers/PhpUnitDriverInterface';
 import PhpUnitDrivers from './Drivers/PhpUnitDrivers';
 import parsePhpToObject from './PhpParser';
 
 type RunType = 'test' | 'directory' | 'rerun-last-test' | 'nearest-test';
+
+class Command {
+    public execPath: string;
+    public args: Array<string>;
+    public putFsPathIntoArgs: boolean;
+}
 
 export class TestRunner {
     lastContextArgs: string[];
@@ -243,10 +247,4 @@ export class TestRunner {
             console.error(`Wasn't able to start phpunit.`);
         }
     }
-}
-
-class Command {
-    public execPath: string;
-    public args: Array<string>;
-    public putFsPathIntoArgs: boolean;
 }
