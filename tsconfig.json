@@ -12,5 +12,8 @@
     "exclude": [
         "node_modules",
         ".vscode-test"
-    ]
+    ],
+    "typeAcquisition": {
+        "enable": true
+    }
 }

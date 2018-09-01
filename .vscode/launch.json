@@ -13,7 +13,8 @@
 			"outFiles": [
 				"${workspaceRoot}/out/**/*.js"
 			],
-			"preLaunchTask": "npm"
+			"preLaunchTask": "npm",
+			"smartStep": true
 		},
 		{
 			"name": "Launch Tests",

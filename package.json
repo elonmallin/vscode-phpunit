@@ -1,90 +1,106 @@
 {
-    "name": "phpunit",
-    "displayName": "PHPUnit",
-    "description": "Run PHPUnit tests from VSCode.",
-    "version": "2.2.1",
-    "publisher": "emallin",
-    "icon": "images/phpunit.png",
-    "engines": {
-        "vscode": "^1.13.0"
-    },
-    "categories": [
-        "Other"
+  "name": "phpunit",
+  "displayName": "PHPUnit",
+  "description": "Run PHPUnit tests from VSCode.",
+  "version": "2.2.1",
+  "publisher": "emallin",
+  "icon": "images/phpunit.png",
+  "engines": {
+    "vscode": "^1.13.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elonmallin/vscode-phpunit"
+  },
+  "homepage": "https://github.com/elonmallin/vscode-phpunit/blob/master/README.md",
+  "bugs": {
+    "url": "https://github.com/elonmallin/vscode-phpunit/issues"
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "keywords": [
+    "phpunit",
+    "test",
+    "unittest",
+    "php"
+  ],
+  "activationEvents": [
+    "onCommand:phpunit.Test",
+    "onCommand:phpunit.TestNearest",
+    "onCommand:phpunit.TestDirectory",
+    "onCommand:phpunit.RerunLastTest"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "phpunit.Test",
+        "title": "PHPUnit Test"
+      },
+      {
+        "command": "phpunit.TestNearest",
+        "title": "PHPUnit Test Nearest"
+      },
+      {
+        "command": "phpunit.TestDirectory",
+        "title": "PHPUnit Test Directory"
+      },
+      {
+        "command": "phpunit.RerunLastTest",
+        "title": "PHPUnit Rerun last test"
+      }
     ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/elonmallin/vscode-phpunit"
-    },
-    "homepage": "https://github.com/elonmallin/vscode-phpunit/blob/master/README.md",
-    "bugs": {
-        "url": "https://github.com/elonmallin/vscode-phpunit/issues"
-    },
-    "license": "SEE LICENSE IN LICENSE.md",
-    "keywords": [
-        "phpunit",
-        "test",
-        "unittest",
-        "php"
-    ],
-    "activationEvents": [
-        "onCommand:phpunit.Test",
-        "onCommand:phpunit.TestNearest",
-        "onCommand:phpunit.TestDirectory",
-        "onCommand:phpunit.RerunLastTest"
-    ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "commands": [
-            {
-                "command": "phpunit.Test",
-                "title": "PHPUnit Test"
-            },
-            {
-                "command": "phpunit.TestNearest",
-                "title": "PHPUnit Test Nearest"
-            },
-            {
-                "command": "phpunit.TestDirectory",
-                "title": "PHPUnit Test Directory"
-            },
-            {
-                "command": "phpunit.RerunLastTest",
-                "title": "PHPUnit Rerun last test"
-            }
-        ],
-        "configuration": {
-            "type": "object",
-            "title": "PHPUnit Configuration",
-            "properties": {
-                "phpunit.execPath": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Path to phpunit executable (try to use composer if empty)."
-                },
-                "phpunit.args": {
-                    "type": "array",
-                    "default": [],
-                    "description": "Any phpunit args (phpunit --help)"
-                },
-                "phpunit.preferRunClassTestOverQuickPickWindow": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If we should test the whole class instead of showing the quick pick window when cursor is on anything but a function name."
-                }
-            }
+    "configuration": {
+      "type": "object",
+      "title": "PHPUnit Configuration",
+      "properties": {
+        "phpunit.driverPriority": {
+          "type": "array",
+          "default": ["AbsolutePath", "Composer", "Phar", "GlobalPhpUnit", "Docker", "Ssh"],
+          "description": "Set the priority of drivers to try and run phpunit with. The drivers will try and find phpunit in common places."
+        },
+        "phpunit.php": {
+          "type": "string",
+          "description": "Path to php. Fallback to global php if it exists on the command line."
+        },
+        "phpunit.phpunit": {
+          "type": "string",
+          "description": "Path to phpunit. Can be a php file or phpunit.phar.\n\nIf you're lucky, it will be found in common places:\n  - Composer vendor directory\n  - phpunit.phar in your project\n  - phpunit|phpunit.bat globally on the command line"
+        },
+        "phpunit.args": {
+          "type": "array",
+          "default": [],
+          "description": "Any phpunit args (phpunit --help)"
+        },
+        "phpunit.preferRunClassTestOverQuickPickWindow": {
+          "type": "boolean",
+          "default": false,
+          "description": "If we should test the whole class instead of showing the quick pick window when cursor is on anything but a function name."
+        },
+        "phpunit.execPath": {
+          "type": "string",
+          "description": "DEPRECATED: Use phpunit.php and phpunit.phpunit instead."
         }
-    },
-    "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "typescript": "^2.0.3",
-        "vscode": "^1.0.0",
-        "mocha": "^2.3.3",
-        "@types/node": "^6.0.40",
-        "@types/mocha": "^2.2.32"
+      }
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0",
+    "mocha": "^2.3.3",
+    "@types/node": "^6.0.40",
+    "@types/mocha": "^2.2.32"
+  },
+  "dependencies": {
+    "command-exists": "^1.2.2",
+    "escape-string-regexp": "^1.0.5"
+  }
 }
