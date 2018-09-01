@@ -9,19 +9,19 @@ export function activate(context: ExtensionContext) {
 	let PHPUnitTestRunner: TestRunner = new TestRunner(outputChannel);
 
 	context.subscriptions.push(commands.registerCommand('phpunit.Test', () => {
-		PHPUnitTestRunner.runTest();
+		PHPUnitTestRunner.run('test');
 	}));
 
 	context.subscriptions.push(commands.registerCommand('phpunit.TestNearest', () => {
-		PHPUnitTestRunner.runNearestTest();
+		PHPUnitTestRunner.run('nearest-test');
 	}));
 
 	context.subscriptions.push(commands.registerCommand('phpunit.TestDirectory', () => {
-		PHPUnitTestRunner.runTestDirectory()
+		PHPUnitTestRunner.run('directory')
 	}));
 
 	context.subscriptions.push(commands.registerCommand('phpunit.RerunLastTest', () => {
-		PHPUnitTestRunner.rerunLastTest()
+		PHPUnitTestRunner.run('rerun-last-test')
 	}));
 }
 

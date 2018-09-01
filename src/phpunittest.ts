@@ -224,7 +224,7 @@ export class TestRunner {
             {
                 this.lastContextArgs = contextArgs;
                 const runArgs = this.lastContextArgs.concat(configArgs);
-                
+
                 this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
                 const process = await driver.run(this.channel, runArgs);
     
@@ -242,41 +242,6 @@ export class TestRunner {
         {
             console.error(`Wasn't able to start phpunit.`);
         }
-    }
-
-    public async runTest() {
-        //this.execTest(null);
-        this.run('test');
-    }
-
-    public runNearestTest() {
-        //this.execTest(null, true);
-        this.run('nearest-test');
-    }
-
-    public runTestDirectory() {
-        this.run('directory');
-        /*const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            let currentDir = editor.document.uri.fsPath.replace(/(\/|\\)\w*\.php$/i, '');
-            this.execTest(`${currentDir}`);
-        } else {
-            console.error("Couldn't determine directory. Make sure you have a file open in the directory you want to test.");
-        }*/
-    }
-
-    public rerunLastTest()
-    {
-        this.run('rerun-last-test');
-        /*if (this.lastCommand == null)
-        {
-            this.outputChannel.appendLine("No test was run yet.");
-            this.outputChannel.show();
-        }
-        else
-        {
-            this.execPhpUnit(this.lastCommand.execPath, this.lastCommand.args, this.lastCommand.putFsPathIntoArgs);
-        }*/
     }
 
     private execTest(directory: string, nearest = false)
