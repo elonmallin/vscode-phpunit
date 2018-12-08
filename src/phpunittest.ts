@@ -239,7 +239,7 @@ export class TestRunner {
                     this.channel.append(buffer.toString());
                 });
     
-                this.channel.show();
+                this.channel.show(true);
             }
         }
         else
