@@ -30,7 +30,8 @@
     "onCommand:phpunit.Test",
     "onCommand:phpunit.TestNearest",
     "onCommand:phpunit.TestDirectory",
-    "onCommand:phpunit.RerunLastTest"
+    "onCommand:phpunit.RerunLastTest",
+    "onCommand:phpunit.TestingStop"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -50,6 +51,10 @@
       {
         "command": "phpunit.RerunLastTest",
         "title": "PHPUnit Rerun last test"
+      },
+      {
+        "command": "phpunit.TestingStop",
+        "title": "PHPUnit Stop Running Test"
       }
     ],
     "configuration": {
@@ -58,7 +63,14 @@
       "properties": {
         "phpunit.driverPriority": {
           "type": "array",
-          "default": ["Path", "Composer", "Phar", "Docker", "Ssh", "GlobalPhpUnit"],
+          "default": [
+            "Path",
+            "Composer",
+            "Phar",
+            "Docker",
+            "Ssh",
+            "GlobalPhpUnit"
+          ],
           "description": "Set the priority of drivers to try and run phpunit with. The drivers will try and find phpunit in common places."
         },
         "phpunit.php": {
