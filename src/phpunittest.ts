@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import PhpUnitDriverInterface from './Drivers/PhpUnitDriverInterface';
 import PhpUnitDrivers from './Drivers/PhpUnitDrivers';
 import parsePhpToObject from './PhpParser';
+import { ChildProcess } from 'child_process';
 
 type RunType = 'test' | 'directory' | 'rerun-last-test' | 'nearest-test';
 
@@ -17,6 +18,7 @@ export class TestRunner {
     lastContextArgs: string[];
     channel: vscode.OutputChannel;
     lastCommand: Command;
+    childProcess: ChildProcess;
 
     readonly regex = {
         method: /\s*public*\s+function\s+(\w*)\s*\(/gi,
@@ -230,12 +232,12 @@ export class TestRunner {
                 const runArgs = this.lastContextArgs.concat(configArgs);
 
                 this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
-                const process = await driver.run(this.channel, runArgs);
+                this.childProcess = await driver.run(this.channel, runArgs);
     
-                process.stderr.on('data', (buffer: Buffer) => {
+                this.childProcess.stderr.on('data', (buffer: Buffer) => {
                     this.channel.append(buffer.toString());
                 });
-                process.stdout.on('data', (buffer: Buffer) => {
+                this.childProcess.stdout.on('data', (buffer: Buffer) => {
                     this.channel.append(buffer.toString());
                 });
     
@@ -245,6 +247,15 @@ export class TestRunner {
         else
         {
             console.error(`Wasn't able to start phpunit.`);
+        }
+    }
+
+    stop() {
+        if (this.childProcess !== undefined)
+        {
+            this.childProcess.kill('SIGINT');
+            this.channel.append("\nTesting Stop\n");
+            this.channel.show();
         }
     }
 }

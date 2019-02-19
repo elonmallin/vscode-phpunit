@@ -23,6 +23,10 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(commands.registerCommand('phpunit.RerunLastTest', () => {
 		PHPUnitTestRunner.run('rerun-last-test')
 	}));
+
+	context.subscriptions.push(commands.registerCommand('phpunit.TestingStop', () => {
+		PHPUnitTestRunner.stop();
+	}));
 }
 
 // this method is called when your extension is deactivated
