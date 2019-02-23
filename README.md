@@ -12,7 +12,7 @@
     ]
 }
 ```
-> No config needed if you have php in you environment variables and phpunit in your project (composers vendor dir or .phar file).
+> **No config** needed if you have **php** or **docker** in you environment variables and **phpunit** in your project (composers vendor dir or .phar file).
 See the configuration section in [package.json](package.json) for all values and their descriptions.
 
 ## How to use

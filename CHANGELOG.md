@@ -1,3 +1,8 @@
+# [v3.1.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v3.1.0)
+- Can now run php through docker. Will look for phpunit in all normal places (path, composer, phar).
+- Add Stop running phpunit command (kill process).
+- **Bugfix:** Prevent output window from stealing focus
+
 # [v3.0.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v3.0.0)
 - Now uses global php if not set at `phpunit.php` (previously `phpunit.execPath`)
   - `phpunit.execPath` still works for backwardscompatibility but is deprecated.
