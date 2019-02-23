@@ -24,7 +24,8 @@
     "phpunit",
     "test",
     "unittest",
-    "php"
+    "php",
+    "docker"
   ],
   "activationEvents": [
     "onCommand:phpunit.Test",
