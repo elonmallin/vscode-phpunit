@@ -41,7 +41,6 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 ```
 { "key": "cmd+shift+r", "command": "phpunit.RerunLastTest", "when": "editorFocus" }
 ```
-## Notes / Tips / Advanced
-* **execPath** is recommended to set in your 'user settings'. Having phpunit in PATH doesn't work (at least on windows 10) =(.
+## Notes
 * **args** is recommended to set in your 'workspace settings'. You can add any phpunit args, check phpunit --help.
 * To hook into the debugger ([github.com/felixfbecker/vscode-php-debug](https://github.com/felixfbecker/vscode-php-debug)). Add Key:`XDEBUG_CONFIG`, Value:`idekey=VSCODE` to your environment variables. (Tested on Windows 10)
