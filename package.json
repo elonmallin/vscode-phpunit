@@ -6,7 +6,7 @@
   "publisher": "emallin",
   "icon": "images/phpunit.png",
   "engines": {
-    "vscode": "^1.13.0"
+    "vscode": "^1.27.0"
   },
   "categories": [
     "Other"
@@ -102,7 +102,67 @@
           "description": "DEPRECATED: Use phpunit.php and phpunit.phpunit instead."
         }
       }
-    }
+    },
+    "problemMatchers": [
+      {
+        "name": "phpunit",
+        "owner": "php",
+        "fileLocation": "absolute",
+        "pattern": [
+          {
+            "regexp": "^\\d+\\)\\s.*$"
+          },
+          {
+            "regexp": "^(.*)$",
+            "message": 1
+          },
+          {
+            "regexp": "[\\r\\n]*"
+          },
+          {
+            "regexp": "^(.*):(\\d+)$",
+            "file": 1,
+            "location": 2
+          }
+        ]
+      },
+      {
+        "name": "phpunit-docker",
+        "owner": "php",
+        "fileLocation": "relative",
+        "pattern": [
+          {
+            "regexp": "^\\d+\\)\\s.*$"
+          },
+          {
+            "regexp": "^(.*)$",
+            "message": 1
+          },
+          {
+            "regexp": "[\\r\\n]*"
+          },
+          {
+            "regexp": "^/app/(.*):(\\d+)$",
+            "file": 1,
+            "location": 2
+          }
+        ]
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "phpunit",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "The task to execute"
+          }
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",

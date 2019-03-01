@@ -9,4 +9,8 @@ export default class Ssh implements PhpUnitDriverInterface {
     public async isInstalled(): Promise<boolean> {
         return false;
     }
+
+    phpUnitPath(): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
 }

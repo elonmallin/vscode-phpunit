@@ -1,25 +1,24 @@
 import * as vscode from 'vscode';
-import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as cmdExists from 'command-exists';
-import * as escapeRegexp from 'escape-string-regexp';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
+import { ExtensionBootstrapBridge } from '../ExtensionBootstrapBridge';
 
 export default class Path implements PhpUnitDriverInterface {
     name: string = 'Path';
     private _phpPath: string;
     private _phpUnitPath: string;
 
-    public async run(channel: vscode.OutputChannel, args: string[]): Promise<cp.ChildProcess> {
+    public async run(channel: vscode.OutputChannel, args: string[], bootstrapBridge: ExtensionBootstrapBridge) {
         const execPath = await this.phpPath();
-        const execArgs = [await this.phpUnitPath()].concat(args);
+        args = [await this.phpUnitPath()].concat(args);
 
-        // Write the command that we're running to the output.
-        const trimmedExecString = [execPath].concat(execArgs).join(' ').replace(new RegExp(escapeRegexp(vscode.workspace.rootPath), 'ig'), '.');
-        channel.appendLine(trimmedExecString);
+        const command = `${execPath} ${args.join(' ')}`;
+        channel.appendLine(command);
 
-        return cp.spawn(execPath, execArgs, { cwd: vscode.workspace.rootPath });
+        bootstrapBridge.setTaskCommand(command);
+        await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
     }
 
     public async isInstalled(): Promise<boolean> {

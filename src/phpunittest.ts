@@ -5,6 +5,7 @@ import PhpUnitDriverInterface from './Drivers/PhpUnitDriverInterface';
 import PhpUnitDrivers from './Drivers/PhpUnitDrivers';
 import parsePhpToObject from './PhpParser';
 import { ChildProcess } from 'child_process';
+import { ExtensionBootstrapBridge } from './ExtensionBootstrapBridge';
 
 type RunType = 'test' | 'directory' | 'rerun-last-test' | 'nearest-test';
 
@@ -19,14 +20,16 @@ export class TestRunner {
     channel: vscode.OutputChannel;
     lastCommand: Command;
     childProcess: ChildProcess;
+    bootstrapBridge: ExtensionBootstrapBridge;
 
     readonly regex = {
         method: /\s*public*\s+function\s+(\w*)\s*\(/gi,
         class: /class\s+(\w*)\s*{?/gi
     };
 
-    constructor(channel) {
+    constructor(channel: vscode.OutputChannel, bootstrapBridge: ExtensionBootstrapBridge) {
         this.channel = channel;
+        this.bootstrapBridge = bootstrapBridge;
     }
 
     getClosestMethodAboveActiveLine(editor: vscode.TextEditor): string | null {
@@ -232,14 +235,15 @@ export class TestRunner {
                 const runArgs = this.lastContextArgs.concat(configArgs);
 
                 this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
-                this.childProcess = await driver.run(this.channel, runArgs);
+                //this.childProcess = await driver.run(this.channel, runArgs);
+                await driver.run(this.channel, runArgs, this.bootstrapBridge);
     
-                this.childProcess.stderr.on('data', (buffer: Buffer) => {
+                /*this.childProcess.stderr.on('data', (buffer: Buffer) => {
                     this.channel.append(buffer.toString());
                 });
                 this.childProcess.stdout.on('data', (buffer: Buffer) => {
                     this.channel.append(buffer.toString());
-                });
+                });*/
     
                 this.channel.show(true);
             }
@@ -250,12 +254,14 @@ export class TestRunner {
         }
     }
 
-    stop() {
-        if (this.childProcess !== undefined)
+    async stop() {
+        await vscode.commands.executeCommand('workbench.action.tasks.terminate', 'phpunit: run');
+        
+        /*if (this.childProcess !== undefined)
         {
             this.childProcess.kill('SIGINT');
             this.channel.append("\nTesting Stop\n");
             this.channel.show();
-        }
+        }*/
     }
 }

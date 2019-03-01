@@ -1,20 +1,19 @@
 import * as vscode from 'vscode';
-import * as cp from 'child_process';
-import * as escapeRegexp from 'escape-string-regexp';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
+import { ExtensionBootstrapBridge } from '../ExtensionBootstrapBridge';
 
 export default class Legacy implements PhpUnitDriverInterface {
     name: string = 'Legacy';
     _phpPath: string;
 
-    public async run(channel: vscode.OutputChannel, args: string[]) {
+    public async run(channel: vscode.OutputChannel, args: string[], bootstrapBridge: ExtensionBootstrapBridge) {
         const execPath = await this.execPath();
 
-        // Write the command that we're running to the output.
-        const trimmedExecString = [execPath].concat(args).join(' ').replace(new RegExp(escapeRegexp(vscode.workspace.rootPath), 'ig'), '.');
-        channel.appendLine(trimmedExecString);
+        const command = `${execPath} ${args.join(' ')}`;
+        channel.appendLine(command);
 
-        return cp.spawn(execPath, args, { cwd: vscode.workspace.rootPath });
+        bootstrapBridge.setTaskCommand(command);
+        await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
     }
 
     public async isInstalled(): Promise<boolean> {
@@ -30,5 +29,9 @@ export default class Legacy implements PhpUnitDriverInterface {
         const config = vscode.workspace.getConfiguration('phpunit');
         
         return this._phpPath = config.get<string>('execPath');
+    }
+
+    async phpUnitPath(): Promise<string> {
+        throw new Error("Method not implemented.");
     }
 }

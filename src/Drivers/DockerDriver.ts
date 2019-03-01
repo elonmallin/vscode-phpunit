@@ -1,29 +1,33 @@
 import * as vscode from 'vscode';
 import * as cmdExists from 'command-exists';
-import * as cp from 'child_process';
 import * as escapeRegexp from 'escape-string-regexp';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
 import Composer from './ComposerDriver';
 import Phar from './PharDriver';
 import GlobalPhpUnit from './GlobalPhpUnitDriver';
 import Path from './PathDriver';
+import { ExtensionBootstrapBridge } from '../ExtensionBootstrapBridge';
 
 export default class Docker implements PhpUnitDriverInterface {
     name: string = 'Docker';
     private _phpUnitPath: string;
 
-    async run(channel: vscode.OutputChannel, args: string[]) {
-        const allArgs = ['run', '--rm', '-v', '${pwd}:/app', '-w', '/app', 'php', 'php', await this.phpUnitPath()]
+    async run(channel: vscode.OutputChannel, args: string[], bootstrapBridge: ExtensionBootstrapBridge) {
+        args = ['run', '--rm', '-t', '-v', '${pwd}:/app', '-w', '/app', 'php', 'php', await this.phpUnitPath()]
             .concat(args)
             .join(' ')
             .replace(new RegExp(escapeRegexp(vscode.workspace.rootPath), 'ig'), '/app')
             .replace(new RegExp(escapeRegexp('\\'), 'ig'), '/')
-            .replace('${pwd}', vscode.workspace.rootPath)
+            .replace(new RegExp(escapeRegexp('${pwd}'), 'ig'), vscode.workspace.rootPath)
             .split(' ');
-        channel.appendLine('docker ' + allArgs.join(' '));
 
-        return cp.spawn('docker', allArgs, { cwd: vscode.workspace.rootPath });
+        const command = `docker ${args.join(' ')}`;
+        channel.appendLine(command);
+
+        bootstrapBridge.setTaskCommand(command, '$phpunit-docker');
+        await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
     }
+
     public async isInstalled(): Promise<boolean> {
         try {
             let dockerExists = await cmdExists('docker') != null;
@@ -40,16 +44,45 @@ export default class Docker implements PhpUnitDriverInterface {
             return this._phpUnitPath;
         }
 
-        let pathDriver = new Path();
-        let composerDriver = new Composer();
-        let pharDriver = new Phar();
-        let globalPhpUnit = new GlobalPhpUnit();
+        const config = vscode.workspace.getConfiguration('phpunit');
+        const order = config.get<string[]>('driverPriority');
+        const drivers = await this.getDrivers(order);
 
-        this._phpUnitPath = await pathDriver.phpUnitPath()
-            || await composerDriver.phpUnitPath()
-            || await pharDriver.phpUnitPharPath()
-            || await globalPhpUnit.phpUnitPath();
+        for (let driver of drivers) {
+            this._phpUnitPath = await driver.phpUnitPath();
+            if (this._phpUnitPath) {
+                return this._phpUnitPath;
+            }
+        }
 
-        return this._phpUnitPath;
+        return null;
+    }
+
+    getDrivers(order?: string[]): PhpUnitDriverInterface[] {
+        const drivers: PhpUnitDriverInterface[] = [
+            new Path(),
+            new Composer(),
+            new Phar(),
+            new GlobalPhpUnit(),
+        ];
+
+        function arrayUnique(array) {
+            var a = array.concat();
+            for(var i=0; i<a.length; ++i) {
+                for(var j=i+1; j<a.length; ++j) {
+                    if(a[i] === a[j])
+                        a.splice(j--, 1);
+                }
+            }
+        
+            return a;
+        }
+        order = arrayUnique((order || []).concat(drivers.map(d => d.name)));
+
+        const sortedDrivers = drivers.sort((a, b) => {
+            return order.indexOf(a.name) - order.indexOf(b.name);
+        });
+
+        return sortedDrivers;
     }
 }
