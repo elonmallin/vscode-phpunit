@@ -13,7 +13,10 @@ export default class Docker implements PhpUnitDriverInterface {
     private _phpUnitPath: string;
 
     async run(channel: vscode.OutputChannel, args: string[], bootstrapBridge: ExtensionBootstrapBridge) {
-        args = ['run', '--rm', '-t', '-v', '${pwd}:/app', '-w', '/app', 'php', 'php', await this.phpUnitPath()]
+        const config = vscode.workspace.getConfiguration('phpunit');
+        const dockerImage = config.get<string>('docker.image') || 'php';
+
+        args = ['run', '--rm', '-t', '-v', '${pwd}:/app', '-w', '/app', dockerImage, 'php', await this.phpUnitPath()]
             .concat(args)
             .join(' ')
             .replace(new RegExp(escapeRegexp(vscode.workspace.rootPath), 'ig'), '/app')
