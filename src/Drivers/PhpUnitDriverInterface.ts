@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { ExtensionBootstrapBridge } from '../ExtensionBootstrapBridge';
+import { RunConfig } from '../RunConfig';
 
 export default interface PhpUnitDriverInterface {
-    run(channel: vscode.OutputChannel, args: string[], bootstrapBridge: ExtensionBootstrapBridge);
+    run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig>;
     isInstalled(): Promise<boolean>;
     phpUnitPath(): Promise<string>;
     name: string;

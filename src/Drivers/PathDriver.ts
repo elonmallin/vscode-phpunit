@@ -3,22 +3,23 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cmdExists from 'command-exists';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
-import { ExtensionBootstrapBridge } from '../ExtensionBootstrapBridge';
+import { RunConfig } from '../RunConfig';
 
 export default class Path implements PhpUnitDriverInterface {
     name: string = 'Path';
     private _phpPath: string;
     private _phpUnitPath: string;
 
-    public async run(channel: vscode.OutputChannel, args: string[], bootstrapBridge: ExtensionBootstrapBridge) {
+    public async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
         const execPath = await this.phpPath();
         args = [await this.phpUnitPath()].concat(args);
 
         const command = `${execPath} ${args.join(' ')}`;
         channel.appendLine(command);
 
-        bootstrapBridge.setTaskCommand(command);
-        await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
+        return {
+            command: command
+        };
     }
 
     public async isInstalled(): Promise<boolean> {

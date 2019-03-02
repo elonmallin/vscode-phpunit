@@ -6,13 +6,13 @@ import Composer from './ComposerDriver';
 import Phar from './PharDriver';
 import GlobalPhpUnit from './GlobalPhpUnitDriver';
 import Path from './PathDriver';
-import { ExtensionBootstrapBridge } from '../ExtensionBootstrapBridge';
+import { RunConfig } from '../RunConfig';
 
 export default class Docker implements PhpUnitDriverInterface {
     name: string = 'Docker';
     private _phpUnitPath: string;
 
-    async run(channel: vscode.OutputChannel, args: string[], bootstrapBridge: ExtensionBootstrapBridge) {
+    async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
         const config = vscode.workspace.getConfiguration('phpunit');
         const dockerImage = config.get<string>('docker.image') || 'php';
 
@@ -27,8 +27,10 @@ export default class Docker implements PhpUnitDriverInterface {
         const command = `docker ${args.join(' ')}`;
         channel.appendLine(command);
 
-        bootstrapBridge.setTaskCommand(command, '$phpunit-docker');
-        await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
+        return {
+            command: command,
+            problemMatcher: '$phpunit-docker'
+        };
     }
 
     public async isInstalled(): Promise<boolean> {

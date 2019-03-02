@@ -1,19 +1,20 @@
 import * as vscode from 'vscode';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
-import { ExtensionBootstrapBridge } from '../ExtensionBootstrapBridge';
+import { RunConfig } from '../RunConfig';
 
 export default class Legacy implements PhpUnitDriverInterface {
     name: string = 'Legacy';
     _phpPath: string;
 
-    public async run(channel: vscode.OutputChannel, args: string[], bootstrapBridge: ExtensionBootstrapBridge) {
+    public async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
         const execPath = await this.execPath();
 
         const command = `${execPath} ${args.join(' ')}`;
         channel.appendLine(command);
 
-        bootstrapBridge.setTaskCommand(command);
-        await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
+        return {
+            command: command
+        };
     }
 
     public async isInstalled(): Promise<boolean> {
