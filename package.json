@@ -68,6 +68,7 @@
             "Path",
             "Composer",
             "Phar",
+            "DockerContainer",
             "Docker",
             "Ssh",
             "GlobalPhpUnit"
@@ -99,8 +100,16 @@
         },
         "phpunit.docker.image": {
           "type": "string",
-          "description": "The docker image to use for php.",
+          "description": "Docker image to use for php.",
           "default": "php"
+        },
+        "phpunit.docker.container": {
+          "type": "string",
+          "description": "Docker container to run the unit tests in. Note that you have to set paths for this to work."
+        },
+        "phpunit.paths": {
+          "type": "object",
+          "description": "Path mappings for your virtual/remote environments. Ex: { \"local/workspace/folder\": \"docker/workspace/folder\" }"
         },
         "phpunit.execPath": {
           "type": "string",
