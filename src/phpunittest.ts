@@ -239,6 +239,7 @@ export class TestRunner {
                 const runConfig = await driver.run(this.channel, runArgs);
 
                 this.bootstrapBridge.setTaskCommand(runConfig.command, runConfig.problemMatcher);
+                await vscode.commands.executeCommand('workbench.action.terminal.clear');
                 await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
     
                 /*this.childProcess.stderr.on('data', (buffer: Buffer) => {
