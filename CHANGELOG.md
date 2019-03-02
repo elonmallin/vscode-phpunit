@@ -1,3 +1,8 @@
+# [v4.0.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.0.0)
+- **BREAKING CHANGE** Updated vscode engine version required to latest 1.27.0.
+- Add color output and show failed tests in problems pane by running a task using a problem matcher.
+- Add config property `phpunit.docker.image` for choosing docker image for DockerDriver.
+
 # [v3.1.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v3.1.0)
 - Can now run php through docker. Will look for phpunit in all normal places (path, composer, phar).
 - Add Stop running phpunit command (kill process).
