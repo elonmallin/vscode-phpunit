@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as cmdExists from 'command-exists';
 import * as escapeRegexp from 'escape-string-regexp';
+import * as DockerCmdUtils from '../DockerCmdUtils';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
 import Composer from './ComposerDriver';
 import Phar from './PharDriver';
@@ -8,16 +9,16 @@ import GlobalPhpUnit from './GlobalPhpUnitDriver';
 import Path from './PathDriver';
 import { RunConfig } from '../RunConfig';
 
-export default class DockerContainer implements PhpUnitDriverInterface {
+export default class DockerContainerAuto implements PhpUnitDriverInterface {
     name: string = 'DockerContainer';
     private _phpUnitPath: string;
+    private dockerContainer: string;
 
     async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
         const config = vscode.workspace.getConfiguration('phpunit');
-        const dockerContainer = config.get<string>('docker.container');
         const pathMappings = config.get<string>('paths');
 
-        args = ['exec', '-t', dockerContainer, 'php', await this.phpUnitPath()]
+        args = ['exec', '-t', this.dockerContainer, 'php', await this.phpUnitPath()]
             .concat(args);
 
         let argsString = args.join(' ').replace(/\\/ig, '/');
@@ -44,10 +45,24 @@ export default class DockerContainer implements PhpUnitDriverInterface {
     public async isInstalled(): Promise<boolean> {
         try {
             const config = vscode.workspace.getConfiguration('phpunit');
-            const dockerContainer = config.get<string>('docker.container');
             const pathMappings = config.get<string>('paths');
+            this.dockerContainer = config.get<string>('docker.container');
 
-            return dockerContainer
+            if (!this.dockerContainer && pathMappings) {
+                const containers = await DockerCmdUtils.default.container.ls();
+
+                if (containers.length > 0) {
+                    this.dockerContainer = await vscode.window.showQuickPick(
+                        containers.map(r => r.NAMES),
+                        { placeHolder: 'Pick a running docker container to run phpunit test in.' });
+                    
+                    if (!this.dockerContainer) {
+                        vscode.window.showInformationMessage(`No docker container selected. Skipping ${this.name} driver.`);
+                    }
+                }
+            }
+
+            return this.dockerContainer
                 && pathMappings
                 && (await cmdExists('docker') != null)
                 && (await this.phpUnitPath() != null);
@@ -72,6 +87,22 @@ export default class DockerContainer implements PhpUnitDriverInterface {
             if (this._phpUnitPath) {
                 return this._phpUnitPath;
             }
+        }
+
+        return null;
+    }
+
+    async tryFindRunningDockerContainer(): Promise<string> {
+        const findInWorkspace = async (): Promise<string> => {
+            const uris = await vscode.workspace.findFiles('**/dockerfile', '**/node_modules/**', 1);
+            return uris && uris.length > 0 ? uris[0].fsPath : null;
+        }
+
+        const uris = await vscode.workspace.findFiles('**/dockerfile', '**/node_modules/**', 1);
+        const dockerfile = uris && uris.length > 0 ? uris[0].fsPath : null;
+
+        if (dockerfile) {
+            // Parse running docker file
         }
 
         return null;
