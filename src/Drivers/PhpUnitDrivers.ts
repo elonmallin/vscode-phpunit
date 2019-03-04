@@ -9,12 +9,14 @@ import Docker from './DockerDriver';
 import Ssh from './SshDriver';
 import Legacy from './LegacyDriver';
 import DockerContainer from './DockerContainerDriver';
+import Command from './CommandDriver';
 
 export default {
     Path,
     Composer,
     Phar,
     GlobalPhpUnit,
+    Command,
     DockerContainer,
     Docker,
     Ssh,
