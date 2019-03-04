@@ -1,7 +1,17 @@
 # [v4.0.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.0.0)
 - **BREAKING CHANGE** Updated vscode engine version required to latest 1.27.0.
 - Add color output and show failed tests in problems pane by running a task using a problem matcher.
-- Add config property `phpunit.docker.image` for choosing docker image for DockerDriver.
+- Add config property `phpunit.docker.image` for choosing docker image for `DockerDriver`.
+- Add `DockerContainerDriver` to find running containers and pick from list.
+- Add `phpunit.docker.container` to set running container to use for `DockerContainerDriver`.
+- Add `phpunit.command` config for running custom commands in place of php. Such as custom docker commands.
+- Add `phpunit.paths` to map paths for virtual environments. String replace with regex will be used for all paths in this config. Ex config:
+```json
+{
+    "/local/path": "/vitual/path",
+    "/second/local/path": "/second/virtual/path"
+}
+```
 
 # [v3.1.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v3.1.0)
 - Can now run php through docker. Will look for phpunit in all normal places (path, composer, phar).
