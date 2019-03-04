@@ -14,27 +14,11 @@ export default class DockerContainerAuto implements PhpUnitDriverInterface {
     private _phpUnitPath: string;
     private dockerContainer: string;
 
-    async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
-        const config = vscode.workspace.getConfiguration('phpunit');
-        const pathMappings = config.get<string>('paths');
-
+    async run(args: string[]): Promise<RunConfig> {
         args = ['exec', '-t', this.dockerContainer, 'php', await this.phpUnitPath()]
             .concat(args);
 
-        let argsString = args.join(' ').replace(/\\/ig, '/');
-        if (pathMappings) {
-            for (let key of Object.keys(pathMappings)) {
-                const localPath = key
-                    .replace(/\$\{workspaceFolder\}/ig, vscode.workspace.rootPath)
-                    .replace(/\\/ig, '/');
-                    
-                argsString = argsString
-                    .replace(new RegExp(escapeRegexp(localPath), 'ig'), pathMappings[key]);
-            }
-        }
-
-        const command = `docker ${argsString}`;
-        channel.appendLine(command);
+        const command = `docker ${args.join(' ').replace(/\\/ig, '/')}`;
 
         return {
             command: command,

@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as cmdExists from 'command-exists';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
-import { ExtensionBootstrapBridge } from '../ExtensionBootstrapBridge';
 import { RunConfig } from '../RunConfig';
 
 export default class Composer implements PhpUnitDriverInterface {
@@ -11,7 +10,7 @@ export default class Composer implements PhpUnitDriverInterface {
     private _phpPath: string;
     private _phpUnitPath: string;
 
-    public async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
+    public async run(args: string[]): Promise<RunConfig> {
         let execPath = await this.phpUnitPath();
 
         if (os.platform() == 'win32')
@@ -21,7 +20,6 @@ export default class Composer implements PhpUnitDriverInterface {
         }
         
         const command = `${execPath} ${args.join(' ')}`;
-        channel.appendLine(command);
 
         return {
             command: command

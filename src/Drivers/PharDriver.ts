@@ -11,12 +11,11 @@ export default class Phar implements PhpUnitDriverInterface {
     _phpUnitPharPath: string;
     _hasPharExtension: boolean;
 
-    public async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
+    public async run(args: string[]): Promise<RunConfig> {
         const execPath = await this.phpPath();
         args = [await this.phpUnitPath()].concat(args);
 
         const command = `${execPath} ${args.join(' ')}`;
-        channel.appendLine(command);
 
         return {
             command: command

@@ -10,12 +10,11 @@ export default class Path implements PhpUnitDriverInterface {
     private _phpPath: string;
     private _phpUnitPath: string;
 
-    public async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
+    public async run(args: string[]): Promise<RunConfig> {
         const execPath = await this.phpPath();
         args = [await this.phpUnitPath()].concat(args);
 
         const command = `${execPath} ${args.join(' ')}`;
-        channel.appendLine(command);
 
         return {
             command: command

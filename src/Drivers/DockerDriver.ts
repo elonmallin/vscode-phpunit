@@ -12,7 +12,7 @@ export default class Docker implements PhpUnitDriverInterface {
     name: string = 'Docker';
     private _phpUnitPath: string;
 
-    async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
+    async run(args: string[]): Promise<RunConfig> {
         const config = vscode.workspace.getConfiguration('phpunit');
         const dockerImage = config.get<string>('docker.image') || 'php';
 
@@ -25,7 +25,6 @@ export default class Docker implements PhpUnitDriverInterface {
             .split(' ');
 
         const command = `docker ${args.join(' ')}`;
-        channel.appendLine(command);
 
         return {
             command: command,

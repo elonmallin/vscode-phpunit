@@ -8,11 +8,10 @@ export default class GlobalPhpUnit implements PhpUnitDriverInterface {
     name: string = 'GlobalPhpUnit';
     private _phpUnitPath: string;
 
-    public async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
+    public async run(args: string[]): Promise<RunConfig> {
         const execPath = await this.phpUnitPath();
 
         const command = `${execPath} ${args.join(' ')}`;
-        channel.appendLine(command);
 
         return {
             command: command

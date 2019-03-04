@@ -1,6 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
+import * as escapeRegexp from 'escape-string-regexp';
 import PhpUnitDriverInterface from './Drivers/PhpUnitDriverInterface';
 import PhpUnitDrivers from './Drivers/PhpUnitDrivers';
 import parsePhpToObject from './PhpParser';
@@ -237,7 +238,23 @@ export class TestRunner {
 
                 this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
 
-                const runConfig = await driver.run(this.channel, runArgs);
+                const runConfig = await driver.run(runArgs);
+
+                runConfig.command = runConfig.command.replace(/\\/ig, '/');
+
+                const pathMappings = config.get<string>('paths');
+                if (pathMappings) {
+                    for (let key of Object.keys(pathMappings)) {
+                        const localPath = key
+                            .replace(/\$\{workspaceFolder\}/ig, vscode.workspace.rootPath)
+                            .replace(/\\/ig, '/');
+                            
+                        runConfig.command = runConfig.command
+                            .replace(new RegExp(escapeRegexp(localPath), 'ig'), pathMappings[key]);
+                    }
+                }
+
+                this.channel.appendLine(runConfig.command);
 
                 this.bootstrapBridge.setTaskCommand(runConfig.command, runConfig.problemMatcher);
                 await vscode.commands.executeCommand('workbench.action.terminal.clear');

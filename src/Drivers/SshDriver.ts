@@ -4,7 +4,7 @@ import { RunConfig } from '../RunConfig';
 
 export default class Ssh implements PhpUnitDriverInterface {
     name: string = 'Ssh';
-    run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
+    run(args: string[]): Promise<RunConfig> {
         throw new Error("Method not implemented.");
     }
     public async isInstalled(): Promise<boolean> {
