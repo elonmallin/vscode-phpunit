@@ -84,6 +84,10 @@
           "type": "string",
           "description": "Path to phpunit. Can be the phpunit file or phpunit.phar.\n\nAutomatically finds it in common places:\n  - Composer vendor directory\n  - phpunit.phar in your project\n  - phpunit (or phpunit.bat for windows) globally on the command line"
         },
+        "phpunit.command": {
+          "type": "string",
+          "description": "Custom command to run."
+        },
         "phpunit.args": {
           "type": "array",
           "default": [],
