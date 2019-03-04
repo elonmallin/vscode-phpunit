@@ -9,11 +9,47 @@
     "phpunit.phpunit": "path/to/phpunit",
     "phpunit.args": [
         "--configuration", "./phpunit.xml.dist"
-    ]
+    ],
+    "phpunit.paths": { // Optional, for virtual environments.
+        "/local/path/to/map/to/virtual/path": "/virtual/path",
+        "/second/local/path": "/second/virtual/path"
+    }
 }
 ```
 > **No config** needed if you have **php** or **docker** in you environment variables and **phpunit** in your project (composers vendor dir or .phar file).
 See the configuration section in [package.json](package.json) for all values and their descriptions.
+
+### Advanced config
+#### Docker container
+```JSON
+{
+    "phpunit.docker.container": "name_of_running_container", // If not set, a selection of running containers will be shown in "pick window".
+    "phpunit.paths": {
+        "/local/path/to/project": "/path/to/project/in/container"
+    }
+}
+```
+
+#### Run any docker image manually
+```JSON
+{
+    "phpunit.command": "docker run --rm -t -v ${pwd}:/app -w /app php:latest php",
+    "phpunit.phpunit": "vendor/bin/phpunit", // Optional, will look for phpunit in common places (vendor dir and .phar in project dir).
+    "phpunit.paths": {
+        "${workspaceFolder}": "/app"
+    }
+}
+```
+#### Run service from docker-compose manually
+```JSON
+{
+    "phpunit.command": "docker-compose run --rm service_name",
+    "phpunit.phpunit": "vendor/bin/phpunit", // Optional, will look for phpunit in common places (vendor dir and .phar in project dir).
+    "phpunit.paths": {
+        "${workspaceFolder}": "/container/project/folder"
+    }
+}
+```
 
 ## How to use
 Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execute the `PHPUnit Test` command.
