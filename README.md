@@ -73,7 +73,7 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 
 ![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)
 
-* **Rerun last Test**: Run the `PHPUnit Rerun last test` command. Is also possible set a keybinding to run this command:
+* **Rerun last Test**: Run the `PHPUnit Rerun last test` command. It's also possible to set a keybinding to run commands:
 ```
 { "key": "cmd+shift+r", "command": "phpunit.RerunLastTest", "when": "editorFocus" }
 ```
