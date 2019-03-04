@@ -6,11 +6,10 @@ export default class Legacy implements PhpUnitDriverInterface {
     name: string = 'Legacy';
     _phpPath: string;
 
-    public async run(channel: vscode.OutputChannel, args: string[]): Promise<RunConfig> {
+    public async run(args: string[]): Promise<RunConfig> {
         const execPath = await this.execPath();
 
         const command = `${execPath} ${args.join(' ')}`;
-        channel.appendLine(command);
 
         return {
             command: command
