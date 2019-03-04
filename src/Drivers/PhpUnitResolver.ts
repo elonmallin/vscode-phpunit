@@ -6,19 +6,16 @@ import Phar from "./PharDriver";
 import GlobalPhpUnit from "./GlobalPhpUnitDriver";
 
 const phpUnitPath = async (): Promise<string> => {
-    if (this._phpUnitPath)
-    {
-        return this._phpUnitPath;
-    }
+    let phpUnitPath: string;
 
     const config = vscode.workspace.getConfiguration('phpunit');
     const order = config.get<string[]>('driverPriority');
-    const drivers = await this.getDrivers(order);
+    const drivers = await getDrivers(order);
 
     for (let driver of drivers) {
-        this._phpUnitPath = await driver.phpUnitPath();
-        if (this._phpUnitPath) {
-            return this._phpUnitPath;
+        phpUnitPath = await driver.phpUnitPath();
+        if (phpUnitPath) {
+            return phpUnitPath;
         }
     }
 
