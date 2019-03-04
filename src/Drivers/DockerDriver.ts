@@ -2,11 +2,8 @@ import * as vscode from 'vscode';
 import * as cmdExists from 'command-exists';
 import * as escapeRegexp from 'escape-string-regexp';
 import PhpUnitDriverInterface from './PhpUnitDriverInterface';
-import Composer from './ComposerDriver';
-import Phar from './PharDriver';
-import GlobalPhpUnit from './GlobalPhpUnitDriver';
-import Path from './PathDriver';
 import { RunConfig } from '../RunConfig';
+import { resolvePhpUnitPath } from './PhpUnitResolver';
 
 export default class Docker implements PhpUnitDriverInterface {
     name: string = 'Docker';
@@ -42,50 +39,7 @@ export default class Docker implements PhpUnitDriverInterface {
     }
 
     async phpUnitPath(): Promise<string> {
-        if (this._phpUnitPath)
-        {
-            return this._phpUnitPath;
-        }
-
-        const config = vscode.workspace.getConfiguration('phpunit');
-        const order = config.get<string[]>('driverPriority');
-        const drivers = await this.getDrivers(order);
-
-        for (let driver of drivers) {
-            this._phpUnitPath = await driver.phpUnitPath();
-            if (this._phpUnitPath) {
-                return this._phpUnitPath;
-            }
-        }
-
-        return null;
-    }
-
-    getDrivers(order?: string[]): PhpUnitDriverInterface[] {
-        const drivers: PhpUnitDriverInterface[] = [
-            new Path(),
-            new Composer(),
-            new Phar(),
-            new GlobalPhpUnit(),
-        ];
-
-        function arrayUnique(array) {
-            var a = array.concat();
-            for(var i=0; i<a.length; ++i) {
-                for(var j=i+1; j<a.length; ++j) {
-                    if(a[i] === a[j])
-                        a.splice(j--, 1);
-                }
-            }
-        
-            return a;
-        }
-        order = arrayUnique((order || []).concat(drivers.map(d => d.name)));
-
-        const sortedDrivers = drivers.sort((a, b) => {
-            return order.indexOf(a.name) - order.indexOf(b.name);
-        });
-
-        return sortedDrivers;
+        return this._phpUnitPath
+            || (this._phpUnitPath = await resolvePhpUnitPath());
     }
 }
