@@ -3,7 +3,7 @@
 ## Setup
 * Install [phpunit](https://phpunit.de/).
 * Config:
-```JSON
+```json5
 {
     "phpunit.php": "absolute/path/to/php",
     "phpunit.phpunit": "path/to/phpunit",
@@ -21,7 +21,7 @@ See the configuration section in [package.json](package.json) for all values and
 
 ### Advanced config
 #### Docker container
-```JSON
+```json5
 {
     "phpunit.docker.container": "name_of_running_container", // If not set, a selection of running containers will be shown in "pick window".
     "phpunit.paths": {
@@ -31,7 +31,7 @@ See the configuration section in [package.json](package.json) for all values and
 ```
 
 #### Run any docker image manually
-```JSON
+```json5
 {
     "phpunit.command": "docker run --rm -t -v ${pwd}:/app -w /app php:latest php",
     "phpunit.phpunit": "vendor/bin/phpunit", // Optional, will look for phpunit in common places (vendor dir and .phar in project dir).
@@ -41,7 +41,7 @@ See the configuration section in [package.json](package.json) for all values and
 }
 ```
 #### Run service from docker-compose manually
-```JSON
+```json5
 {
     "phpunit.command": "docker-compose run --rm service_name",
     "phpunit.phpunit": "vendor/bin/phpunit", // Optional, will look for phpunit in common places (vendor dir and .phar in project dir).
@@ -74,7 +74,7 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 ![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)
 
 * **Rerun last Test**: Run the `PHPUnit Rerun last test` command. It's also possible to set a keybinding to run commands:
-```
+```json5
 { "key": "cmd+shift+r", "command": "phpunit.RerunLastTest", "when": "editorFocus" }
 ```
 ## Notes
