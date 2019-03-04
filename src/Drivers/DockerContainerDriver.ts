@@ -18,7 +18,7 @@ export default class DockerContainer implements PhpUnitDriverInterface {
 
         return {
             command: command,
-            problemMatcher: '$phpunit-docker'
+            problemMatcher: '$phpunit-app'
         };
     }
 

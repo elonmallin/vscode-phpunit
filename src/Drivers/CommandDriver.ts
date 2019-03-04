@@ -13,7 +13,8 @@ export default class Command implements PhpUnitDriverInterface {
         const command = `${await this.command()} ${args.join(' ')}`;
 
         return {
-            command: command
+            command: command,
+            problemMatcher: '$phpunit-app'
         };
     }
 
