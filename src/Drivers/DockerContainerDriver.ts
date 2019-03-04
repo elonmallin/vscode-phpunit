@@ -9,7 +9,7 @@ import GlobalPhpUnit from './GlobalPhpUnitDriver';
 import Path from './PathDriver';
 import { RunConfig } from '../RunConfig';
 
-export default class DockerContainerAuto implements PhpUnitDriverInterface {
+export default class DockerContainer implements PhpUnitDriverInterface {
     name: string = 'DockerContainer';
     private _phpUnitPath: string;
     private dockerContainer: string;

@@ -181,7 +181,7 @@ export class TestRunner {
             new PhpUnitDrivers.Composer(),
             new PhpUnitDrivers.Phar(),
             new PhpUnitDrivers.GlobalPhpUnit(),
-            new PhpUnitDrivers.DockerContainerAuto(),
+            new PhpUnitDrivers.DockerContainer(),
             new PhpUnitDrivers.Docker(),
             new PhpUnitDrivers.Ssh(),
             new PhpUnitDrivers.Legacy(),

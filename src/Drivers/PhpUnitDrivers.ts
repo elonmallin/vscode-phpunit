@@ -8,14 +8,14 @@ import GlobalPhpUnit from './GlobalPhpUnitDriver';
 import Docker from './DockerDriver';
 import Ssh from './SshDriver';
 import Legacy from './LegacyDriver';
-import DockerContainerAuto from './DockerContainerAutoDriver';
+import DockerContainer from './DockerContainerDriver';
 
 export default {
     Path,
     Composer,
     Phar,
     GlobalPhpUnit,
-    DockerContainerAuto,
+    DockerContainer,
     Docker,
     Ssh,
     Legacy
