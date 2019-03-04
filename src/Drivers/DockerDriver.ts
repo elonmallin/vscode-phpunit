@@ -20,8 +20,7 @@ export default class Docker implements PhpUnitDriverInterface {
             .concat(args)
             .join(' ')
             .replace(new RegExp(escapeRegexp(vscode.workspace.rootPath), 'ig'), '/app')
-            .replace(new RegExp(escapeRegexp('\\'), 'ig'), '/')
-            .replace(new RegExp(escapeRegexp('${pwd}'), 'ig'), vscode.workspace.rootPath)
+            .replace(/\\/ig, '/')
             .split(' ');
 
         const command = `docker ${args.join(' ')}`;
