@@ -86,7 +86,7 @@
         },
         "phpunit.command": {
           "type": "string",
-          "description": "Custom command to run."
+          "description": "Custom command to run. Ex: `docker exec -t container_name`."
         },
         "phpunit.args": {
           "type": "array",
