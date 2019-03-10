@@ -1,4 +1,4 @@
 export interface RunConfig {
-    command: string,
-    problemMatcher?: string
+  command: string;
+  problemMatcher?: string;
 }

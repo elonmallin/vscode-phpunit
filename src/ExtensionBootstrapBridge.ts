@@ -1,3 +1,3 @@
 export interface ExtensionBootstrapBridge {
-    setTaskCommand: (command: string, problemMatcher?: string) => void;
+  setTaskCommand: (command: string, problemMatcher?: string) => void;
 }

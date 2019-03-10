@@ -1,24 +1,24 @@
-'use strict';
+"use strict";
 
-import PhpUnitDriverInterface from './PhpUnitDriverInterface';
-import Path from './PathDriver';
-import Composer from './ComposerDriver';
-import Phar from './PharDriver';
-import GlobalPhpUnit from './GlobalPhpUnitDriver';
-import Docker from './DockerDriver';
-import Ssh from './SshDriver';
-import Legacy from './LegacyDriver';
-import DockerContainer from './DockerContainerDriver';
-import Command from './CommandDriver';
+import Command from "./CommandDriver";
+import Composer from "./ComposerDriver";
+import DockerContainer from "./DockerContainerDriver";
+import Docker from "./DockerDriver";
+import GlobalPhpUnit from "./GlobalPhpUnitDriver";
+import Legacy from "./LegacyDriver";
+import Path from "./PathDriver";
+import Phar from "./PharDriver";
+import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import Ssh from "./SshDriver";
 
 export default {
-    Path,
-    Composer,
-    Phar,
-    GlobalPhpUnit,
-    Command,
-    DockerContainer,
-    Docker,
-    Ssh,
-    Legacy
-}
+  Path,
+  Composer,
+  Phar,
+  GlobalPhpUnit,
+  Command,
+  DockerContainer,
+  Docker,
+  Ssh,
+  Legacy
+};
