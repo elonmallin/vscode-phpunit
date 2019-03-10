@@ -26,7 +26,9 @@ export default class Composer implements IPhpUnitDriver {
   }
 
   public async isInstalled(): Promise<boolean> {
-    return (await this.phpPath()) != null && (await this.phpUnitPath()) != null;
+    return !!(
+      (await this.phpPath()) != null && (await this.phpUnitPath()) != null
+    );
   }
 
   public async phpPath(): Promise<string> {

@@ -19,7 +19,7 @@ export default class Command implements IPhpUnitDriver {
   }
 
   public async isInstalled(): Promise<boolean> {
-    return (await this.command()) != null && (await this.phpUnitPath()) != null;
+    return !!((await this.command()) && (await this.phpUnitPath()));
   }
 
   public async command(): Promise<string> {

@@ -23,10 +23,10 @@ export default class Phar implements IPhpUnitDriver {
   }
 
   public async isInstalled(): Promise<boolean> {
-    return (
-      (await this.phpPath()) != null &&
+    return !!(
+      (await this.phpPath()) &&
       (await this.hasPharExtension()) &&
-      (await this.phpUnitPath()) != null
+      (await this.phpUnitPath())
     );
   }
 

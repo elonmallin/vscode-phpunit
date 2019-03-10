@@ -53,11 +53,11 @@ export default class DockerContainer implements IPhpUnitDriver {
         }
       }
 
-      return (
+      return !!(
         this.dockerContainer &&
         pathMappings &&
-        (await cmdExists("docker")) != null &&
-        (await this.phpUnitPath()) != null
+        (await cmdExists("docker")) &&
+        (await this.phpUnitPath())
       );
     } catch (e) {
       return false;

@@ -17,7 +17,7 @@ export default class Legacy implements IPhpUnitDriver {
   }
 
   public async isInstalled(): Promise<boolean> {
-    return (await this.execPath()) != null;
+    return !!(await this.execPath());
   }
 
   public async execPath(): Promise<string> {

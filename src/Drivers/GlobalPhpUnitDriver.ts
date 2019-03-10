@@ -19,7 +19,7 @@ export default class GlobalPhpUnit implements IPhpUnitDriver {
   }
 
   public async isInstalled(): Promise<boolean> {
-    return (await this.phpUnitPath()) != null;
+    return !!(await this.phpUnitPath());
   }
 
   public async phpUnitPath(): Promise<string> {

@@ -44,8 +44,8 @@ export default class Docker implements IPhpUnitDriver {
 
   public async isInstalled(): Promise<boolean> {
     try {
-      const dockerExists = (await cmdExists("docker")) != null;
-      return dockerExists && (await this.phpUnitPath()) != null;
+      const dockerExists = await cmdExists("docker");
+      return !!(dockerExists && (await this.phpUnitPath()));
     } catch (e) {
       return false;
     }
