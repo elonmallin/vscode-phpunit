@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
-import { RunConfig } from "../RunConfig";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import { IRunConfig } from "../RunConfig";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 
-export default class Legacy implements PhpUnitDriverInterface {
+export default class Legacy implements IPhpUnitDriver {
   public name: string = "Legacy";
   public phpPathCache: string;
 
-  public async run(args: string[]): Promise<RunConfig> {
+  public async run(args: string[]): Promise<IRunConfig> {
     const execPath = await this.execPath();
 
     const command = `${execPath} ${args.join(" ")}`;

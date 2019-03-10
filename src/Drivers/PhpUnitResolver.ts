@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import Composer from "./ComposerDriver";
 import GlobalPhpUnit from "./GlobalPhpUnitDriver";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 import Path from "./PathDriver";
 import Phar from "./PharDriver";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
 
 const phpUnitPath = async (): Promise<string> => {
   let path: string;
@@ -22,8 +22,8 @@ const phpUnitPath = async (): Promise<string> => {
   return null;
 };
 
-const getDrivers = (order?: string[]): PhpUnitDriverInterface[] => {
-  const drivers: PhpUnitDriverInterface[] = [
+const getDrivers = (order?: string[]): IPhpUnitDriver[] => {
+  const drivers: IPhpUnitDriver[] = [
     new Path(),
     new Composer(),
     new Phar(),

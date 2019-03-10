@@ -1,15 +1,15 @@
 import * as cmdExists from "command-exists";
 import * as escapeRegexp from "escape-string-regexp";
 import * as vscode from "vscode";
-import { RunConfig } from "../RunConfig";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import { IRunConfig } from "../RunConfig";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
-export default class Docker implements PhpUnitDriverInterface {
+export default class Docker implements IPhpUnitDriver {
   public name: string = "Docker";
   private phpUnitPathCache: string;
 
-  public async run(args: string[]): Promise<RunConfig> {
+  public async run(args: string[]): Promise<IRunConfig> {
     const config = vscode.workspace.getConfiguration("phpunit");
     const dockerImage = config.get<string>("docker.image") || "php";
 
@@ -53,7 +53,8 @@ export default class Docker implements PhpUnitDriverInterface {
 
   public async phpUnitPath(): Promise<string> {
     return (
-      this.phpUnitPathCache || (this.phpUnitPathCache = await resolvePhpUnitPath())
+      this.phpUnitPathCache ||
+      (this.phpUnitPathCache = await resolvePhpUnitPath())
     );
   }
 }

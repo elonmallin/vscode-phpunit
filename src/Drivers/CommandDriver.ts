@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
-import { RunConfig } from "../RunConfig";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import { IRunConfig } from "../RunConfig";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
-export default class Command implements PhpUnitDriverInterface {
+export default class Command implements IPhpUnitDriver {
   public name: string = "Command";
   private commandCache: string;
   private phpUnitPathCache: string;
 
-  public async run(args: string[]): Promise<RunConfig> {
+  public async run(args: string[]): Promise<IRunConfig> {
     args = [await this.phpUnitPath()].concat(args);
     const command = `${await this.command()} ${args.join(" ")}`;
 

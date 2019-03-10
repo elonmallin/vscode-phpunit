@@ -4,9 +4,9 @@ import { ChildProcess } from "child_process";
 import * as escapeRegexp from "escape-string-regexp";
 import * as vscode from "vscode";
 import Command from "./Command";
-import PhpUnitDriverInterface from "./Drivers/PhpUnitDriverInterface";
+import IPhpUnitDriver from "./Drivers/IPhpUnitDriver";
 import PhpUnitDrivers from "./Drivers/PhpUnitDrivers";
-import { ExtensionBootstrapBridge } from "./ExtensionBootstrapBridge";
+import { IExtensionBootstrapBridge } from "./ExtensionBootstrapBridge";
 import parsePhpToObject from "./PhpParser";
 
 type RunType = "test" | "directory" | "rerun-last-test" | "nearest-test";
@@ -16,7 +16,7 @@ export class TestRunner {
   public channel: vscode.OutputChannel;
   public lastCommand: Command;
   public childProcess: ChildProcess;
-  public bootstrapBridge: ExtensionBootstrapBridge;
+  public bootstrapBridge: IExtensionBootstrapBridge;
 
   public readonly regex = {
     class: /class\s+(\w*)\s*{?/gi,
@@ -25,7 +25,7 @@ export class TestRunner {
 
   constructor(
     channel: vscode.OutputChannel,
-    bootstrapBridge: ExtensionBootstrapBridge
+    bootstrapBridge: IExtensionBootstrapBridge
   ) {
     this.channel = channel;
     this.bootstrapBridge = bootstrapBridge;
@@ -165,8 +165,8 @@ export class TestRunner {
     return args;
   }
 
-  public async getDriver(order?: string[]): Promise<PhpUnitDriverInterface> {
-    const drivers: PhpUnitDriverInterface[] = [
+  public async getDriver(order?: string[]): Promise<IPhpUnitDriver> {
+    const drivers: IPhpUnitDriver[] = [
       new PhpUnitDrivers.Path(),
       new PhpUnitDrivers.Composer(),
       new PhpUnitDrivers.Phar(),

@@ -2,18 +2,18 @@ import * as cmdExists from "command-exists";
 import * as fs from "fs";
 import * as os from "os";
 import * as vscode from "vscode";
-import { RunConfig } from "../RunConfig";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import { IRunConfig } from "../RunConfig";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 
-export default class Composer implements PhpUnitDriverInterface {
+export default class Composer implements IPhpUnitDriver {
   public name: string = "Composer";
   private phpPathCache: string;
   private phpUnitPathCache: string;
 
-  public async run(args: string[]): Promise<RunConfig> {
+  public async run(args: string[]): Promise<IRunConfig> {
     let execPath = await this.phpUnitPath();
 
-    if (os.platform() == "win32") {
+    if (os.platform() === "win32") {
       execPath = await this.phpPath();
       args = [await this.phpUnitPath()].concat(args);
     }

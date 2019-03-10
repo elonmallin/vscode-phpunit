@@ -2,16 +2,16 @@ import * as cp from "child_process";
 import * as cmdExists from "command-exists";
 import * as fs from "fs";
 import * as vscode from "vscode";
-import { RunConfig } from "../RunConfig";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import { IRunConfig } from "../RunConfig";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 
-export default class Phar implements PhpUnitDriverInterface {
+export default class Phar implements IPhpUnitDriver {
   public name: string = "Phar";
   public phpPathCache: string;
   public phpUnitPharPathCache: string;
   public hasPharExtensionCache: boolean;
 
-  public async run(args: string[]): Promise<RunConfig> {
+  public async run(args: string[]): Promise<IRunConfig> {
     const execPath = await this.phpPath();
     args = [await this.phpUnitPath()].concat(args);
 

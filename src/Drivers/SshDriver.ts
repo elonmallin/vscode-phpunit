@@ -1,9 +1,9 @@
-import { RunConfig } from "../RunConfig";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import { IRunConfig } from "../RunConfig";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 
-export default class Ssh implements PhpUnitDriverInterface {
+export default class Ssh implements IPhpUnitDriver {
   public name: string = "Ssh";
-  public run(args: string[]): Promise<RunConfig> {
+  public run(args: string[]): Promise<IRunConfig> {
     throw new Error("Method not implemented.");
   }
   public async isInstalled(): Promise<boolean> {

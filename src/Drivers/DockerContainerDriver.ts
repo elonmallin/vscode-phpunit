@@ -1,16 +1,16 @@
 import * as cmdExists from "command-exists";
 import * as vscode from "vscode";
 import * as DockerCmdUtils from "../DockerCmdUtils";
-import { RunConfig } from "../RunConfig";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import { IRunConfig } from "../RunConfig";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
-export default class DockerContainer implements PhpUnitDriverInterface {
+export default class DockerContainer implements IPhpUnitDriver {
   public name: string = "DockerContainer";
   private phpUnitPathCache: string;
   private dockerContainer: string;
 
-  public async run(args: string[]): Promise<RunConfig> {
+  public async run(args: string[]): Promise<IRunConfig> {
     args = [
       "exec",
       "-t",

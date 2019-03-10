@@ -2,15 +2,15 @@ import * as cmdExists from "command-exists";
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { RunConfig } from "../RunConfig";
-import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
+import { IRunConfig } from "../RunConfig";
+import IPhpUnitDriver from "./IPhpUnitDriver";
 
-export default class Path implements PhpUnitDriverInterface {
+export default class Path implements IPhpUnitDriver {
   public name: string = "Path";
   private phpPathCache: string;
   private phpUnitPathCache: string;
 
-  public async run(args: string[]): Promise<RunConfig> {
+  public async run(args: string[]): Promise<IRunConfig> {
     const execPath = await this.phpPath();
     args = [await this.phpUnitPath()].concat(args);
 
