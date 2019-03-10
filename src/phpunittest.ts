@@ -7,7 +7,7 @@ import Command from "./Command";
 import IPhpUnitDriver from "./Drivers/IPhpUnitDriver";
 import PhpUnitDrivers from "./Drivers/PhpUnitDrivers";
 import { IExtensionBootstrapBridge } from "./ExtensionBootstrapBridge";
-import parsePhpToObject from "./PhpParser";
+import parsePhpToObject from "./PhpParser/PhpParser";
 
 type RunType = "test" | "directory" | "rerun-last-test" | "nearest-test";
 

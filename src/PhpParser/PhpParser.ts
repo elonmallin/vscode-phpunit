@@ -1,11 +1,7 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
+import MemberTypes from "./MemberTypes";
 
-class MemberTypes {
-  public private: string[] = [];
-  public protected: string[] = [];
-  public public: string[] = [];
-}
 class ParsedPhpClass {
   public name: string;
   public properties: MemberTypes = new MemberTypes();
