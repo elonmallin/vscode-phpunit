@@ -7,8 +7,8 @@ import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
 
 export default class Composer implements PhpUnitDriverInterface {
   public name: string = "Composer";
-  private _phpPath: string;
-  private _phpUnitPath: string;
+  private phpPathCache: string;
+  private phpUnitPathCache: string;
 
   public async run(args: string[]): Promise<RunConfig> {
     let execPath = await this.phpUnitPath();
@@ -30,30 +30,30 @@ export default class Composer implements PhpUnitDriverInterface {
   }
 
   public async phpPath(): Promise<string> {
-    if (this._phpPath) {
-      return this._phpPath;
+    if (this.phpPathCache) {
+      return this.phpPathCache;
     }
 
     const config = vscode.workspace.getConfiguration("phpunit");
     try {
-      this._phpPath = await cmdExists(config.get<string>("php"));
+      this.phpPathCache = await cmdExists(config.get<string>("php"));
     } catch (e) {
       try {
-        this._phpPath = await cmdExists("php");
+        this.phpPathCache = await cmdExists("php");
       } catch (e) {}
     }
 
-    return this._phpPath;
+    return this.phpPathCache;
   }
 
   public async phpUnitPath(): Promise<string> {
-    if (this._phpUnitPath) {
-      return this._phpUnitPath;
+    if (this.phpUnitPathCache) {
+      return this.phpUnitPathCache;
     }
 
     const findInWorkspace = async (): Promise<string> => {
       const uris =
-        os.platform() == "win32"
+        os.platform() === "win32"
           ? await vscode.workspace.findFiles(
               "**/vendor/phpunit/phpunit/phpunit",
               "**/node_modules/**",
@@ -65,7 +65,7 @@ export default class Composer implements PhpUnitDriverInterface {
               1
             );
 
-      return (this._phpUnitPath =
+      return (this.phpUnitPathCache =
         uris && uris.length > 0 ? uris[0].fsPath : null);
     };
 
@@ -75,8 +75,8 @@ export default class Composer implements PhpUnitDriverInterface {
       return new Promise<string>((resolve, reject) => {
         fs.exists(phpUnitPath, exists => {
           if (exists) {
-            this._phpUnitPath = phpUnitPath;
-            resolve(this._phpUnitPath);
+            this.phpUnitPathCache = phpUnitPath;
+            resolve(this.phpUnitPathCache);
           } else {
             reject();
           }

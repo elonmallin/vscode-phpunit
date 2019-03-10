@@ -7,7 +7,7 @@ import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
 export default class Docker implements PhpUnitDriverInterface {
   public name: string = "Docker";
-  private _phpUnitPath: string;
+  private phpUnitPathCache: string;
 
   public async run(args: string[]): Promise<RunConfig> {
     const config = vscode.workspace.getConfiguration("phpunit");
@@ -53,7 +53,7 @@ export default class Docker implements PhpUnitDriverInterface {
 
   public async phpUnitPath(): Promise<string> {
     return (
-      this._phpUnitPath || (this._phpUnitPath = await resolvePhpUnitPath())
+      this.phpUnitPathCache || (this.phpUnitPathCache = await resolvePhpUnitPath())
     );
   }
 }

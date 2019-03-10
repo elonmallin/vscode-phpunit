@@ -4,7 +4,7 @@ import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
 
 export default class Legacy implements PhpUnitDriverInterface {
   public name: string = "Legacy";
-  public _phpPath: string;
+  public phpPathCache: string;
 
   public async run(args: string[]): Promise<RunConfig> {
     const execPath = await this.execPath();
@@ -21,13 +21,13 @@ export default class Legacy implements PhpUnitDriverInterface {
   }
 
   public async execPath(): Promise<string> {
-    if (this._phpPath) {
-      return this._phpPath;
+    if (this.phpPathCache) {
+      return this.phpPathCache;
     }
 
     const config = vscode.workspace.getConfiguration("phpunit");
 
-    return (this._phpPath = config.get<string>("execPath"));
+    return (this.phpPathCache = config.get<string>("execPath"));
   }
 
   public async phpUnitPath(): Promise<string> {

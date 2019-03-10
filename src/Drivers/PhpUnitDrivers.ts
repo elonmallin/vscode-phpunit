@@ -12,13 +12,13 @@ import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
 import Ssh from "./SshDriver";
 
 export default {
-  Path,
-  Composer,
-  Phar,
-  GlobalPhpUnit,
   Command,
-  DockerContainer,
+  Composer,
   Docker,
-  Ssh,
-  Legacy
+  DockerContainer,
+  GlobalPhpUnit,
+  Legacy,
+  Path,
+  Phar,
+  Ssh
 };

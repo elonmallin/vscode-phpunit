@@ -3,18 +3,13 @@
 import { ChildProcess } from "child_process";
 import * as escapeRegexp from "escape-string-regexp";
 import * as vscode from "vscode";
+import Command from "./Command";
 import PhpUnitDriverInterface from "./Drivers/PhpUnitDriverInterface";
 import PhpUnitDrivers from "./Drivers/PhpUnitDrivers";
 import { ExtensionBootstrapBridge } from "./ExtensionBootstrapBridge";
 import parsePhpToObject from "./PhpParser";
 
 type RunType = "test" | "directory" | "rerun-last-test" | "nearest-test";
-
-class Command {
-  public execPath: string;
-  public args: string[];
-  public putFsPathIntoArgs: boolean;
-}
 
 export class TestRunner {
   public lastContextArgs: string[];
@@ -24,8 +19,8 @@ export class TestRunner {
   public bootstrapBridge: ExtensionBootstrapBridge;
 
   public readonly regex = {
-    method: /\s*public*\s+function\s+(\w*)\s*\(/gi,
-    class: /class\s+(\w*)\s*{?/gi
+    class: /class\s+(\w*)\s*{?/gi,
+    method: /\s*public*\s+function\s+(\w*)\s*\(/gi
   };
 
   constructor(
@@ -65,7 +60,7 @@ export class TestRunner {
           if (range) {
             const line = editor.document.lineAt(range.start.line);
             const wordOnCursor = editor.document.getText(range);
-            const isFunction = line.text.indexOf("function") != -1;
+            const isFunction = line.text.indexOf("function") !== -1;
 
             if (isFunction && wordOnCursor != null) {
               // Test a specific function in this file
@@ -73,7 +68,7 @@ export class TestRunner {
               args.push("--filter");
               args.push(wordOnCursor);
               break;
-            } else if (line.text.indexOf("class") != -1) {
+            } else if (line.text.indexOf("class") !== -1) {
               // The the class.
               args.push(editor.document.uri.fsPath);
               break;
@@ -104,13 +99,13 @@ export class TestRunner {
               testableList
             );
             if (selectedTest) {
-              if (selectedTest.indexOf("function - ") != -1) {
+              if (selectedTest.indexOf("function - ") !== -1) {
                 // Test the function.
                 args.push(editor.document.uri.fsPath);
                 args.push("--filter");
                 args.push(selectedTest.replace("function - ", ""));
                 break;
-              } else if (selectedTest.indexOf("class - ") != -1) {
+              } else if (selectedTest.indexOf("class - ") !== -1) {
                 // Test the class.
                 args.push(editor.document.uri.fsPath);
                 break;
@@ -221,7 +216,7 @@ export class TestRunner {
       }
 
       const configArgs = config.get<string[]>("args", []);
-      const preferRunClassTestOverQuickPickWindow = config.get<Boolean>(
+      const preferRunClassTestOverQuickPickWindow = config.get<boolean>(
         "preferRunClassTestOverQuickPickWindow",
         false
       );

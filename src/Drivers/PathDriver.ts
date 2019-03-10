@@ -7,8 +7,8 @@ import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
 
 export default class Path implements PhpUnitDriverInterface {
   public name: string = "Path";
-  private _phpPath: string;
-  private _phpUnitPath: string;
+  private phpPathCache: string;
+  private phpUnitPathCache: string;
 
   public async run(args: string[]): Promise<RunConfig> {
     const execPath = await this.phpPath();
@@ -26,25 +26,25 @@ export default class Path implements PhpUnitDriverInterface {
   }
 
   public async phpPath(): Promise<string> {
-    if (this._phpPath) {
-      return this._phpPath;
+    if (this.phpPathCache) {
+      return this.phpPathCache;
     }
 
     const config = vscode.workspace.getConfiguration("phpunit");
     try {
-      this._phpPath = await cmdExists(config.get<string>("php"));
+      this.phpPathCache = await cmdExists(config.get<string>("php"));
     } catch (e) {
       try {
-        this._phpPath = await cmdExists("php");
+        this.phpPathCache = await cmdExists("php");
       } catch (e) {}
     }
 
-    return this._phpPath;
+    return this.phpPathCache;
   }
 
   public async phpUnitPath(): Promise<string> {
-    if (this._phpUnitPath) {
-      return this._phpUnitPath;
+    if (this.phpUnitPathCache) {
+      return this.phpUnitPathCache;
     }
 
     const config = vscode.workspace.getConfiguration("phpunit");
@@ -55,17 +55,17 @@ export default class Path implements PhpUnitDriverInterface {
           try {
             fs.exists(phpUnitPath, exists => {
               if (exists) {
-                this._phpUnitPath = phpUnitPath;
-                resolve(this._phpUnitPath);
+                this.phpUnitPathCache = phpUnitPath;
+                resolve(this.phpUnitPathCache);
               } else {
                 const absPhpUnitPath = path.join(
                   vscode.workspace.rootPath,
                   phpUnitPath
                 );
-                fs.exists(absPhpUnitPath, exists => {
-                  if (exists) {
-                    this._phpUnitPath = absPhpUnitPath;
-                    resolve(this._phpUnitPath);
+                fs.exists(absPhpUnitPath, absExists => {
+                  if (absExists) {
+                    this.phpUnitPathCache = absPhpUnitPath;
+                    resolve(this.phpUnitPathCache);
                   } else {
                     resolve();
                   }

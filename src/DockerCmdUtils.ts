@@ -15,7 +15,7 @@ const docker = {
         .split("\n")
         .filter(r => r)
         .reduce((acc, next, idx, arr) => {
-          if (idx == 0) {
+          if (idx === 0) {
             return acc; // First line is column names.
           }
 

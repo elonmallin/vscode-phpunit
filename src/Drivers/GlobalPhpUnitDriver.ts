@@ -6,7 +6,7 @@ import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
 
 export default class GlobalPhpUnit implements PhpUnitDriverInterface {
   public name: string = "GlobalPhpUnit";
-  private _phpUnitPath: string;
+  private phpUnitPathCache: string;
 
   public async run(args: string[]): Promise<RunConfig> {
     const execPath = await this.phpUnitPath();
@@ -23,17 +23,17 @@ export default class GlobalPhpUnit implements PhpUnitDriverInterface {
   }
 
   public async phpUnitPath(): Promise<string> {
-    if (this._phpUnitPath) {
-      return this._phpUnitPath;
+    if (this.phpUnitPathCache) {
+      return this.phpUnitPathCache;
     }
 
     try {
-      this._phpUnitPath =
-        os.platform() == "win32"
+      this.phpUnitPathCache =
+        os.platform() === "win32"
           ? await cmdExists("phpunit.bat")
           : await cmdExists("phpunit");
     } catch (e) {}
 
-    return this._phpUnitPath;
+    return this.phpUnitPathCache;
   }
 }

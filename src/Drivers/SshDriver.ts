@@ -1,4 +1,3 @@
-import * as vscode from "vscode";
 import { RunConfig } from "../RunConfig";
 import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
 

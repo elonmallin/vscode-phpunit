@@ -7,7 +7,7 @@ import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
 export default class DockerContainer implements PhpUnitDriverInterface {
   public name: string = "DockerContainer";
-  private _phpUnitPath: string;
+  private phpUnitPathCache: string;
   private dockerContainer: string;
 
   public async run(args: string[]): Promise<RunConfig> {
@@ -66,31 +66,8 @@ export default class DockerContainer implements PhpUnitDriverInterface {
 
   public async phpUnitPath(): Promise<string> {
     return (
-      this._phpUnitPath || (this._phpUnitPath = await resolvePhpUnitPath())
+      this.phpUnitPathCache ||
+      (this.phpUnitPathCache = await resolvePhpUnitPath())
     );
-  }
-
-  public async tryFindRunningDockerContainer(): Promise<string> {
-    const findInWorkspace = async (): Promise<string> => {
-      const uris = await vscode.workspace.findFiles(
-        "**/dockerfile",
-        "**/node_modules/**",
-        1
-      );
-      return uris && uris.length > 0 ? uris[0].fsPath : null;
-    };
-
-    const uris = await vscode.workspace.findFiles(
-      "**/dockerfile",
-      "**/node_modules/**",
-      1
-    );
-    const dockerfile = uris && uris.length > 0 ? uris[0].fsPath : null;
-
-    if (dockerfile) {
-      // Parse running docker file
-    }
-
-    return null;
   }
 }

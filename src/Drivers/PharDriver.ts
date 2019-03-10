@@ -7,9 +7,9 @@ import PhpUnitDriverInterface from "./PhpUnitDriverInterface";
 
 export default class Phar implements PhpUnitDriverInterface {
   public name: string = "Phar";
-  public _phpPath: string;
-  public _phpUnitPharPath: string;
-  public _hasPharExtension: boolean;
+  public phpPathCache: string;
+  public phpUnitPharPathCache: string;
+  public hasPharExtensionCache: boolean;
 
   public async run(args: string[]): Promise<RunConfig> {
     const execPath = await this.phpPath();
@@ -31,16 +31,16 @@ export default class Phar implements PhpUnitDriverInterface {
   }
 
   public async hasPharExtension(): Promise<boolean> {
-    if (this._hasPharExtension) {
-      return this._hasPharExtension;
+    if (this.hasPharExtensionCache) {
+      return this.hasPharExtensionCache;
     }
 
-    return (this._hasPharExtension = await new Promise<boolean>(
+    return (this.hasPharExtensionCache = await new Promise<boolean>(
       async (resolve, reject) => {
         cp.exec(
           `${await this.phpPath()} -r "echo extension_loaded('phar');"`,
           (err, stdout, stderr) => {
-            resolve(stdout == "1");
+            resolve(stdout === "1");
           }
         );
       }
@@ -48,24 +48,24 @@ export default class Phar implements PhpUnitDriverInterface {
   }
 
   public async phpPath(): Promise<string> {
-    if (this._phpPath) {
-      return this._phpPath;
+    if (this.phpPathCache) {
+      return this.phpPathCache;
     }
 
     const config = vscode.workspace.getConfiguration("phpunit");
     try {
-      this._phpPath = await cmdExists(config.get<string>("php"));
+      this.phpPathCache = await cmdExists(config.get<string>("php"));
     } catch (e) {
       try {
-        this._phpPath = await cmdExists("php");
+        this.phpPathCache = await cmdExists("php");
       } catch (e) {}
     }
-    return this._phpPath;
+    return this.phpPathCache;
   }
 
   public async phpUnitPath(): Promise<string> {
-    if (this._phpUnitPharPath) {
-      return this._phpUnitPharPath;
+    if (this.phpUnitPharPathCache) {
+      return this.phpUnitPharPathCache;
     }
 
     const findInWorkspace = async (): Promise<string> => {
@@ -74,9 +74,10 @@ export default class Phar implements PhpUnitDriverInterface {
         "**/node_modules/**",
         1
       );
-      this._phpUnitPharPath = uris && uris.length > 0 ? uris[0].fsPath : null;
+      this.phpUnitPharPathCache =
+        uris && uris.length > 0 ? uris[0].fsPath : null;
 
-      return this._phpUnitPharPath;
+      return this.phpUnitPharPathCache;
     };
 
     const config = vscode.workspace.getConfiguration("phpunit");
@@ -85,8 +86,8 @@ export default class Phar implements PhpUnitDriverInterface {
       return new Promise<string>((resolve, reject) => {
         fs.exists(phpUnitPath, exists => {
           if (exists) {
-            this._phpUnitPharPath = phpUnitPath;
-            resolve(this._phpUnitPharPath);
+            this.phpUnitPharPathCache = phpUnitPath;
+            resolve(this.phpUnitPharPathCache);
           } else {
             reject();
           }
