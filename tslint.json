@@ -9,7 +9,8 @@
     "rules": {
         "prettier": true,
         "object-literal-shorthand": false,
-        "no-console": false
+        "no-console": false,
+        "no-empty": false
     },
     "rulesDirectory": []
 }
