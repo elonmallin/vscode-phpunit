@@ -32,7 +32,15 @@ export default class Path implements IPhpUnitDriver {
 
     const config = vscode.workspace.getConfiguration("phpunit");
     try {
-      this.phpPathCache = await cmdExists(config.get<string>("php"));
+      this.phpPathCache = await new Promise((resolve, reject) => {
+        const configPath = config.get<string>("php");
+
+        if (fs.existsSync(configPath)) {
+          resolve(configPath);
+        } else {
+          reject();
+        }
+      });
     } catch (e) {
       try {
         this.phpPathCache = await cmdExists("php");
