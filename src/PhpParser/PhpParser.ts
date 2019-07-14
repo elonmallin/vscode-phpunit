@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as path from "path";
 import * as vscode from "vscode";
 import MemberTypes from "./MemberTypes";
 
@@ -42,7 +43,7 @@ export default async function parse(filePath: string) {
   });
 
   const parsed = parsePhpToObject(phpClassAsString);
-  parsed.name = filePath.match(/.*[\/\\](\w*).php$/i)[1];
+  parsed.name = path.basename(filePath, '.php');
 
   return parsed;
 }
