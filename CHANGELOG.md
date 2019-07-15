@@ -1,3 +1,6 @@
+# [v4.0.2](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.0.2)
+- **Bugfix:** Extract filename for test with `path.basename` instead of regex to cover more cases.
+
 # [v4.0.1](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.0.1)
 - **Bugfix:** Handle space in path for the filter arg of phpunit.
 - **Bugfix:** Use the `phpunit.php` config if the path is found.
