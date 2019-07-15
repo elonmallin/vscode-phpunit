@@ -2,7 +2,7 @@
   "name": "phpunit",
   "displayName": "PHPUnit",
   "description": "Run PHPUnit tests from VSCode.",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "publisher": "emallin",
   "icon": "images/phpunit.png",
   "engines": {
