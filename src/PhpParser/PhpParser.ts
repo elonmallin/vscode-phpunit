@@ -43,7 +43,7 @@ export default async function parse(filePath: string) {
   });
 
   const parsed = parsePhpToObject(phpClassAsString);
-  parsed.name = path.basename(filePath, '.php');
+  parsed.name = path.basename(filePath, ".php");
 
   return parsed;
 }
