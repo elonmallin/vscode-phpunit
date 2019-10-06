@@ -19,7 +19,7 @@ export class TestRunner {
   public bootstrapBridge: IExtensionBootstrapBridge;
 
   public readonly regex = {
-    class: /class\s+(\w*)\s*{?/gi,
+    class: /class\s+(\w*)\s*\{?/gi,
     method: /\s*public*\s+function\s+(\w*)\s*\(/gi
   };
 
@@ -36,10 +36,18 @@ export class TestRunner {
   ): string | null {
     for (let i = editor.selection.active.line; i > 0; --i) {
       const line = editor.document.lineAt(i);
-      const regexResult = /\s*public*\s+function\s+(\w*)\s*\(/gi.exec(
+      let regexResult = this.regex.method.exec(
         line.text
       );
 
+      if (regexResult) {
+        return regexResult[1].toString().trim();
+      }
+
+      regexResult = this.regex.class.exec(
+        line.text
+      );
+      
       if (regexResult) {
         return regexResult[1].toString().trim();
       }
