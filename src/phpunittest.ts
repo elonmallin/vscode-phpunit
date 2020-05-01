@@ -62,6 +62,40 @@ export class TestRunner {
       case "test": {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
+          if (
+            "xml" === editor.document.languageId &&
+            editor.document.uri.path.match(/phpunit\.xml(\.dist)?$/)
+          ) {
+            let testSuites = editor.document
+              .getText()
+              .match(/<testsuite[^>]+name="[^"]+">/g);
+            if (testSuites) {
+              testSuites = testSuites.map(v => v.match(/name="([^"]+)"/)[1]);
+              if (testSuites.length > 1) {
+                const selectedSuite = await vscode.window.showQuickPick(
+                  ["All Test Suites", ...testSuites],
+                  { placeHolder: "Choose testsuite" }
+                );
+                if (selectedSuite) {
+                  args.push("--configuration");
+                  args.push(editor.document.uri.fsPath);
+
+                  if (selectedSuite !== "All Test Suites") {
+                    args.push("--testsuite");
+                    args.push(`'${selectedSuite}'`);
+                  }
+                }
+              } else if (testSuites.length === 1) {
+                args.push("--configuration");
+                args.push(editor.document.uri.fsPath);
+                args.push("--testsuite");
+                args.push(`'${testSuites[0]}'`);
+              }
+
+              break;
+            }
+          }
+
           const range = editor.document.getWordRangeAtPosition(
             editor.selection.active
           );
