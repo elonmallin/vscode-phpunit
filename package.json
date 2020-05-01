@@ -30,6 +30,7 @@
   "activationEvents": [
     "onCommand:phpunit.Test",
     "onCommand:phpunit.TestNearest",
+    "onCommand:phpunit.TestSuite",
     "onCommand:phpunit.TestDirectory",
     "onCommand:phpunit.RerunLastTest",
     "onCommand:phpunit.TestingStop"
@@ -46,16 +47,20 @@
         "title": "PHPUnit Test Nearest"
       },
       {
+        "command": "phpunit.TestSuite",
+        "title": "PHPUnit Test Suite"
+      },
+      {
         "command": "phpunit.TestDirectory",
         "title": "PHPUnit Test Directory"
       },
       {
         "command": "phpunit.RerunLastTest",
-        "title": "PHPUnit Rerun last test"
+        "title": "PHPUnit Rerun Last Test"
       },
       {
         "command": "phpunit.TestingStop",
-        "title": "PHPUnit Stop Running Test"
+        "title": "PHPUnit Stop Running Tests"
       }
     ],
     "configuration": {

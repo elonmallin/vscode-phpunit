@@ -2,6 +2,7 @@
 
 import { ChildProcess } from "child_process";
 import * as escapeRegexp from "escape-string-regexp";
+import * as fs from "fs";
 import * as vscode from "vscode";
 import Command from "./Command";
 import IPhpUnitDriver from "./Drivers/IPhpUnitDriver";
@@ -9,7 +10,12 @@ import PhpUnitDrivers from "./Drivers/PhpUnitDrivers";
 import { IExtensionBootstrapBridge } from "./ExtensionBootstrapBridge";
 import parsePhpToObject from "./PhpParser/PhpParser";
 
-type RunType = "test" | "directory" | "rerun-last-test" | "nearest-test";
+type RunType =
+  | "test"
+  | "directory"
+  | "suite"
+  | "rerun-last-test"
+  | "nearest-test";
 
 export class TestRunner {
   public lastContextArgs: string[];
@@ -71,59 +77,13 @@ export class TestRunner {
             "xml" === editor.document.languageId &&
             editor.document.uri.path.match(/phpunit\.xml(\.dist)?$/)
           ) {
-            let testSuites = editor.document
-              .getText()
-              .match(/<testsuite[^>]+name="[^"]+">/g);
-            if (testSuites) {
-              testSuites = testSuites.map(v => v.match(/name="([^"]+)"/)[1]);
-              if (testSuites.length > 1) {
-                const selectedSuite = await vscode.window.showQuickPick(
-                  ["Run All Test Suites...", ...testSuites],
-                  { placeHolder: "Choose testsuite" }
-                );
-                if (selectedSuite) {
-                  const configArgsIdx = args.findIndex(
-                    a => /^(--configuration|-c)$/i.test(a)
-                  );
-
-                  if (configArgsIdx !== -1) {
-                    this.channel.appendLine(
-                      `(--configuration|-c) already exists with ${
-                        args[configArgsIdx + 1]
-                      }, replacing with ${editor.document.uri.fsPath}`
-                    );
-                    args[configArgsIdx + 1] = editor.document.uri.fsPath;
-                  } else {
-                    args.push("-c");
-                    args.push(editor.document.uri.fsPath);
-                  }
-
-                  if (selectedSuite !== "Run All Test Suites...") {
-                    args.push("--testsuite");
-                    args.push(`'${selectedSuite}'`);
-                  }
-                }
-              } else if (testSuites.length === 1) {
-                const configArgsIdx = args.findIndex(
-                  a => /^(--configuration|-c)$/i.test(a)
-                );
-
-                if (configArgsIdx !== -1) {
-                  this.channel.appendLine(
-                    `(--configuration|-c) already exists with ${
-                      args[configArgsIdx + 1]
-                    }, replacing with ${editor.document.uri.fsPath}`
-                  );
-                  args[configArgsIdx + 1] = editor.document.uri.fsPath;
-                } else {
-                  args.push("-c");
-                  args.push(editor.document.uri.fsPath);
-                }
-
-                args.push("--testsuite");
-                args.push(`'${testSuites[0]}'`);
-              }
-
+            if (
+              await this.resolveSuiteArgsAsync(
+                args,
+                editor.document.uri.fsPath,
+                editor.document.getText()
+              )
+            ) {
               break;
             }
           }
@@ -212,6 +172,47 @@ export class TestRunner {
           }
         }
         break;
+      }
+
+      case "suite": {
+        const files = await vscode.workspace.findFiles(
+          "**/phpunit.xml**",
+          "**/vendor/**"
+        );
+        let selectedSuiteFile = files && files.length === 1 ? files[0].fsPath : null;
+
+        if (files && files.length > 1) {
+          selectedSuiteFile = await vscode.window.showQuickPick(
+            files.map(f => f.fsPath),
+            { placeHolder: "Choose test suite file..." }
+          );
+        }
+
+        if (selectedSuiteFile) {
+          const selectedSuiteFileContent = await new Promise<string>(
+            (resolve, reject) => {
+              fs.readFile(selectedSuiteFile, "utf8", (err, data) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(data);
+                }
+              });
+            }
+          );
+
+          if (
+            await this.resolveSuiteArgsAsync(
+              args,
+              selectedSuiteFile,
+              selectedSuiteFileContent
+            )
+          ) {
+            break;
+          }
+        }
+
+        return null; // Don't run since user escaped out of quick pick.
       }
 
       case "directory": {
@@ -359,5 +360,70 @@ export class TestRunner {
             this.channel.append("\nTesting Stop\n");
             this.channel.show();
         }*/
+  }
+
+  private async resolveSuiteArgsAsync(
+    args: string[],
+    filePath: string,
+    fileContent: string
+  ): Promise<boolean> {
+    let testSuites = fileContent.match(/<testsuite[^>]+name="[^"]+">/g);
+    if (testSuites) {
+      testSuites = testSuites.map(v => v.match(/name="([^"]+)"/)[1]);
+      if (testSuites.length > 1) {
+        const selectedSuite = await vscode.window.showQuickPick(
+          ["Run All Test Suites...", ...testSuites],
+          { placeHolder: "Choose test suite..." }
+        );
+
+        if (selectedSuite) {
+          const configArgsIdx = args.findIndex(
+            a => /^(--configuration|-c)$/i.test(a)
+          );
+
+          if (configArgsIdx !== -1) {
+            this.channel.appendLine(
+              `(--configuration|-c) already exists with ${
+                args[configArgsIdx + 1]
+              }, replacing with ${filePath}`
+            );
+            args[configArgsIdx + 1] = filePath;
+          } else {
+            args.push("-c");
+            args.push(filePath);
+          }
+
+          if (selectedSuite !== "Run All Test Suites...") {
+            args.push("--testsuite");
+            args.push(`'${selectedSuite}'`);
+          }
+
+          return true;
+        }
+      } else if (testSuites.length === 1) {
+        const configArgsIdx = args.findIndex(
+          a => /^(--configuration|-c)$/i.test(a)
+        );
+
+        if (configArgsIdx !== -1) {
+          this.channel.appendLine(
+            `(--configuration|-c) already exists with ${
+              args[configArgsIdx + 1]
+            }, replacing with ${filePath}`
+          );
+          args[configArgsIdx + 1] = filePath;
+        } else {
+          args.push("-c");
+          args.push(filePath);
+        }
+
+        args.push("--testsuite");
+        args.push(`'${testSuites[0]}'`);
+
+        return true;
+      }
+    }
+
+    return false;
   }
 }

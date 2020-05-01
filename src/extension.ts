@@ -27,6 +27,12 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
+    vscode.commands.registerCommand("phpunit.TestSuite", () => {
+      PHPUnitTestRunner.run("suite");
+    })
+  );
+
+  context.subscriptions.push(
     vscode.commands.registerCommand("phpunit.TestDirectory", () => {
       PHPUnitTestRunner.run("directory");
     })
