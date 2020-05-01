@@ -1,6 +1,7 @@
 # [v4.1.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.1.0)
 - Handle `xml` files in `Run: Test` to enable running `<testsuites>` from `**phpunit.xml**` files.
 - Add `Run: Test Suite` to quick pick from all `**phpunit.xml**` files and then quick pick from all `<testsuites>`.
+- Add `phpunit.colors` setting to get colors by default `--colors=always`. Set to `null` or empty string to disable.
 - Add `ssh` driver.
 - Mark `ssh` and `docker` as `DEPRECATED` since it's really better to use the `Remote Development` extension from Microsoft.
 - **Bugfix:** Make `Run: Test Nearest` work with classes as well as functions.
