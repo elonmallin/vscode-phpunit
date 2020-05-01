@@ -56,8 +56,13 @@ export class TestRunner {
     return null;
   }
 
-  public async resolveContextArgs(type: RunType, config): Promise<string[]> {
-    let args = [];
+  public async resolveContextArgs(
+    type: RunType,
+    configArgs: string[],
+    config
+  ): Promise<string[]> {
+    let args = configArgs.slice();
+
     switch (type) {
       case "test": {
         const editor = vscode.window.activeTextEditor;
@@ -73,21 +78,48 @@ export class TestRunner {
               testSuites = testSuites.map(v => v.match(/name="([^"]+)"/)[1]);
               if (testSuites.length > 1) {
                 const selectedSuite = await vscode.window.showQuickPick(
-                  ["All Test Suites", ...testSuites],
+                  ["Run All Test Suites...", ...testSuites],
                   { placeHolder: "Choose testsuite" }
                 );
                 if (selectedSuite) {
-                  args.push("--configuration");
-                  args.push(editor.document.uri.fsPath);
+                  const configArgsIdx = args.findIndex(
+                    a => /^(--configuration|-c)$/i.test(a)
+                  );
 
-                  if (selectedSuite !== "All Test Suites") {
+                  if (configArgsIdx !== -1) {
+                    this.channel.appendLine(
+                      `(--configuration|-c) already exists with ${
+                        args[configArgsIdx + 1]
+                      }, replacing with ${editor.document.uri.fsPath}`
+                    );
+                    args[configArgsIdx + 1] = editor.document.uri.fsPath;
+                  } else {
+                    args.push("-c");
+                    args.push(editor.document.uri.fsPath);
+                  }
+
+                  if (selectedSuite !== "Run All Test Suites...") {
                     args.push("--testsuite");
                     args.push(`'${selectedSuite}'`);
                   }
                 }
               } else if (testSuites.length === 1) {
-                args.push("--configuration");
-                args.push(editor.document.uri.fsPath);
+                const configArgsIdx = args.findIndex(
+                  a => /^(--configuration|-c)$/i.test(a)
+                );
+
+                if (configArgsIdx !== -1) {
+                  this.channel.appendLine(
+                    `(--configuration|-c) already exists with ${
+                      args[configArgsIdx + 1]
+                    }, replacing with ${editor.document.uri.fsPath}`
+                  );
+                  args[configArgsIdx + 1] = editor.document.uri.fsPath;
+                } else {
+                  args.push("-c");
+                  args.push(editor.document.uri.fsPath);
+                }
+
                 args.push("--testsuite");
                 args.push(`'${testSuites[0]}'`);
               }
@@ -263,12 +295,11 @@ export class TestRunner {
         false
       );
 
-      const contextArgs = await this.resolveContextArgs(type, {
+      const contextArgs = await this.resolveContextArgs(type, configArgs, {
         preferRunClassTestOverQuickPickWindow
       });
       if (contextArgs) {
-        this.lastContextArgs = contextArgs;
-        const runArgs = this.lastContextArgs.concat(configArgs);
+        const runArgs = (this.lastContextArgs = contextArgs);
 
         this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
 
