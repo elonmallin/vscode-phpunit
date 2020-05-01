@@ -98,13 +98,13 @@ export class TestRunner {
 
             if (isFunction && wordOnCursor != null) {
               // Test a specific function in this file
-              args.push(`\"${editor.document.uri.fsPath}\"`);
+              args.push(`'${editor.document.uri.fsPath}'`);
               args.push("--filter");
               args.push(wordOnCursor);
               break;
             } else if (line.text.indexOf("class") !== -1) {
               // Test the class.
-              args.push(`\"${editor.document.uri.fsPath}\"`);
+              args.push(`'${editor.document.uri.fsPath}'`);
               break;
             }
           }
@@ -135,13 +135,13 @@ export class TestRunner {
             if (selectedTest) {
               if (selectedTest.indexOf("function - ") !== -1) {
                 // Test the function.
-                args.push(`\"${editor.document.uri.fsPath}\"`);
+                args.push(`'${editor.document.uri.fsPath}'`);
                 args.push("--filter");
                 args.push(selectedTest.replace("function - ", ""));
                 break;
               } else if (selectedTest.indexOf("class - ") !== -1) {
                 // Test the class.
-                args.push(`\"${editor.document.uri.fsPath}\"`);
+                args.push(`'${editor.document.uri.fsPath}'`);
                 break;
               }
             } else {
@@ -162,7 +162,7 @@ export class TestRunner {
           const closestMethod = this.getClosestMethodAboveActiveLine(editor);
           if (closestMethod) {
             // Test the function.
-            args.push(`\"${editor.document.uri.fsPath}\"`);
+            args.push(`'${editor.document.uri.fsPath}'`);
             args.push("--filter");
             args.push(closestMethod);
           } else {
