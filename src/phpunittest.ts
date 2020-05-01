@@ -295,6 +295,10 @@ export class TestRunner {
         "preferRunClassTestOverQuickPickWindow",
         false
       );
+      const colors = config.get<string>("colors");
+      if (colors) {
+        configArgs.push(colors);
+      }
 
       const contextArgs = await this.resolveContextArgs(type, configArgs, {
         preferRunClassTestOverQuickPickWindow

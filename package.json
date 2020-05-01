@@ -116,6 +116,11 @@
           "default": true,
           "description": "True will clear the output when we run a new test. False will leave the output after every test."
         },
+        "phpunit.colors": {
+          "type": "string",
+          "default": "--colors=always",
+          "description": "Will add argument `--colors=always` to the `phpunit` command or whatever is set here. `null` or empty string removes this setting."
+        },
         "phpunit.docker.image": {
           "type": "string",
           "description": "DEPRECATED: Please use the [Remote Development Extension by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) for a great remote development experience.\n\nDocker image to use for php.",
