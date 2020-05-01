@@ -70,13 +70,13 @@
         "phpunit.driverPriority": {
           "type": "array",
           "default": [
-            "Path",
             "Command",
+            "Ssh",
+            "Path",
             "Composer",
             "Phar",
             "DockerContainer",
             "Docker",
-            "Ssh",
             "GlobalPhpUnit"
           ],
           "description": "Set the priority of drivers to try and run phpunit with. The drivers will try and find phpunit in common places."
@@ -89,6 +89,11 @@
         "phpunit.phpunit": {
           "type": "string",
           "description": "Path to phpunit. Can be the phpunit file or phpunit.phar.\n\nAutomatically finds it in common places:\n  - Composer vendor directory\n  - phpunit.phar in your project\n  - phpunit (or phpunit.bat for windows) globally on the command line",
+          "default": null
+        },
+        "phpunit.ssh": {
+          "type": "string",
+          "description": "DEPRECATED: Please use the [Remote Development Extension by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) for a great remote development experience.\n\nCustom ssh command to run Ex: `ssh root@localhost`.\nREQUIRED: Public/private keys are required to use ssh, passwords won't work.\n\nThe command will resolve to `ssh root@localhost \"<command>\"` where `<command>` is populated like normal by the extension and could be something like `php ./phpunit.phar -c phpunit.xml` depending on your settings.\n\nYou may also want to use the `phpunit.paths` setting to map local paths to remote ones.\n\nHow to setup ssh public/private keys:\n  - Windows powershell `ssh-keygen && cat $env:userprofile/.ssh/id_rsa.pub | ssh root@localhost 'cat >> .ssh/authorized_keys'`\n  - Linux bash `ssh-keygen && ssh-copy-id root@localhost`",
           "default": null
         },
         "phpunit.command": {
@@ -113,12 +118,12 @@
         },
         "phpunit.docker.image": {
           "type": "string",
-          "description": "Docker image to use for php.",
+          "description": "DEPRECATED: Please use the [Remote Development Extension by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) for a great remote development experience.\n\nDocker image to use for php.",
           "default": "php"
         },
         "phpunit.docker.container": {
           "type": "string",
-          "description": "Docker container to run the unit tests in. Note that you have to set paths for this to work.",
+          "description": "DEPRECATED: Please use the [Remote Development Extension by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) for a great remote development experience.\n\nDocker container to run the unit tests in. Note that you have to set paths for this to work.",
           "default": null
         },
         "phpunit.paths": {
