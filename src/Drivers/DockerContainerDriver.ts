@@ -41,7 +41,7 @@ export default class DockerContainer implements IPhpUnitDriver {
             containers.map(r => r.NAMES),
             {
               placeHolder:
-                "Pick a running docker container to run phpunit test in."
+                "Pick a running docker container to run phpunit test in..."
             }
           );
 
