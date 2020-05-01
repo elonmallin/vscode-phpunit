@@ -74,18 +74,23 @@ export default class Composer implements IPhpUnitDriver {
     const config = vscode.workspace.getConfiguration("phpunit");
     const phpUnitPath = config.get<string>("phpunit");
     if (phpUnitPath) {
-      return new Promise<string>((resolve, reject) => {
+      this.phpUnitPathCache = await new Promise<string>((resolve, reject) => {
         fs.exists(phpUnitPath, exists => {
           if (exists) {
-            this.phpUnitPathCache = phpUnitPath;
-            resolve(this.phpUnitPathCache);
+            resolve(phpUnitPath);
           } else {
             reject();
           }
         });
       }).catch(findInWorkspace);
+    } else {
+      this.phpUnitPathCache = await findInWorkspace();
     }
 
-    return await findInWorkspace();
+    this.phpUnitPathCache = this.phpUnitPathCache
+      ? `'${this.phpUnitPathCache}'`
+      : this.phpUnitPathCache;
+
+    return this.phpUnitPathCache;
   }
 }

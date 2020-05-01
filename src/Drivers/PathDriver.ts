@@ -57,9 +57,9 @@ export default class Path implements IPhpUnitDriver {
 
     const config = vscode.workspace.getConfiguration("phpunit");
     const phpUnitPath = config.get<string>("phpunit");
-    return !phpUnitPath
+    this.phpUnitPathCache = !phpUnitPath
       ? null
-      : new Promise<string>((resolve, reject) => {
+      : await new Promise<string>((resolve, reject) => {
           try {
             fs.exists(phpUnitPath, exists => {
               if (exists) {
@@ -84,5 +84,11 @@ export default class Path implements IPhpUnitDriver {
             resolve();
           }
         });
+
+    this.phpUnitPathCache = this.phpUnitPathCache
+      ? `'${this.phpUnitPathCache}'`
+      : this.phpUnitPathCache;
+
+    return this.phpUnitPathCache;
   }
 }

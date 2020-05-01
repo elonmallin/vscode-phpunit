@@ -83,18 +83,25 @@ export default class Phar implements IPhpUnitDriver {
     const config = vscode.workspace.getConfiguration("phpunit");
     const phpUnitPath = config.get<string>("phpunit");
     if (phpUnitPath && phpUnitPath.endsWith(".phar")) {
-      return new Promise<string>((resolve, reject) => {
-        fs.exists(phpUnitPath, exists => {
-          if (exists) {
-            this.phpUnitPharPathCache = phpUnitPath;
-            resolve(this.phpUnitPharPathCache);
-          } else {
-            reject();
-          }
-        });
-      }).catch(findInWorkspace);
+      this.phpUnitPharPathCache = await new Promise<string>(
+        (resolve, reject) => {
+          fs.exists(phpUnitPath, exists => {
+            if (exists) {
+              resolve(phpUnitPath);
+            } else {
+              reject();
+            }
+          });
+        }
+      ).catch(findInWorkspace);
+    } else {
+      this.phpUnitPharPathCache = await findInWorkspace();
     }
 
-    return await findInWorkspace();
+    this.phpUnitPharPathCache = this.phpUnitPharPathCache
+      ? `'${this.phpUnitPharPathCache}'`
+      : this.phpUnitPharPathCache;
+
+    return this.phpUnitPharPathCache;
   }
 }
