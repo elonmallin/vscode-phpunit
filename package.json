@@ -6,7 +6,7 @@
   "publisher": "emallin",
   "icon": "images/phpunit.png",
   "engines": {
-    "vscode": "^1.27.0"
+    "vscode": "^1.44.0"
   },
   "categories": [
     "Other"
