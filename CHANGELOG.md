@@ -5,8 +5,6 @@
 - Add `ssh` driver.
 - Mark `ssh` and `docker` as `DEPRECATED` since it's really better to use the `Remote Development` extension from Microsoft.
 - **Bugfix:** Make `Run: Test Nearest` work with classes as well as functions.
-
-# [v4.0.2](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.0.2)
 - **Bugfix:** Extract filename for test with `path.basename` instead of regex to cover more cases.
 
 # [v4.0.1](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.0.1)
