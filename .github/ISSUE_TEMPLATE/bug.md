@@ -24,8 +24,7 @@ about: Create a report to help us improve
 -->
 …
 
-## Environment
-| | |
+| **Environment** | **Values** |
 |---|---|
 | *Extension version* | … |
 | *Operating system* | … |
