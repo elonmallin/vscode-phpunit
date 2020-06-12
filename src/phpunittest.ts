@@ -53,7 +53,7 @@ export class TestRunner {
       regexResult = this.regex.class.exec(
         line.text
       );
-      
+
       if (regexResult) {
         return regexResult[1].toString().trim();
       }
@@ -296,7 +296,7 @@ export class TestRunner {
         false
       );
       const colors = config.get<string>("colors");
-      if (colors) {
+      if (colors && (configArgs.indexOf(colors) === -1)) {
         configArgs.push(colors);
       }
 
