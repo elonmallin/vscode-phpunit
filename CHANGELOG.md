@@ -1,3 +1,6 @@
+# [v4.1.1](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.1.1)
+- **Bugfix:** Don't stack up --color in the output command for each run.
+
 # [v4.1.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.1.0)
 - Handle `xml` files in `Run: Test` to enable running `<testsuites>` from `**phpunit.xml**` files.
 - Add `Run: Test Suite` to quick pick from all `**phpunit.xml**` files and then quick pick from all `<testsuites>`.
