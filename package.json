@@ -139,6 +139,10 @@
         "phpunit.execPath": {
           "type": "string",
           "description": "DEPRECATED: Use phpunit.php and phpunit.phpunit instead."
+        },
+        "phpunit.envVars": {
+            "type": "object",
+            "title": "Set environment variables before running the phpunit command"
         }
       }
     },
