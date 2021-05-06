@@ -59,7 +59,12 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.TaskScope.Workspace,
             "run",
             "phpunit",
-            new vscode.ShellExecution(taskCommand),
+            new vscode.ShellExecution(
+              taskCommand,
+              {
+                env: vscode.workspace.getConfiguration('phpunit').envVars
+              },
+            ),
             problemMatcher || "$phpunit"
           )
         ];

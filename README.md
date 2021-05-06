@@ -31,6 +31,9 @@ This extension aims to need zero config and to be highly configurable. If you ha
     "phpunit.paths": {                      // Map paths in remote environments.
         "/local/path": "/remote/path",      // ${workspaceFolder} is replaced as in tasks.json
         "${workspaceFolder}": "/remote/app"
+    },
+    "phpunit.envVars": {                      // A list of environment variables for phpunit command's execution
+        "XDEBUG_CONFIG": "remove_enable=1",      // "key" = "value
     }
 }
 ```
