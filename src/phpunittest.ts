@@ -406,7 +406,7 @@ export class TestRunner {
             args[configArgsIdx + 1] = filePath;
           } else {
             args.push("-c");
-            args.push(filePath);
+            args.push(`'${filePath}'`);
           }
 
           if (selectedSuite !== "Run All Test Suites...") {
@@ -430,7 +430,7 @@ export class TestRunner {
           args[configArgsIdx + 1] = filePath;
         } else {
           args.push("-c");
-          args.push(filePath);
+          args.push(`'${filePath}'`);
         }
 
         args.push("--testsuite");
