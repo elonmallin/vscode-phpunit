@@ -219,7 +219,7 @@
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.13.4",
     "@types/vscode": "^1.44.0",
-    "mocha": "^7.1.2",
+    "mocha": "^10.2.0",
     "prettier": "^2.0.5",
     "tslint": "^6.1.2",
     "tslint-config-prettier": "^1.18.0",
