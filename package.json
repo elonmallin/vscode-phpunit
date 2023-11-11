@@ -29,12 +29,6 @@
     "ssh"
   ],
   "activationEvents": [
-    "onCommand:phpunit.Test",
-    "onCommand:phpunit.TestNearest",
-    "onCommand:phpunit.TestSuite",
-    "onCommand:phpunit.TestDirectory",
-    "onCommand:phpunit.RerunLastTest",
-    "onCommand:phpunit.TestingStop"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -209,10 +203,11 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
+    "clean": "rimraf ./out",
     "compile": "tsc -p ./",
     "lint": "eslint \"src/**/*.ts\"",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
+    "pretest": "npm run clean && npm run compile",
     "test": "node ./out/src/test/runTest.js",
     "ui-test": "npm run compile && extest setup-and-run out/ui-test/*.js",
     "compile-php-project": "cd src/test/php-project && composer install && composer dump-autoload"
@@ -230,6 +225,7 @@
     "glob": "^10.3.10",
     "mocha": "^10.2.0",
     "prettier": "^3.0.3",
+    "rimraf": "^5.0.5",
     "typescript": "^5.2.2"
   },
   "dependencies": {

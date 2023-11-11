@@ -3,7 +3,7 @@ import * as assert from 'assert';
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from 'vscode';
-import * as myExtension from '../../extension';
+// import * as myExtension from '../../extension';
 // import { Workbench } from 'vscode-extension-tester';
 import { TestRunner } from '../../phpunittest';
 
@@ -21,6 +21,8 @@ suite('php-project tests', () => {
 	test('test addition', async () => {
     const ext = vscode.extensions.getExtension('emallin.phpunit');
     const testRunner = (await ext?.activate()) as TestRunner;
+
+    // await new Promise(resolve => setTimeout(resolve, 10000));
 
     const res = await vscode.commands.executeCommand('phpunit.Test');
     
