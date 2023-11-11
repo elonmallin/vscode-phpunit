@@ -1,7 +1,7 @@
 "use strict";
 
 import { ChildProcess } from "child_process";
-import escapeStringRegexp from "escape-string-regexp";
+// import escapeStringRegexp from "escape-string-regexp";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import Command from "./Command";
@@ -286,71 +286,75 @@ export class TestRunner {
     const order = config.get<string[]>("driverPriority");
 
     const driver = await this.getDriver(order);
-    if (driver) {
-      if (config.get<string>("clearOutputOnRun")) {
-        this.channel.clear();
-      }
-
-      const configArgs = config.get<string[]>("args", []);
-      const preferRunClassTestOverQuickPickWindow = config.get<boolean>(
-        "preferRunClassTestOverQuickPickWindow",
-        false
-      );
-      const colors = config.get<string>("colors");
-      if (colors && (configArgs.indexOf(colors) === -1)) {
-        configArgs.push(colors);
-      }
-
-      const contextArgs = await this.resolveContextArgs(type, configArgs, {
-        preferRunClassTestOverQuickPickWindow
-      });
-      if (contextArgs) {
-        const runArgs = (this.lastContextArgs = contextArgs);
-
-        this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
-
-        const runConfig = await driver.run(runArgs);
-
-        runConfig.command = runConfig.command.replace(/\\/gi, "/");
-
-        const pathMappings = config.get<{ [key: string]: string }>("paths");
-        if (pathMappings) {
-          for (const key of Object.keys(pathMappings)) {
-            const localPath = key
-              .replace(/\$\{workspaceFolder\}/gi, vscode.workspace.workspaceFolders![0].uri.fsPath)
-              .replace(/\\/gi, "/");
-
-            runConfig.command = runConfig.command.replace(
-              new RegExp(escapeStringRegexp(localPath), "ig"),
-              pathMappings[key]
-            );
-          }
-        }
-
-        this.channel.appendLine(runConfig.command);
-
-        this.bootstrapBridge.setTaskCommand(
-          runConfig.command,
-          runConfig.problemMatcher
-        );
-        await vscode.commands.executeCommand("workbench.action.terminal.clear");
-        await vscode.commands.executeCommand(
-          "workbench.action.tasks.runTask",
-          "phpunit: run"
-        );
-
-        /*this.childProcess.stderr.on('data', (buffer: Buffer) => {
-                    this.channel.append(buffer.toString());
-                });
-                this.childProcess.stdout.on('data', (buffer: Buffer) => {
-                    this.channel.append(buffer.toString());
-                });*/
-
-        this.channel.show(true);
-      }
-    } else {
+    if (!driver) {
       console.error(`Wasn't able to start phpunit.`);
+      return;
     }
+
+    if (config.get<string>("clearOutputOnRun")) {
+      this.channel.clear();
+    }
+
+    const configArgs = config.get<string[]>("args", []);
+    const preferRunClassTestOverQuickPickWindow = config.get<boolean>(
+      "preferRunClassTestOverQuickPickWindow",
+      false
+    );
+    const colors = config.get<string>("colors");
+    if (colors && (configArgs.indexOf(colors) === -1)) {
+      configArgs.push(colors);
+    }
+
+    const contextArgs = await this.resolveContextArgs(type, configArgs, {
+      preferRunClassTestOverQuickPickWindow
+    });
+    if (contextArgs) {
+      const runArgs = (this.lastContextArgs = contextArgs);
+
+      this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
+
+      const runConfig = await driver.run(runArgs);
+
+      runConfig.command = runConfig.command.replace(/\\/gi, "/");
+
+      const pathMappings = config.get<{ [key: string]: string }>("paths");
+      if (pathMappings) {
+        for (const key of Object.keys(pathMappings)) {
+          const localPath = key
+            .replace(/\$\{workspaceFolder\}/gi, vscode.workspace.workspaceFolders![0].uri.fsPath)
+            .replace(/\\/gi, "/");
+
+          runConfig.command = runConfig.command.replace(
+            // TODO: using escape-string-regexp doesn't work when debuggin tests
+            // new RegExp(escapeStringRegexp(localPath), "ig"),
+            new RegExp(localPath, "ig"),
+            pathMappings[key]
+          );
+        }
+      }
+
+      this.channel.appendLine(runConfig.command);
+
+      this.bootstrapBridge.setTaskCommand(
+        runConfig.command,
+        runConfig.problemMatcher
+      );
+      await vscode.commands.executeCommand("workbench.action.terminal.clear");
+      await vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "phpunit: run"
+      );
+
+      /*this.childProcess.stderr.on('data', (buffer: Buffer) => {
+                  this.channel.append(buffer.toString());
+              });
+              this.childProcess.stdout.on('data', (buffer: Buffer) => {
+                  this.channel.append(buffer.toString());
+              });*/
+
+      this.channel.show(true);
+    }
+
   }
 
   public async stop() {

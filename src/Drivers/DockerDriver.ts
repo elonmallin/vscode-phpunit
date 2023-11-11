@@ -1,5 +1,5 @@
 import * as cmdExists from "command-exists";
-import escapeStringRegexp from "escape-string-regexp";
+// import escapeStringRegexp from "escape-string-regexp";
 import * as vscode from "vscode";
 import { IRunConfig } from "../RunConfig";
 import IPhpUnitDriver from "./IPhpUnitDriver";
@@ -28,7 +28,9 @@ export default class Docker implements IPhpUnitDriver {
       .concat(args)
       .join(" ")
       .replace(
-        new RegExp(escapeStringRegexp(vscode.workspace.workspaceFolders![0].uri.fsPath), "ig"),
+        // TODO: using escape-string-regexp doesn't work when debuggin tests
+        // new RegExp(escapeStringRegexp(vscode.workspace.workspaceFolders![0].uri.fsPath), "ig"),
+        new RegExp(vscode.workspace.workspaceFolders![0].uri.fsPath, "ig"),
         "/app"
       )
       .replace(/\\/gi, "/")
