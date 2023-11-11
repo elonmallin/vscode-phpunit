@@ -6,6 +6,7 @@ import * as vscode from 'vscode';
 // import * as myExtension from '../../extension';
 // import { Workbench } from 'vscode-extension-tester';
 import { TestRunner } from '../../phpunittest';
+import path = require('path');
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -21,6 +22,10 @@ suite('php-project tests', () => {
 	test('test addition', async () => {
     const ext = vscode.extensions.getExtension('emallin.phpunit');
     const testRunner = (await ext?.activate()) as TestRunner;
+
+    const uri = vscode.Uri.file(path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'tests/Math/AdditionTest.php'));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document);
 
     const res = await vscode.commands.executeCommand('phpunit.Test');
     
