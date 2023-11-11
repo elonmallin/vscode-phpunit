@@ -22,10 +22,10 @@ suite('php-project tests', () => {
     const ext = vscode.extensions.getExtension('emallin.phpunit');
     const testRunner = (await ext?.activate()) as TestRunner;
 
-    // await new Promise(resolve => setTimeout(resolve, 10000));
-
     const res = await vscode.commands.executeCommand('phpunit.Test');
     
+    // TODO: Debugging tests will show the full phpunit.Test command output after you manually interact and pick which function should be tested in the extension host.
+    await new Promise(resolve => setTimeout(resolve, 10000));
     // const workbench = new Workbench();
     // const outputView = await workbench.getBottomBar().openOutputView();
     // const currentChannel = await outputView.getCurrentChannel();
