@@ -6,9 +6,9 @@ import { IRunConfig } from "../RunConfig";
 import IPhpUnitDriver from "./IPhpUnitDriver";
 
 export default class Composer implements IPhpUnitDriver {
-  public name: string = "Composer";
-  private phpPathCache: string;
-  private phpUnitPathCache: string;
+  public name = "Composer";
+  private phpPathCache?: string;
+  private phpUnitPathCache?: string;
 
   public async run(args: string[]): Promise<IRunConfig> {
     let execPath = await this.phpUnitPath();
@@ -38,14 +38,16 @@ export default class Composer implements IPhpUnitDriver {
 
     const config = vscode.workspace.getConfiguration("phpunit");
     try {
-      this.phpPathCache = await cmdExists(config.get<string>("php"));
+      this.phpPathCache = await cmdExists(config.get<string>("php")!);
     } catch (e) {
       try {
         this.phpPathCache = await cmdExists("php");
-      } catch (e) {}
+      } catch (e) {
+        // Continue regardless of error
+      }
     }
 
-    return this.phpPathCache;
+    return this.phpPathCache!;
   }
 
   public async phpUnitPath(): Promise<string> {
@@ -68,7 +70,7 @@ export default class Composer implements IPhpUnitDriver {
             );
 
       return (this.phpUnitPathCache =
-        uris && uris.length > 0 ? uris[0].fsPath : null);
+        uris && uris.length > 0 ? uris[0].fsPath : "");
     };
 
     const config = vscode.workspace.getConfiguration("phpunit");

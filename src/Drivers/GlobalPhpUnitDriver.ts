@@ -1,12 +1,11 @@
 import * as cmdExists from "command-exists";
 import * as os from "os";
-import * as vscode from "vscode";
 import { IRunConfig } from "../RunConfig";
 import IPhpUnitDriver from "./IPhpUnitDriver";
 
 export default class GlobalPhpUnit implements IPhpUnitDriver {
-  public name: string = "GlobalPhpUnit";
-  private phpUnitPathCache: string;
+  public name = "GlobalPhpUnit";
+  private phpUnitPathCache?: string;
 
   public async run(args: string[]): Promise<IRunConfig> {
     const execPath = await this.phpUnitPath();
@@ -32,8 +31,10 @@ export default class GlobalPhpUnit implements IPhpUnitDriver {
         os.platform() === "win32"
           ? await cmdExists("phpunit.bat")
           : await cmdExists("phpunit");
-    } catch (e) {}
+    } catch (e) {
+      // Continue regardless of error
+    }
 
-    return this.phpUnitPathCache;
+    return this.phpUnitPathCache!;
   }
 }

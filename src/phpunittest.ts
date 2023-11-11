@@ -1,7 +1,7 @@
 "use strict";
 
 import { ChildProcess } from "child_process";
-import * as escapeRegexp from "escape-string-regexp";
+import escapeStringRegexp from "escape-string-regexp";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import Command from "./Command";
@@ -18,10 +18,10 @@ type RunType =
   | "nearest-test";
 
 export class TestRunner {
-  public lastContextArgs: string[];
+  public lastContextArgs?: string[];
   public channel: vscode.OutputChannel;
-  public lastCommand: Command;
-  public childProcess: ChildProcess;
+  public lastCommand?: Command;
+  public childProcess?: ChildProcess;
   public bootstrapBridge: IExtensionBootstrapBridge;
 
   public readonly regex = {
@@ -65,8 +65,8 @@ export class TestRunner {
   public async resolveContextArgs(
     type: RunType,
     configArgs: string[],
-    config
-  ): Promise<string[]> {
+    config: any,
+  ): Promise<string[] | undefined> {
     let args = configArgs.slice();
 
     switch (type) {
@@ -146,7 +146,7 @@ export class TestRunner {
               }
             } else {
               // Make sure to return null args to indicate that we should not run any test.
-              return null;
+              return undefined;
             }
           }
 
@@ -156,6 +156,7 @@ export class TestRunner {
         }
       }
 
+      // eslint-disable-next-line no-fallthrough
       case "nearest-test": {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -179,7 +180,7 @@ export class TestRunner {
           "**/phpunit.xml**",
           "**/vendor/**"
         );
-        let selectedSuiteFile = files && files.length === 1 ? files[0].fsPath : null;
+        let selectedSuiteFile = files && files.length === 1 ? files[0].fsPath : undefined;
 
         if (files && files.length > 1) {
           selectedSuiteFile = await vscode.window.showQuickPick(
@@ -191,7 +192,7 @@ export class TestRunner {
         if (selectedSuiteFile) {
           const selectedSuiteFileContent = await new Promise<string>(
             (resolve, reject) => {
-              fs.readFile(selectedSuiteFile, "utf8", (err, data) => {
+              fs.readFile(selectedSuiteFile!, "utf8", (err, data) => {
                 if (err) {
                   reject(err);
                 } else {
@@ -212,7 +213,7 @@ export class TestRunner {
           }
         }
 
-        return null; // Don't run since user escaped out of quick pick.
+        return undefined; // Don't run since user escaped out of quick pick.
       }
 
       case "directory": {
@@ -232,7 +233,7 @@ export class TestRunner {
       }
 
       case "rerun-last-test": {
-        args = args.concat(this.lastContextArgs.slice());
+        args = args.concat(this.lastContextArgs!.slice());
         break;
       }
     }
@@ -240,7 +241,7 @@ export class TestRunner {
     return args;
   }
 
-  public async getDriver(order?: string[]): Promise<IPhpUnitDriver> {
+  public async getDriver(order?: string[]): Promise<IPhpUnitDriver | undefined> {
     const drivers: IPhpUnitDriver[] = [
       new PhpUnitDrivers.Path(),
       new PhpUnitDrivers.Composer(),
@@ -253,7 +254,7 @@ export class TestRunner {
       new PhpUnitDrivers.Legacy()
     ];
 
-    function arrayUnique(array) {
+    function arrayUnique(array: any[]) {
       const a = array.concat();
       for (let i = 0; i < a.length; ++i) {
         for (let j = i + 1; j < a.length; ++j) {
@@ -268,7 +269,7 @@ export class TestRunner {
     order = arrayUnique((order || []).concat(drivers.map(d => d.name)));
 
     const sortedDrivers = drivers.sort((a, b) => {
-      return order.indexOf(a.name) - order.indexOf(b.name);
+      return order!.indexOf(a.name) - order!.indexOf(b.name);
     });
 
     for (const d of sortedDrivers) {
@@ -277,7 +278,7 @@ export class TestRunner {
       }
     }
 
-    return null;
+    return undefined;
   }
 
   public async run(type: RunType) {
@@ -312,15 +313,15 @@ export class TestRunner {
 
         runConfig.command = runConfig.command.replace(/\\/gi, "/");
 
-        const pathMappings = config.get<string>("paths");
+        const pathMappings = config.get<{ [key: string]: string }>("paths");
         if (pathMappings) {
           for (const key of Object.keys(pathMappings)) {
             const localPath = key
-              .replace(/\$\{workspaceFolder\}/gi, vscode.workspace.rootPath)
+              .replace(/\$\{workspaceFolder\}/gi, vscode.workspace.workspaceFolders![0].uri.fsPath)
               .replace(/\\/gi, "/");
 
             runConfig.command = runConfig.command.replace(
-              new RegExp(escapeRegexp(localPath), "ig"),
+              new RegExp(escapeStringRegexp(localPath), "ig"),
               pathMappings[key]
             );
           }
@@ -371,9 +372,12 @@ export class TestRunner {
     filePath: string,
     fileContent: string
   ): Promise<boolean> {
-    let testSuites = fileContent.match(/<testsuite[^>]+name="[^"]+">/g);
+    const testSuitesMatch = fileContent.match(/<testsuite[^>]+name="[^"]+">/g);
+    let testSuites;
+    if (testSuitesMatch) {
+      testSuites = testSuitesMatch.map(v => v.match(/name="([^"]+)"/)![1]);
+    }
     if (testSuites) {
-      testSuites = testSuites.map(v => v.match(/name="([^"]+)"/)[1]);
       if (testSuites.length > 1) {
         const selectedSuite = await vscode.window.showQuickPick(
           ["Run All Test Suites...", ...testSuites],

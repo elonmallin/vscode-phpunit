@@ -4,8 +4,8 @@ import * as vscode from "vscode";
 import { TestRunner } from "./phpunittest";
 
 export function activate(context: vscode.ExtensionContext) {
-  let taskCommand: string = null;
-  let problemMatcher: string = null;
+  let taskCommand: string;
+  let problemMatcher: string | undefined;
   const outputChannel = vscode.window.createOutputChannel("phpunit");
   const PHPUnitTestRunner: TestRunner = new TestRunner(outputChannel, {
     setTaskCommand: (command: string, matcher?: string) => {
@@ -69,10 +69,14 @@ export function activate(context: vscode.ExtensionContext) {
           )
         ];
       },
-      resolveTask: undefined
+      // Hack around typescript compiler
+      resolveTask: (task: vscode.Task, token: vscode.CancellationToken) => {
+        return null as any as vscode.ProviderResult<vscode.Task>;
+      }
     })
   );
 }
 
 // this method is called when your extension is deactivated
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 export function deactivate() {}

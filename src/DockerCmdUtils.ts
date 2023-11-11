@@ -1,12 +1,14 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import * as nrc from "node-run-cmd";
 
 const docker = {
   container: {
     ls: async (): Promise<any[]> => {
-      let output: string = "";
+      let output = "";
 
       await nrc.run("docker container ls", {
-        onData: data => {
+        onData: (data: any) => {
           output += data;
         }
       });
@@ -24,12 +26,12 @@ const docker = {
 
           const container = {};
           for (let i = 0; i < names.length; ++i) {
-            container[names[i]] = values[Math.min(i, values.length - 1)];
+            (container as any)[names[i]] = values[Math.min(i, values.length - 1)];
           }
           acc.push(container);
 
           return acc;
-        }, []);
+        }, new Array<any>());
     }
   }
 };

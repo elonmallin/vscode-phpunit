@@ -4,16 +4,16 @@ import IPhpUnitDriver from "./IPhpUnitDriver";
 import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
 export default class Ssh implements IPhpUnitDriver {
-  public name: string = "Ssh";
-  private phpPathCache: string;
-  private phpUnitPathCache: string;
-  private ssh: string;
+  public name = "Ssh";
+  private phpPathCache?: string;
+  private phpUnitPathCache?: string;
+  private ssh?: string;
 
   public async run(args: string[]): Promise<IRunConfig> {
     const argsString = `${this.phpPathCache} ${this.phpUnitPathCache} ${args.join(" ")}`;
 
     return {
-      command: `${this.ssh.replace("<command>", argsString)}`,
+      command: `${this.ssh!.replace("<command>", argsString)}`,
     };
   }
 
