@@ -15,38 +15,38 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.Test", () => {
-      PHPUnitTestRunner.run("test");
+    vscode.commands.registerCommand("phpunit.Test", async () => {
+      return await PHPUnitTestRunner.run("test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestNearest", () => {
-      PHPUnitTestRunner.run("nearest-test");
+    vscode.commands.registerCommand("phpunit.TestNearest", async () => {
+      return PHPUnitTestRunner.run("nearest-test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestSuite", () => {
-      PHPUnitTestRunner.run("suite");
+    vscode.commands.registerCommand("phpunit.TestSuite", async () => {
+      return PHPUnitTestRunner.run("suite");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestDirectory", () => {
-      PHPUnitTestRunner.run("directory");
+    vscode.commands.registerCommand("phpunit.TestDirectory", async () => {
+      return PHPUnitTestRunner.run("directory");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.RerunLastTest", () => {
-      PHPUnitTestRunner.run("rerun-last-test");
+    vscode.commands.registerCommand("phpunit.RerunLastTest", async () => {
+      return PHPUnitTestRunner.run("rerun-last-test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestingStop", () => {
-      PHPUnitTestRunner.stop();
+    vscode.commands.registerCommand("phpunit.TestingStop", async () => {
+      return PHPUnitTestRunner.stop();
     })
   );
 

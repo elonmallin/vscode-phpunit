@@ -6,7 +6,7 @@
   "publisher": "emallin",
   "icon": "images/phpunit.png",
   "engines": {
-    "vscode": "^1.44.0"
+    "vscode": "^1.84.1"
   },
   "categories": [
     "Other"
@@ -213,7 +213,9 @@
     "lint": "eslint \"src/**/*.ts\"",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/src/test/runTest.js",
+    "ui-test": "npm run compile && extest setup-and-run out/ui-test/*.js",
+    "compile-php-project": "cd src/test/php-project && composer install && composer dump-autoload"
   },
   "devDependencies": {
     "@types/command-exists": "^1.2.3",
