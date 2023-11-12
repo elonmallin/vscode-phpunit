@@ -1,7 +1,10 @@
-name: Create release artifact
+name: Create Release Artifact
 
 on:
   push:
+    branches:
+      - master
+  pull_request:
     branches:
       - master
   workflow_dispatch:
