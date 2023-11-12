@@ -18,6 +18,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.x
+          tools: composer:v2
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+        with:
+          working_dir: src/test/php-project
+
       - uses: php-actions/composer@v6
         with:
           working_dir: src/test/php-project
