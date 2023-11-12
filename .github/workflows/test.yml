@@ -24,19 +24,6 @@ jobs:
           php-version: 8.x
           tools: composer:v2
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate
-        working-directory: src/test/php-project
-
-      - uses: php-actions/composer@v6
-        with:
-          working_dir: src/test/php-project
-
-      - uses: php-actions/composer@v6
-        with:
-          command: dump-autoload
-          working_dir: src/test/php-project
-
       - name: Install dependencies
         run: npm install
 
