@@ -206,9 +206,8 @@
     "compile": "tsc -p ./",
     "lint": "eslint \"src/**/*.ts\"",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run clean && npm run compile",
+    "pretest": "npm run clean && npm run compile && npm run compile-php-project",
     "test": "cross-env VSCODE_PHPUNIT_TEST=true node ./out/src/test/runTest.js",
-    "ui-test": "npm run compile && extest setup-and-run out/ui-test/*.js",
     "compile-php-project": "cd src/test/php-project && composer install && composer dump-autoload"
   },
   "devDependencies": {
