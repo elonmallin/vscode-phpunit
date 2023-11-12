@@ -1,7 +1,7 @@
 "use strict";
 
 import { ChildProcess } from "child_process";
-// import escapeStringRegexp from "escape-string-regexp";
+import escapeStringRegexp from "./Utils/escape-string-regexp";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import Command from "./Command";
@@ -325,9 +325,7 @@ export class TestRunner {
             .replace(/\\/gi, "/");
 
           runConfig.command = runConfig.command.replace(
-            // TODO: using escape-string-regexp doesn't work when debuggin tests
-            // new RegExp(escapeStringRegexp(localPath), "ig"),
-            new RegExp(localPath, "ig"),
+            new RegExp(escapeStringRegexp(localPath), "ig"),
             pathMappings[key]
           );
         }
