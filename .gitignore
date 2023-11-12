@@ -7,3 +7,4 @@ node_modules
 **/test/**/vendor/
 vscode*/
 test-resources
+test-results.xml
