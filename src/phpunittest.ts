@@ -308,51 +308,53 @@ export class TestRunner {
     const contextArgs = await this.resolveContextArgs(type, configArgs, {
       preferRunClassTestOverQuickPickWindow
     });
-    if (contextArgs) {
-      const runArgs = (this.lastContextArgs = contextArgs);
-
-      this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
-
-      const runConfig = await driver.run(runArgs);
-
-      runConfig.command = runConfig.command.replace(/\\/gi, "/");
-
-      const pathMappings = config.get<{ [key: string]: string }>("paths");
-      if (pathMappings) {
-        for (const key of Object.keys(pathMappings)) {
-          const localPath = key
-            .replace(/\$\{workspaceFolder\}/gi, vscode.workspace.workspaceFolders![0].uri.fsPath)
-            .replace(/\\/gi, "/");
-
-          runConfig.command = runConfig.command.replace(
-            new RegExp(escapeStringRegexp(localPath), "ig"),
-            pathMappings[key]
-          );
-        }
-      }
-
-      this.channel.appendLine(runConfig.command);
-
-      this.bootstrapBridge.setTaskCommand(
-        runConfig.command,
-        runConfig.problemMatcher
-      );
-      await vscode.commands.executeCommand("workbench.action.terminal.clear");
-      await vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "phpunit: run"
-      );
-
-      /*this.childProcess.stderr.on('data', (buffer: Buffer) => {
-                  this.channel.append(buffer.toString());
-              });
-              this.childProcess.stdout.on('data', (buffer: Buffer) => {
-                  this.channel.append(buffer.toString());
-              });*/
-
-      this.channel.show(true);
+    if (!contextArgs) {
+      return;
     }
 
+    const runArgs = (this.lastContextArgs = contextArgs);
+
+    this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
+
+    const runConfig = await driver.run(runArgs);
+
+    runConfig.command = runConfig.command.replace(/\\/gi, "/");
+
+    const pathMappings = config.get<{ [key: string]: string }>("paths");
+    if (pathMappings) {
+      for (const key of Object.keys(pathMappings)) {
+        const localPath = key
+          .replace(/\$\{workspaceFolder\}/gi, vscode.workspace.workspaceFolders![0].uri.fsPath)
+          .replace(/\\/gi, "/");
+
+        runConfig.command = runConfig.command.replace(
+          new RegExp(escapeStringRegexp(localPath), "ig"),
+          pathMappings[key]
+        );
+      }
+    }
+
+    this.channel.appendLine(runConfig.command);
+
+    this.bootstrapBridge.setTaskCommand(
+      runConfig.command,
+      runConfig.problemMatcher
+    );
+
+    await vscode.commands.executeCommand("workbench.action.terminal.clear");
+    await vscode.commands.executeCommand(
+      "workbench.action.tasks.runTask",
+      "phpunit: run"
+    );
+
+    /*this.childProcess.stderr.on('data', (buffer: Buffer) => {
+                this.channel.append(buffer.toString());
+            });
+            this.childProcess.stdout.on('data', (buffer: Buffer) => {
+                this.channel.append(buffer.toString());
+            });*/
+
+    this.channel.show(true);
   }
 
   public async stop() {

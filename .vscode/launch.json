@@ -26,7 +26,10 @@
 				"${workspaceRoot}/src/test/php-project"
 			],
 			"sourceMaps": true,
-			"preLaunchTask": "npm"
+			"preLaunchTask": "npm",
+			"env": {
+				"VSCODE_PHPUNIT_TEST": "true"
+			}
 		}
 	]
 }

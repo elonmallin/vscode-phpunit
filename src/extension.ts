@@ -2,14 +2,27 @@
 
 import * as vscode from "vscode";
 import { TestRunner } from "./phpunittest";
+import { IMyExtensionApi } from "./MyExtensionApi";
+import path = require("path");
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
+  const testOutputFile = path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'test-output.txt');
+  const myExtensionApi = {
+    testRedirectedOutputFile: testOutputFile
+  };
+
   let taskCommand: string;
   let problemMatcher: string | undefined;
   const outputChannel = vscode.window.createOutputChannel("phpunit");
   const PHPUnitTestRunner: TestRunner = new TestRunner(outputChannel, {
     setTaskCommand: (command: string, matcher?: string) => {
-      taskCommand = command;
+      if (process.env.VSCODE_PHPUNIT_TEST === 'true') {
+        taskCommand = command + ' > ' + testOutputFile;
+      }
+      else {
+        taskCommand = command;
+      }
+
       problemMatcher = matcher;
     }
   });
@@ -75,6 +88,8 @@ export function activate(context: vscode.ExtensionContext) {
       }
     })
   );
+
+  return myExtensionApi;
 }
 
 // this method is called when your extension is deactivated
