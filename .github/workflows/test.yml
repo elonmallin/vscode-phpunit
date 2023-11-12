@@ -12,7 +12,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
@@ -40,8 +40,16 @@ jobs:
           name: test-results
           path: test-results.xml
 
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+      - name: Publish Unit Test Results (Linux)
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always() && runner.os == 'Linux'
         with:
+          check_name: Test Results ${{ runner.os }}
+          files: test-results.xml
+
+      - name: Publish Unit Test Results (Windows & Mac)
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always() && runner.os != 'Linux'
+        with:
+          check_name: Test Results ${{ runner.os }}
           files: test-results.xml
