@@ -5,19 +5,19 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 // import * as myExtension from '../../extension';
 import path = require('path');
-import { before } from 'mocha';
+import { before, beforeEach } from 'mocha';
 import * as fs from 'fs';
 import { IMyExtensionApi } from '../../MyExtensionApi';
 import * as sinon from 'sinon';
 
-const getOnDidEndTaskProcessPromise = (outputFile: string): Promise<{ output: string }> => {
-  return new Promise<{ output: string }>((resolve, reject) => {
+const getOnDidEndTaskProcessPromise = (outputFile: string): Promise<{ output: string, exitCode: number }> => {
+  return new Promise<{ output: string, exitCode: number }>((resolve, reject) => {
     const disposable = vscode.tasks.onDidEndTaskProcess(async (e) => {
       if (e.execution.task.source === 'phpunit' && e.execution.task.name === 'run') {
           const output = await fs.promises.readFile(outputFile, 'utf-8');
           disposable.dispose();
 
-          resolve({ output });
+          resolve({ output, exitCode: e.exitCode === undefined ? 1 : e.exitCode });
       }
     });
   });
@@ -30,6 +30,10 @@ suite('php-project e2e', () => {
   before(async () => {
     const ext = vscode.extensions.getExtension('emallin.phpunit');
     myExtensionApi = await ext?.activate() as IMyExtensionApi;
+  });
+
+  beforeEach(async () => {
+    sinon.restore();
   });
   
 	test('phpunit.Test Class', async () => {
@@ -46,7 +50,40 @@ suite('php-project e2e', () => {
     const task = await taskOutputPromise;
 
     assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
-    assert.match(task.output, /OK \(\d+ tests?, \d+ assertions?\)/);
+    assert.equal(task.exitCode, 0);
+	});
+
+	test('phpunit.Test Function', async () => {
+    const uri = vscode.Uri.file(path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'tests/Math/AdditionTest.php'));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document, {
+      selection: new vscode.Range(6, 20, 6, 27) // Select the first function name in AdditionTest
+    });
+
+    const taskOutputPromise = getOnDidEndTaskProcessPromise(myExtensionApi.testRedirectedOutputFile);
+    const res = await vscode.commands.executeCommand('phpunit.Test');
+    const task = await taskOutputPromise;
+
+    assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
+    assert.equal(task.exitCode, 0);
+	});
+
+	test('phpunit.Test suite', async () => {
+    const uri = vscode.Uri.file(path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'phpunit.xml'));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document, {
+      selection: new vscode.Range(12, 0, 12, 0) // Set the cursor at the line with the Science test suite
+    });
+
+    const stub = sinon.stub(vscode.window, 'showQuickPick');
+    stub.returns(Promise.resolve('Science' as any));
+
+    const taskOutputPromise = getOnDidEndTaskProcessPromise(myExtensionApi.testRedirectedOutputFile);
+    const res = await vscode.commands.executeCommand('phpunit.Test');
+    const task = await taskOutputPromise;
+
+    assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
+    assert.equal(task.exitCode, 0);
 	});
 
 	test('phpunit.TestNearest', async () => {
@@ -61,7 +98,7 @@ suite('php-project e2e', () => {
     const task = await taskOutputPromise;
 
     assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
-    assert.match(task.output, /OK \(\d+ tests?, \d+ assertions?\)/);
+    assert.equal(task.exitCode, 0);
 	});
 
 	test('phpunit.TestDirectory', async () => {
@@ -74,8 +111,8 @@ suite('php-project e2e', () => {
     const task = await taskOutputPromise;
 
     assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
-    assert.match(task.output, /OK \(\d+ tests?, \d+ assertions?\)/);
-    assert.ok(parseInt((task.output).match(/OK \((\d+) tests, \d+ assertions\)/)![1]) >= 2);
+    assert.equal(task.exitCode, 0);
+    assert.ok(parseInt((task.output).match(/(\d+) \/ \d+ \(100%\)/)![1]) >= 2);
 	});
 
 	test('phpunit.TestSuite', async () => {
@@ -92,9 +129,7 @@ suite('php-project e2e', () => {
     const res = await vscode.commands.executeCommand('phpunit.TestSuite');
     const task = await taskOutputPromise;
 
-    console.debug(task.output);
-
     assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
-    assert.doesNotMatch(task.output, /Error: \d+ tests failed\./);
+    assert.equal(task.exitCode, 0);
 	});
 });

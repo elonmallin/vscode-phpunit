@@ -7,10 +7,10 @@
     stopOnFailure="false"
     cacheDirectory=".phpunit.cache">
   <coverage>
-    <report>
+    <!-- <report>
       <html outputDirectory="coverage" lowUpperBound="35" highLowerBound="70"/>
       <text outputFile="php://stdout" showUncoveredFiles="true"/>
-    </report>
+    </report> -->
   </coverage>
   <testsuites>
     <testsuite name="Test All">
