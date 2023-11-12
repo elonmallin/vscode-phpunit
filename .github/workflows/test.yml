@@ -13,7 +13,6 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        node-version: ['20.x']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
@@ -22,13 +21,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20.x
 
       - name: Install dependencies
         run: npm install
 
       - name: Run tests
+        run: xvfb-run -a npm test
+        if: runner.os == 'Linux'
+
+      - name: Run tests
         run: npm test
+        if: runner.os != 'Linux'
 
       - name: Upload test results
         uses: actions/upload-artifact@v2
