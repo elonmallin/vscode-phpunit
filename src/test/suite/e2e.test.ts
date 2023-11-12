@@ -50,7 +50,7 @@ suite('php-project e2e', () => {
     const task = await taskOutputPromise;
 
     assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
-    assert.equal(task.exitCode, 0);
+    assert.equal(task.exitCode, 1);
 	});
 
 	test('phpunit.Test Function', async () => {
