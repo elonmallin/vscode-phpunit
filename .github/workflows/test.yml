@@ -26,8 +26,7 @@ jobs:
 
       - name: Validate composer.json and composer.lock
         run: composer validate
-        with:
-          working_dir: src/test/php-project
+        working-directory: src/test/php-project
 
       - uses: php-actions/composer@v6
         with:
