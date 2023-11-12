@@ -216,6 +216,7 @@
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.4",
     "@types/node": "^20.9.0",
+    "@types/sinon": "^17.0.1",
     "@types/vscode": "^1.84.1",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
@@ -226,6 +227,7 @@
     "mocha": "^10.2.0",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
+    "sinon": "^17.0.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {

@@ -1,0 +1,4 @@
+.vscode
+test-output.txt
+.phpunit.result.cache
+.phpunit.cache

@@ -341,6 +341,10 @@ export class TestRunner {
       runConfig.problemMatcher
     );
 
+    if (process.env.VSCODE_PHPUNIT_TEST === 'true') {
+      console.debug(runConfig.command);
+    }
+
     await vscode.commands.executeCommand("workbench.action.terminal.clear");
     await vscode.commands.executeCommand(
       "workbench.action.tasks.runTask",

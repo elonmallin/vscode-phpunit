@@ -10,7 +10,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Math\\": "src/Math"
+            "Math\\": "src/Math",
+            "Science\\": "src/Science"
         }
     }
 }

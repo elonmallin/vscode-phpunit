@@ -7,5 +7,3 @@ node_modules
 **/test/**/vendor/
 vscode*/
 test-resources
-src/test/php-project/.vscode
-src/test/php-project/test-output.txt
