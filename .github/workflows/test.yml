@@ -1,0 +1,55 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.x
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - run: xvfb-run -a npm test
+        if: runner.os == 'Linux'
+
+      - run: npm test
+        if: runner.os != 'Linux'
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-results
+          path: test-results.xml
+
+      - name: Publish Unit Test Results (Linux)
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always() && runner.os == 'Linux'
+        with:
+          check_name: Test Results ${{ runner.os }}
+          files: test-results.xml
+
+      - name: Publish Unit Test Results (Windows & Mac)
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always() && runner.os != 'Linux'
+        with:
+          check_name: Test Results ${{ runner.os }}
+          files: test-results.xml

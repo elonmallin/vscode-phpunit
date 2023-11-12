@@ -7,12 +7,11 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}" ],
-			"stopOnEntry": false,
-			"sourceMaps": true,
-			"outFiles": [
-				"${workspaceRoot}/out/**/*.js"
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}",
+				"${workspaceRoot}/src/test/php-project"
 			],
+			"sourceMaps": true,
 			"preLaunchTask": "npm",
 			"smartStep": true
 		},
@@ -21,13 +20,16 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}", "--extensionTestsPath=${workspaceRoot}/out/test" ],
-			"stopOnEntry": false,
-			"sourceMaps": true,
-			"outFiles": [
-				"${workspaceRoot}/out/**/*.js"
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}",
+				"--extensionTestsPath=${workspaceRoot}/out/src/test/suite/index",
+				"${workspaceRoot}/src/test/php-project"
 			],
-			"preLaunchTask": "npm"
+			"sourceMaps": true,
+			"preLaunchTask": "npm",
+			"env": {
+				"VSCODE_PHPUNIT_TEST": "true"
+			}
 		}
 	]
 }

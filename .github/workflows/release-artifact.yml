@@ -1,0 +1,27 @@
+name: Create release artifact
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Package
+      run: npm run package
+
+    - name: Upload VS Code extension artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: release-artifact
+        path: ./phpunit-*.vsix

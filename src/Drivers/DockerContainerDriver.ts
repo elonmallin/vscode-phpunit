@@ -6,12 +6,12 @@ import IPhpUnitDriver from "./IPhpUnitDriver";
 import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
 export default class DockerContainer implements IPhpUnitDriver {
-  public name: string = "DockerContainer";
-  private phpUnitPathCache: string;
-  private dockerContainer: string;
+  public name = "DockerContainer";
+  private phpUnitPathCache?: string;
+  private dockerContainer?: string;
 
   public async run(args: string[]): Promise<IRunConfig> {
-    args = [
+    const params = [
       "exec",
       "-t",
       this.dockerContainer,
@@ -19,7 +19,7 @@ export default class DockerContainer implements IPhpUnitDriver {
       await this.phpUnitPath()
     ].concat(args);
 
-    const command = `docker ${args.join(" ").replace(/\\/gi, "/")}`;
+    const command = `docker ${params.join(" ").replace(/\\/gi, "/")}`;
 
     return {
       command: command,

@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es6",
+        "target": "es2020",
         "outDir": "out",
         "lib": [
-            "es6"
+            "es2020"
         ],
         "sourceMap": true,
+        "strict": true,
         "rootDir": ".",
         "plugins": [
             {
@@ -16,7 +17,9 @@
     },
     "exclude": [
         "node_modules",
-        ".vscode-test"
+        ".vscode-test",
+        "test-resources",
+        "vscodeJVCoE0"
     ],
     "typeAcquisition": {
         "enable": true

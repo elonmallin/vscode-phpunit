@@ -1,13 +1,13 @@
 import * as cmdExists from "command-exists";
-import * as escapeRegexp from "escape-string-regexp";
+import escapeStringRegexp from "../Utils/escape-string-regexp";
 import * as vscode from "vscode";
 import { IRunConfig } from "../RunConfig";
 import IPhpUnitDriver from "./IPhpUnitDriver";
 import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
 export default class Docker implements IPhpUnitDriver {
-  public name: string = "Docker";
-  private phpUnitPathCache: string;
+  public name = "Docker";
+  private phpUnitPathCache?: string;
 
   public async run(args: string[]): Promise<IRunConfig> {
     const config = vscode.workspace.getConfiguration("phpunit");
@@ -28,7 +28,7 @@ export default class Docker implements IPhpUnitDriver {
       .concat(args)
       .join(" ")
       .replace(
-        new RegExp(escapeRegexp(vscode.workspace.rootPath), "ig"),
+        new RegExp(escapeStringRegexp(vscode.workspace.workspaceFolders![0].uri.fsPath), "ig"),
         "/app"
       )
       .replace(/\\/gi, "/")

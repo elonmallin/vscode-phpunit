@@ -6,9 +6,9 @@ import { IRunConfig } from "../RunConfig";
 import IPhpUnitDriver from "./IPhpUnitDriver";
 
 export default class Path implements IPhpUnitDriver {
-  public name: string = "Path";
-  private phpPathCache: string;
-  private phpUnitPathCache: string;
+  public name = "Path";
+  private phpPathCache?: string;
+  private phpUnitPathCache?: string;
 
   public async run(args: string[]): Promise<IRunConfig> {
     const execPath = await this.phpPath();
@@ -35,8 +35,8 @@ export default class Path implements IPhpUnitDriver {
       this.phpPathCache = await new Promise((resolve, reject) => {
         const configPath = config.get<string>("php");
 
-        if (fs.existsSync(configPath)) {
-          resolve(configPath);
+        if (fs.existsSync(configPath!)) {
+          resolve(configPath!);
         } else {
           reject();
         }
@@ -44,10 +44,12 @@ export default class Path implements IPhpUnitDriver {
     } catch (e) {
       try {
         this.phpPathCache = await cmdExists("php");
-      } catch (e) {}
+      } catch (e) {
+        // Continue regardless of error
+      }
     }
 
-    return this.phpPathCache;
+    return this.phpPathCache!;
   }
 
   public async phpUnitPath(): Promise<string> {
@@ -58,7 +60,7 @@ export default class Path implements IPhpUnitDriver {
     const config = vscode.workspace.getConfiguration("phpunit");
     const phpUnitPath = config.get<string>("phpunit");
     this.phpUnitPathCache = !phpUnitPath
-      ? null
+      ? undefined
       : await new Promise<string>((resolve, reject) => {
           try {
             fs.exists(phpUnitPath, exists => {
@@ -67,7 +69,7 @@ export default class Path implements IPhpUnitDriver {
                 resolve(this.phpUnitPathCache);
               } else {
                 const absPhpUnitPath = path.join(
-                  vscode.workspace.rootPath,
+                  vscode.workspace.workspaceFolders![0].uri.fsPath,
                   phpUnitPath
                 );
                 fs.exists(absPhpUnitPath, absExists => {
@@ -75,13 +77,13 @@ export default class Path implements IPhpUnitDriver {
                     this.phpUnitPathCache = absPhpUnitPath;
                     resolve(this.phpUnitPathCache);
                   } else {
-                    resolve();
+                    resolve("");
                   }
                 });
               }
             });
           } catch (e) {
-            resolve();
+            resolve("");
           }
         });
 
@@ -89,6 +91,6 @@ export default class Path implements IPhpUnitDriver {
       ? `'${this.phpUnitPathCache}'`
       : this.phpUnitPathCache;
 
-    return this.phpUnitPathCache;
+    return this.phpUnitPathCache!;
   }
 }

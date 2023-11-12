@@ -1,0 +1,17 @@
+{
+    "name": "vscode-phpunit/php-project",
+    "description": "Tests will run against this project",
+    "type": "project",
+    "require": {
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.4"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Math\\": "src/Math",
+            "Science\\": "src/Science"
+        }
+    }
+}

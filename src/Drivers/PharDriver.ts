@@ -6,10 +6,10 @@ import { IRunConfig } from "../RunConfig";
 import IPhpUnitDriver from "./IPhpUnitDriver";
 
 export default class Phar implements IPhpUnitDriver {
-  public name: string = "Phar";
-  public phpPathCache: string;
-  public phpUnitPharPathCache: string;
-  public hasPharExtensionCache: boolean;
+  public name = "Phar";
+  public phpPathCache?: string;
+  public phpUnitPharPathCache?: string;
+  public hasPharExtensionCache?: boolean;
 
   public async run(args: string[]): Promise<IRunConfig> {
     const execPath = await this.phpPath();
@@ -36,6 +36,7 @@ export default class Phar implements IPhpUnitDriver {
     }
 
     return (this.hasPharExtensionCache = await new Promise<boolean>(
+      // eslint-disable-next-line no-async-promise-executor
       async (resolve, reject) => {
         cp.exec(
           `${await this.phpPath()} -r "echo extension_loaded('phar');"`,
@@ -47,18 +48,20 @@ export default class Phar implements IPhpUnitDriver {
     ));
   }
 
-  public async phpPath(): Promise<string> {
+  public async phpPath(): Promise<string | undefined> {
     if (this.phpPathCache) {
       return this.phpPathCache;
     }
 
     const config = vscode.workspace.getConfiguration("phpunit");
     try {
-      this.phpPathCache = await cmdExists(config.get<string>("php"));
+      this.phpPathCache = await cmdExists(config.get<string>("php")!);
     } catch (e) {
       try {
         this.phpPathCache = await cmdExists("php");
-      } catch (e) {}
+      } catch (e) {
+        // Continue regardless of error
+      }
     }
     return this.phpPathCache;
   }
@@ -68,14 +71,14 @@ export default class Phar implements IPhpUnitDriver {
       return this.phpUnitPharPathCache;
     }
 
-    const findInWorkspace = async (): Promise<string> => {
+    const findInWorkspace = async (): Promise<string | undefined> => {
       const uris = await vscode.workspace.findFiles(
         "**/phpunit*.phar",
         "**/node_modules/**",
         1
       );
       this.phpUnitPharPathCache =
-        uris && uris.length > 0 ? uris[0].fsPath : null;
+        uris && uris.length > 0 ? uris[0].fsPath : undefined;
 
       return this.phpUnitPharPathCache;
     };
@@ -102,6 +105,6 @@ export default class Phar implements IPhpUnitDriver {
       ? `'${this.phpUnitPharPathCache}'`
       : this.phpUnitPharPathCache;
 
-    return this.phpUnitPharPathCache;
+    return this.phpUnitPharPathCache!;
   }
 }

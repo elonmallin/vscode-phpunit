@@ -2,51 +2,64 @@
 
 import * as vscode from "vscode";
 import { TestRunner } from "./phpunittest";
+import { IMyExtensionApi } from "./MyExtensionApi";
+import path = require("path");
 
-export function activate(context: vscode.ExtensionContext) {
-  let taskCommand: string = null;
-  let problemMatcher: string = null;
+export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
+  const testOutputFile = path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'test-output.txt');
+  const myExtensionApi = {
+    testRedirectedOutputFile: testOutputFile
+  };
+
+  let taskCommand: string;
+  let problemMatcher: string | undefined;
   const outputChannel = vscode.window.createOutputChannel("phpunit");
   const PHPUnitTestRunner: TestRunner = new TestRunner(outputChannel, {
     setTaskCommand: (command: string, matcher?: string) => {
-      taskCommand = command;
+      if (process.env.VSCODE_PHPUNIT_TEST === 'true') {
+        taskCommand = command + ' > ' + testOutputFile;
+      }
+      else {
+        taskCommand = command;
+      }
+
       problemMatcher = matcher;
     }
   });
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.Test", () => {
-      PHPUnitTestRunner.run("test");
+    vscode.commands.registerCommand("phpunit.Test", async () => {
+      return await PHPUnitTestRunner.run("test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestNearest", () => {
-      PHPUnitTestRunner.run("nearest-test");
+    vscode.commands.registerCommand("phpunit.TestNearest", async () => {
+      return PHPUnitTestRunner.run("nearest-test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestSuite", () => {
-      PHPUnitTestRunner.run("suite");
+    vscode.commands.registerCommand("phpunit.TestSuite", async () => {
+      return PHPUnitTestRunner.run("suite");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestDirectory", () => {
-      PHPUnitTestRunner.run("directory");
+    vscode.commands.registerCommand("phpunit.TestDirectory", async () => {
+      return PHPUnitTestRunner.run("directory");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.RerunLastTest", () => {
-      PHPUnitTestRunner.run("rerun-last-test");
+    vscode.commands.registerCommand("phpunit.RerunLastTest", async () => {
+      return PHPUnitTestRunner.run("rerun-last-test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestingStop", () => {
-      PHPUnitTestRunner.stop();
+    vscode.commands.registerCommand("phpunit.TestingStop", async () => {
+      return PHPUnitTestRunner.stop();
     })
   );
 
@@ -69,10 +82,16 @@ export function activate(context: vscode.ExtensionContext) {
           )
         ];
       },
-      resolveTask: undefined
+      // Hack around typescript compiler
+      resolveTask: (task: vscode.Task, token: vscode.CancellationToken) => {
+        return null as any as vscode.ProviderResult<vscode.Task>;
+      }
     })
   );
+
+  return myExtensionApi;
 }
 
 // this method is called when your extension is deactivated
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 export function deactivate() {}

@@ -19,7 +19,7 @@ const phpUnitPath = async (): Promise<string> => {
     }
   }
 
-  return null;
+  return "";
 };
 
 const getDrivers = (order?: string[]): IPhpUnitDriver[] => {
@@ -30,7 +30,7 @@ const getDrivers = (order?: string[]): IPhpUnitDriver[] => {
     new GlobalPhpUnit()
   ];
 
-  function arrayUnique(array) {
+  function arrayUnique(array: any[]) {
     const a = array.concat();
     for (let i = 0; i < a.length; ++i) {
       for (let j = i + 1; j < a.length; ++j) {
@@ -45,7 +45,7 @@ const getDrivers = (order?: string[]): IPhpUnitDriver[] => {
   order = arrayUnique((order || []).concat(drivers.map(d => d.name)));
 
   const sortedDrivers = drivers.sort((a, b) => {
-    return order.indexOf(a.name) - order.indexOf(b.name);
+    return order!.indexOf(a.name) - order!.indexOf(b.name);
   });
 
   return sortedDrivers;

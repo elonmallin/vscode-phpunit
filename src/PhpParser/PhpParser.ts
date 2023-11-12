@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import MemberTypes from "./MemberTypes";
 
 class ParsedPhpClass {
-  public name: string;
+  public name?: string;
   public properties: MemberTypes = new MemberTypes();
   public methods: MemberTypes = new MemberTypes();
 }
@@ -16,7 +16,7 @@ function parsePhpToObject(phpClass: string): ParsedPhpClass {
   let propertyMatches = propertyRegex.exec(phpClass);
 
   while (propertyMatches != null) {
-    parsed.properties[propertyMatches[1]].push(propertyMatches[2]);
+    (parsed.properties as any)[propertyMatches[1]].push(propertyMatches[2]);
     propertyMatches = propertyRegex.exec(phpClass);
   }
 
@@ -24,7 +24,7 @@ function parsePhpToObject(phpClass: string): ParsedPhpClass {
   let methodMatches = methodRegex.exec(phpClass);
 
   while (methodMatches != null) {
-    parsed.methods[methodMatches[1]].push(methodMatches[3]);
+    (parsed.methods as any)[methodMatches[1]].push(methodMatches[3]);
     methodMatches = methodRegex.exec(phpClass);
   }
 

@@ -4,9 +4,9 @@ import IPhpUnitDriver from "./IPhpUnitDriver";
 import { resolvePhpUnitPath } from "./PhpUnitResolver";
 
 export default class Command implements IPhpUnitDriver {
-  public name: string = "Command";
-  private commandCache: string;
-  private phpUnitPathCache: string;
+  public name = "Command";
+  private commandCache?: string;
+  private phpUnitPathCache?: string;
 
   public async run(args: string[]): Promise<IRunConfig> {
     args = [await this.phpUnitPath()].concat(args);
@@ -27,7 +27,7 @@ export default class Command implements IPhpUnitDriver {
       this.commandCache ||
       (this.commandCache = vscode.workspace
         .getConfiguration("phpunit")
-        .get<string>("command"))
+        .get<string>("command")!)
     );
   }
 
