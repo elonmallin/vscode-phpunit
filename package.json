@@ -202,6 +202,8 @@
   },
   "scripts": {
     "package": "npm run clean && npm run compile && npx @vscode/vsce package",
+    "publish": "npx @vscode/vsce publish",
+    "publish:prerelease": "npx @vscode/vsce publish --pre-release",
     "clean": "rimraf ./out",
     "compile": "tsc -p ./",
     "lint": "eslint \"src/**/*.ts\"",
