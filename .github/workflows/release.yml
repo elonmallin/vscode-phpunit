@@ -23,22 +23,23 @@ jobs:
         run: npm run compile
 
       - name: Resolve is pre-release
-        run: echo "::set-output name=prerelease::$(node -p "'${{ github.ref }}'.split('.')[1] % 2 == 1")"
+        id: is_prerelease
+        run: echo "prerelease=$(node -p "'${{ github.ref }}'.split('.')[1] % 2 == 1")" >> $GITHUB_OUTPUT
 
       - name: Publish Extension (Pre-Release)
-        if: steps.check_version.outputs.prerelease == 'true'
+        if: steps.is_prerelease.outputs.prerelease == 'true'
         run: npx @vscode/vsce publish --no-git-tag-version --pre-release ${{ github.ref }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish Extension
-        if: steps.check_version.outputs.prerelease == 'false'
+        if: steps.is_prerelease.outputs.prerelease == 'false'
         run: npx @vscode/vsce publish --no-git-tag-version --pre-release ${{ github.ref }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Create GitHub Release
-        if: steps.check_version.outputs.prerelease == 'false'
+        if: steps.is_prerelease.outputs.prerelease == 'false'
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
