@@ -1,4 +1,4 @@
-name: Create GitHub Release and Publish Extension
+name: Release
 
 permissions:
   contents: write
