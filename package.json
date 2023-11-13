@@ -201,6 +201,7 @@
     ]
   },
   "scripts": {
+    "vscode:prepublish": "npm run package",
     "package": "npm run clean && npm run compile && npx @vscode/vsce package",
     "publish": "npx @vscode/vsce publish",
     "publish:prerelease": "npx @vscode/vsce publish --pre-release",
