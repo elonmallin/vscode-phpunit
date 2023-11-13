@@ -38,16 +38,17 @@ jobs:
           files: release-artifact/phpunit-*.vsix
           prerelease: ${{ contains(github.ref, '-') }}
 
+      - name: Copy vsix to workspace dir
+        run: cp release-artifact/* .
+
       - name: Prerelease Extension
         if: contains(github.ref, '-')
-        run: npx @vscode/vsce publish --pre-release
-        working-directory: release-artifact
+        run: npm run publish:prerelease
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish Extension
         if: ${{ !contains(github.ref, '-') }}
-        run: npx @vscode/vsce publish
-        working-directory: release-artifact
+        run: npm run publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
