@@ -46,7 +46,7 @@ jobs:
 
       - name: Prerelease Extension
         if: contains(github.ref, '-')
-        run: npm run deploy:prerelease
+        run: npx vsce publish --pre-release
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
