@@ -5,8 +5,10 @@ permissions:
 
 on:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
+    branches:
+      - master
+    paths:
+      - package.json
 
 jobs:
   create_release:
@@ -16,42 +18,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Download Artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: release-artifact.yml
-          branch: master
-          name: release-artifact
-          path: release-artifact
+      - name: Install dependencies
+        run: npm install
 
-      - name: Check Tag Version
+      - name: Check if version is prerelease
+        id: check_version
         run: |
-          artifact=$(find release-artifact -name "phpunit-*.vsix")
-          tag_version=$(echo "${{ github.ref }}" | sed -e 's/refs\/tags\///' -e 's/v//')
-          artifact_version=$(echo "${artifact}" | sed 's/.*phpunit-\(.*\)\.vsix/\1/')
-          if [ "${tag_version}" != "${artifact_version}" ]; then
-            echo "Tag version ${tag_version} does not match artifact version ${artifact_version}. Cancelling pipeline."
-            exit 1
-          fi
+          echo "::set-output name=prerelease::$(node -p "require('./package.json').version.includes('-')")"
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: release-artifact/phpunit-*.vsix
-          prerelease: ${{ contains(github.ref, '-') }}
-
-      - name: Copy vsix to workspace dir
-        run: cp release-artifact/* .
-
-      - name: Prerelease Extension
-        if: contains(github.ref, '-')
+      - name: Publish Extension (Pre-Release)
+        if: steps.check_version.outputs.prerelease == 'true'
         run: npm run publish:prerelease
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish Extension
-        if: ${{ !contains(github.ref, '-') }}
-        run: npm run publish
+        if: steps.check_version.outputs.prerelease == 'false'
+        run: npm run publish:prerelease
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: phpunit-*.vsix
+          prerelease: ${{ steps.check_version.outputs.prerelease == 'true' }}
