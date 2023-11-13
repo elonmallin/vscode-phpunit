@@ -1,4 +1,4 @@
-![Latest Release](https://vsmarketplacebadge.apphb.com/version/emallin.phpunit.svg) ![Installs](https://vsmarketplacebadge.apphb.com/installs-short/emallin.phpunit.svg) ![Rating](https://vsmarketplacebadge.apphb.com/rating-short/emallin.phpunit.svg)
+[![Latest Release](https://vsmarketplacebadges.dev/version/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit) [![Installs](https://vsmarketplacebadges.dev/installs-short/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit) [![Rating](https://vsmarketplacebadges.dev/rating-short/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit)
 # PHPUnit for VSCode
 This extension aims to need zero config and to be highly configurable. If you have `php` in environment path and `phpunit` installed with `composer` or anywhere in your workspace as `phpunit*.phar`, zero config is needed. It will even fallback to spinning up a self-removing `docker` container to try and run your tests if it can't find `php` on your machine.
 
