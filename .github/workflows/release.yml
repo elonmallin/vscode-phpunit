@@ -41,7 +41,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          files: release-artifact/phpunit-*.vsix
+          files: phpunit-*.vsix
           prerelease: ${{ contains(github.ref, '-') }}
 
       - name: Prerelease Extension
