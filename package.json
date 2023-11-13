@@ -2,7 +2,7 @@
   "name": "phpunit",
   "displayName": "PHPUnit",
   "description": "Run PHPUnit tests from VSCode.",
-  "version": "4.1.2-beta.0",
+  "version": "4.1.2",
   "publisher": "emallin",
   "icon": "images/phpunit.png",
   "engines": {
@@ -201,9 +201,6 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run clean && npm run compile",
-    "publish": "npx @vscode/vsce publish",
-    "publish:prerelease": "npx @vscode/vsce publish --pre-release",
     "clean": "rimraf ./out",
     "compile": "tsc -p ./",
     "lint": "eslint \"src/**/*.ts\"",
