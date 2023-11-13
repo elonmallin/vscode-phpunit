@@ -1,3 +1,6 @@
+# [4.4.0](https://github.com/elonmallin/vscode-phpunit/releases/tag/4.4.0)
+- **Bugfix:** Wrap test suites with single quotes
+  
 # [v4.1.1](https://github.com/elonmallin/vscode-phpunit/releases/tag/v4.1.1)
 - **Bugfix:** Don't stack up --color in the output command for each run.
 
