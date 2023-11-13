@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Download Artifact
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -20,6 +23,9 @@ jobs:
           branch: master
           name: release-artifact
           path: release-artifact
+
+      - name: Copy vsix to workspace dir
+        run: cp release-artifact/* .
 
       - name: Check Tag Version
         run: |
@@ -39,13 +45,13 @@ jobs:
           prerelease: ${{ contains(github.ref, '-') }}
 
       - name: Prerelease Extension
-        if: ${{ contains(github.ref, '-') }}
+        if: contains(github.ref, '-')
         run: npm run deploy:prerelease
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       # - name: Publish Extension
-      #   if: ${{ !contains(github.ref, '-') }}
+      #   if: !contains(github.ref, '-')
       #   run: npm run deploy
       #   env:
       #     VSCE_PAT: ${{ secrets.VSCE_PAT }}
