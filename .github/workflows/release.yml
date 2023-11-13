@@ -24,17 +24,17 @@ jobs:
 
       - name: Resolve is pre-release
         id: is_prerelease
-        run: echo "prerelease=$(node -p "'${{ github.ref }}'.split('.')[1] % 2 == 1")" >> $GITHUB_OUTPUT
+        run: echo "prerelease=$(node -p "'${{ github.ref.name }}'.split('.')[1] % 2 == 1")" >> $GITHUB_OUTPUT
 
       - name: Publish Extension (Pre-Release)
         if: steps.is_prerelease.outputs.prerelease == 'true'
-        run: npx @vscode/vsce publish --no-git-tag-version --pre-release ${{ github.ref }}
+        run: npx @vscode/vsce publish --no-git-tag-version --pre-release ${{ github.ref.name }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish Extension
         if: steps.is_prerelease.outputs.prerelease == 'false'
-        run: npx @vscode/vsce publish --no-git-tag-version --pre-release ${{ github.ref }}
+        run: npx @vscode/vsce publish --no-git-tag-version --pre-release ${{ github.ref.name }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
