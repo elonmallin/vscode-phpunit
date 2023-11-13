@@ -50,8 +50,8 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
-      # - name: Publish Extension
-      #   if: !contains(github.ref, '-')
-      #   run: npm run deploy
-      #   env:
-      #     VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Publish Extension
+        if: not(contains(github.ref, '-'))
+        run: npx vsce publish --pre-release
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
