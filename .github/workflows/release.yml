@@ -28,13 +28,17 @@ jobs:
 
       - name: Publish Extension (Pre-Release)
         if: steps.is_prerelease.outputs.prerelease == 'true'
-        run: npx @vscode/vsce publish --no-git-tag-version --pre-release $GITHUB_REF_NAME
+        run: |
+          npx @vscode/vsce package --no-git-tag-version --pre-release $GITHUB_REF_NAME
+          npx @vscode/vsce publish --no-git-tag-version --pre-release $GITHUB_REF_NAME
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish Extension
         if: steps.is_prerelease.outputs.prerelease == 'false'
-        run: npx @vscode/vsce publish --no-git-tag-version $GITHUB_REF_NAME
+        run: |
+          npx @vscode/vsce package --no-git-tag-version $GITHUB_REF_NAME
+          npx @vscode/vsce publish --no-git-tag-version $GITHUB_REF_NAME
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
