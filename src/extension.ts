@@ -91,7 +91,11 @@ export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
     })
   );
 
-  context.subscriptions.push(vscode.languages.registerCodeLensProvider('php', new PhpCodeLensProvider()));
+  context.subscriptions.push(vscode.languages.registerCodeLensProvider({
+    language: 'php',
+    scheme: 'file',
+    pattern: '**/test*/**/*.php'
+  }, new PhpCodeLensProvider()));
   context.subscriptions.push(vscode.languages.registerCodeLensProvider({
     language: 'xml',
     scheme: 'file',
