@@ -8,7 +8,7 @@
         ],
         "sourceMap": true,
         "strict": true,
-        "rootDir": ".",
+        "rootDir": "src",
         "plugins": [
             {
                 "name": "typescript-tslint-plugin"

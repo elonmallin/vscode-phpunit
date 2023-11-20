@@ -1,6 +1,6 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
 {
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"configurations": [
 		{
 			"name": "Launch Extension",
@@ -8,8 +8,13 @@
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
 			"args": [
+				"--disable-extensions",
 				"--extensionDevelopmentPath=${workspaceRoot}",
 				"${workspaceRoot}/src/test/php-project"
+			],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js",
+				"!**/node_modules/**"
 			],
 			"sourceMaps": true,
 			"preLaunchTask": "npm",
@@ -22,8 +27,12 @@
 			"runtimeExecutable": "${execPath}",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceRoot}",
-				"--extensionTestsPath=${workspaceRoot}/out/src/test/suite/index",
+				"--extensionTestsPath=${workspaceRoot}/out/test/suite/index",
 				"${workspaceRoot}/src/test/php-project"
+			],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js",
+				"!**/node_modules/**"
 			],
 			"sourceMaps": true,
 			"preLaunchTask": "npm",

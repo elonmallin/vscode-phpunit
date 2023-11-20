@@ -7,9 +7,12 @@ export async function run(): Promise<void> {
 	const mocha = new Mocha({
 		ui: 'tdd',
     timeout: 30000,
-    reporter: 'mocha-junit-reporter',
+    reporter: 'mocha-multi-reporters',
     reporterOptions: {
-        mochaFile: path.resolve(__dirname, '../../../..', 'test-results.xml')
+      reporterEnabled: 'spec, mocha-junit-reporter',
+      mochaJunitReporterReporterOptions: {
+          mochaFile: path.resolve(__dirname, '../../../', 'test-results.xml'),
+      },
     }
 	});
  
