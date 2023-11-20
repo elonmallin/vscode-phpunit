@@ -1,8 +1,15 @@
 import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range } from 'vscode';
-import { Class, CommentBlock, Engine, Identifier, Method, Node } from 'php-parser';
+import { Class, CommentBlock, Engine, Identifier, Method, Namespace } from 'php-parser';
+
+let lastDocumentText: string;
+let lastCodeLenses: Array<CodeLens> = [];
 
 export class PhpCodeLensProvider implements CodeLensProvider {
   public provideCodeLenses(document: TextDocument, token: CancellationToken): Array<CodeLens> | Thenable<Array<CodeLens>> {
+    if (document.getText() === lastDocumentText) {
+      return lastCodeLenses;
+    }
+
     const engine = new Engine({
       ast: {
         withPositions: true
@@ -23,32 +30,37 @@ export class PhpCodeLensProvider implements CodeLensProvider {
 
     const ast = engine.parseCode(document.getText(), document.fileName);
 
-    let codeLens: CodeLens[] = [];
+    const codeLenses: Array<CodeLens> = [];
 
     for (const node of ast.children) {
-        if (node.kind !== 'class' && node.kind !== 'namespace') {
-            continue;
-        }
-
-        // If is a class, just parse it directly
         if (node.kind === 'class') {
-            codeLens = codeLens.concat(this.parseClass(node as Class));
-        } else {
-            // If it's a namespace, loop over children to find a class
-            // for (const namespaceNode of node.children) {
-            //     if (namespaceNode.kind === 'class') {
-            //         codeLens = codeLens.concat(this.parseClass(namespaceNode));
-            //     }
-            // }
+          codeLenses.push(...this.parseClass(node as Class));
+        } else if (node.kind === 'namespace') {
+          codeLenses.push(...this.parseNamespace(node as Namespace));
         }
-    } // parse.children
+    }
 
-    return codeLens;
+    lastDocumentText = document.getText();
+    lastCodeLenses = codeLenses;
+
+    return codeLenses;
   }
 
-  public resolveCodeLens(codeLens: CodeLens, token: CancellationToken):
-      CodeLens | Thenable<CodeLens> {
-    return codeLens;
+  // public resolveCodeLens(codeLens: CodeLens, token: CancellationToken):
+  //     CodeLens | Thenable<CodeLens> {
+  //   return codeLens;
+  // }
+
+  private parseNamespace(node: Namespace): CodeLens[] {
+    const codeLenses: Array<CodeLens> = [];
+
+    for (const child of node.children) {
+      if (child.kind === 'class') {
+        codeLenses.push(...this.parseClass(child as Class));
+      }
+    }
+
+    return codeLenses;
   }
 
   private parseClass(node: Class): CodeLens[] {

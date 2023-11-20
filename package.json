@@ -28,7 +28,9 @@
     "docker",
     "ssh"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:php"
+  ],
   "main": "./out/extension",
   "contributes": {
     "commands": [
