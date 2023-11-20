@@ -1,0 +1,71 @@
+import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range } from 'vscode';
+import { parse, DocumentCstNode } from '@xml-tools/parser';
+import { buildAst, XMLElement, } from '@xml-tools/ast';
+
+let lastDocumentText: string;
+let lastCodeLenses: Array<CodeLens> = [];
+
+export class PhpunitXmlCodeLensProvider implements CodeLensProvider {
+  public provideCodeLenses(document: TextDocument, token: CancellationToken): Array<CodeLens> | Thenable<Array<CodeLens>> {
+    if (!/phpunit\.xml(\.dist)?/.test(document.fileName)) {
+      return [];
+    }
+
+    if (document.getText() === lastDocumentText) {
+      return lastCodeLenses;
+    }
+
+    const { cst, tokenVector } = parse(document.getText());
+    const ast = buildAst(cst as DocumentCstNode, tokenVector);
+
+    const codeLenses: Array<CodeLens> = [];
+
+    for (const node of ast.rootElement!.subElements) {
+        if (node.name === 'testsuites') {
+          codeLenses.push(...this.parseTestSuites(node));
+        }
+    }
+
+    lastDocumentText = document.getText();
+    lastCodeLenses = codeLenses;
+
+    return codeLenses;
+  }
+
+  // public resolveCodeLens(codeLens: CodeLens, token: CancellationToken):
+  //     CodeLens | Thenable<CodeLens> {
+  //   return codeLens;
+  // }
+
+  private parseTestSuites(node: XMLElement): CodeLens[] {
+    const codeLenses: Array<CodeLens> = [];
+
+    for (const child of node.subElements) {
+      if (child.name === 'testsuite') {
+        codeLenses.push(this.parseTestSuite(child));
+      }
+    }
+
+    if (codeLenses.length > 0) {
+      const codeLensRange = new Range(node.position.startLine - 1, 0, node.position.startLine - 1, 0);
+      codeLenses.push(new CodeLens(codeLensRange, {
+          command: 'phpunit.Test',
+          title: 'Run tests',
+          arguments: ['All Test Suites'],
+      }));
+    }
+
+    return codeLenses;
+  }
+
+  private parseTestSuite(node: XMLElement): CodeLens {
+    const codeLensRange = new Range(node.position.startLine - 1, 0, node.position.startLine - 1, 0);
+    const name = node.attributes.find((attribute) => attribute.key === 'name')!.value!;
+
+    return new CodeLens(codeLensRange, {
+        command: 'phpunit.Test',
+        title: 'Run test',
+        arguments: [name],
+    });
+  }
+}
