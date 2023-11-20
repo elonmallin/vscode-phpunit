@@ -6,7 +6,7 @@ async function main() {
 	try {
 		// The folder containing the Extension Manifest package.json
 		// Passed to `--extensionDevelopmentPath`
-		const extensionDevelopmentPath = path.resolve(__dirname, '../../../');
+		const extensionDevelopmentPath = path.resolve(__dirname, '../../');
 
 		// The path to the extension test script
 		// Passed to --extensionTestsPath
@@ -17,7 +17,7 @@ async function main() {
 		await runTests({
       extensionDevelopmentPath,
       extensionTestsPath,
-      launchArgs: [workdir]
+      launchArgs: [workdir],
     });
 	} catch (err) {
 		console.error('Failed to run tests');
