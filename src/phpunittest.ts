@@ -9,6 +9,7 @@ import IPhpUnitDriver from "./Drivers/IPhpUnitDriver";
 import PhpUnitDrivers from "./Drivers/PhpUnitDrivers";
 import { IExtensionBootstrapBridge } from "./ExtensionBootstrapBridge";
 import parsePhpToObject from "./PhpParser/PhpParser";
+import { PhpunitArgBuilder } from "./PhpunitCommand/PhpunitArgBuilder";
 
 type RunType =
   | "test"
@@ -279,6 +280,55 @@ export class TestRunner {
     }
 
     return undefined;
+  }
+
+  public async runArgs(argBuilder: PhpunitArgBuilder) {
+    const config = vscode.workspace.getConfiguration("phpunit");
+    const order = config.get<string[]>("driverPriority");
+
+    const driver = await this.getDriver(order);
+    if (!driver) {
+      console.error(`Wasn't able to start phpunit.`);
+      return;
+    }
+
+    const configArgs = config.get<string[]>("args", []);
+    argBuilder.withArgs(configArgs);
+
+    const colors = config.get<string>("colors");
+    if (colors && (configArgs.indexOf(colors) === -1)) {
+      argBuilder.withColors(colors.replace(/--colors=?/i, '') as 'never' | 'auto' | 'always');
+    }
+
+    const pathMappings = config.get<{ [key: string]: string }>("paths");
+    if (pathMappings) {
+      argBuilder.withPathMappings(pathMappings, vscode.workspace.workspaceFolders![0].uri.fsPath);
+    }
+    
+    const runConfig = await driver.run(argBuilder.buildArgs());
+
+    if (config.get<string>("clearOutputOnRun")) {
+      this.channel.clear();
+    }
+    this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
+    this.channel.appendLine(runConfig.command);
+
+    this.bootstrapBridge.setTaskCommand(
+      runConfig.command,
+      runConfig.problemMatcher
+    );
+
+    if (process.env.VSCODE_PHPUNIT_TEST === 'true') {
+      console.debug(runConfig.command);
+    }
+
+    await vscode.commands.executeCommand("workbench.action.terminal.clear");
+    await vscode.commands.executeCommand(
+      "workbench.action.tasks.runTask",
+      "phpunit: run"
+    );
+
+    this.channel.show(true);
   }
 
   public async run(type: RunType) {
