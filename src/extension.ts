@@ -4,8 +4,9 @@ import * as vscode from "vscode";
 import { TestRunner } from "./phpunittest";
 import { IMyExtensionApi } from "./MyExtensionApi";
 import path = require("path");
-// import { PhpCodeLensProvider } from "./CodeLens/PhpCodeLensProvider";
-// import { PhpunitXmlCodeLensProvider } from "./CodeLens/PhpunitXmlCodeLensProvider";
+import { PhpunitArgBuilder } from "./PhpunitCommand/PhpunitArgBuilder";
+import { PhpCodeLensProvider } from "./CodeLens/PhpCodeLensProvider";
+import { PhpunitXmlCodeLensProvider } from "./CodeLens/PhpunitXmlCodeLensProvider";
 
 export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
   const testOutputFile = path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'test-output.txt');
@@ -30,8 +31,12 @@ export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
   });
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.Test", async () => {
-      return await PHPUnitTestRunner.run("test");
+    vscode.commands.registerCommand("phpunit.Test", async (argBuilder: PhpunitArgBuilder) => {
+      if (argBuilder) {
+        return await PHPUnitTestRunner.runArgs(argBuilder);
+      } else {
+        return await PHPUnitTestRunner.run("test");
+      }
     })
   );
 
@@ -91,16 +96,16 @@ export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
     })
   );
 
-  // context.subscriptions.push(vscode.languages.registerCodeLensProvider({
-  //   language: 'php',
-  //   scheme: 'file',
-  //   pattern: '**/test*/**/*.php'
-  // }, new PhpCodeLensProvider()));
-  // context.subscriptions.push(vscode.languages.registerCodeLensProvider({
-  //   language: 'xml',
-  //   scheme: 'file',
-  //   pattern: '**/phpunit.xml*'
-  // }, new PhpunitXmlCodeLensProvider()));
+  context.subscriptions.push(vscode.languages.registerCodeLensProvider({
+    language: 'php',
+    scheme: 'file',
+    pattern: '**/test*/**/*.php'
+  }, new PhpCodeLensProvider()));
+  context.subscriptions.push(vscode.languages.registerCodeLensProvider({
+    language: 'xml',
+    scheme: 'file',
+    pattern: '**/phpunit.xml*'
+  }, new PhpunitXmlCodeLensProvider()));
 
   return myExtensionApi;
 }

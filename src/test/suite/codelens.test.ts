@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import path = require('path');
 import { PhpCodeLensProvider } from '../../CodeLens/PhpCodeLensProvider';
 import { PhpunitXmlCodeLensProvider } from '../../CodeLens/PhpunitXmlCodeLensProvider';
+import { PhpunitArgBuilder } from '../../PhpunitCommand/PhpunitArgBuilder';
 
 suite('CodeLens Test Suite', () => {
 
@@ -20,11 +21,11 @@ suite('CodeLens Test Suite', () => {
 
     assert.equal(codeLenses[0].command?.command, 'phpunit.Test');
     assert.equal(codeLenses[0].command?.title, 'Run test');
-    assert.equal(codeLenses[0].command?.arguments?.[0], 'testAdd');
+    assert.match((codeLenses[0].command?.arguments?.[0] as PhpunitArgBuilder).build(), /--filter testAdd/i);
 
     assert.equal(codeLenses[1].command?.command, 'phpunit.Test');
     assert.equal(codeLenses[1].command?.title, 'Run tests');
-    assert.equal(codeLenses[1].command?.arguments?.[0], 'AdditionTest');
+    assert.match((codeLenses[1].command?.arguments?.[0] as PhpunitArgBuilder).build(), /--filter AdditionTest/i);
 	});
 
 	test('Test phpunit.xml', async () => {
@@ -37,14 +38,14 @@ suite('CodeLens Test Suite', () => {
 
     assert.equal(codeLenses[0].command?.command, 'phpunit.Test');
     assert.equal(codeLenses[0].command?.title, 'Run test');
-    assert.equal(codeLenses[0].command?.arguments?.[0], 'Test All');
+    assert.match((codeLenses[0].command?.arguments?.[0] as PhpunitArgBuilder).build(), /--testsuite Math/i);
 
     assert.equal(codeLenses[1].command?.command, 'phpunit.Test');
     assert.equal(codeLenses[1].command?.title, 'Run test');
-    assert.equal(codeLenses[1].command?.arguments?.[0], 'Science');
+    assert.match((codeLenses[1].command?.arguments?.[0] as PhpunitArgBuilder).build(), /--testsuite Science/i);
 
     assert.equal(codeLenses[2].command?.command, 'phpunit.Test');
     assert.equal(codeLenses[2].command?.title, 'Run tests');
-    assert.equal(codeLenses[2].command?.arguments?.[0], 'All Test Suites');
+    assert.match((codeLenses[2].command?.arguments?.[0] as PhpunitArgBuilder).build(), /--configuration .*phpunit.xml/i);
 	});
 });

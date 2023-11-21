@@ -1,5 +1,6 @@
 import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range } from 'vscode';
 import { Class, CommentBlock, Engine, Identifier, Method, Namespace } from 'php-parser';
+import { PhpunitArgBuilder } from '../PhpunitCommand/PhpunitArgBuilder';
 
 let lastDocumentText: string;
 let lastCodeLenses: Array<CodeLens> = [];
@@ -38,6 +39,10 @@ export class PhpCodeLensProvider implements CodeLensProvider {
         } else if (node.kind === 'namespace') {
           codeLenses.push(...this.parseNamespace(node as Namespace));
         }
+    }
+
+    for (const codeLens of codeLenses) {
+      (codeLens.command!.arguments![0] as PhpunitArgBuilder).withDirectoryOrFile(document.fileName);
     }
 
     lastDocumentText = document.getText();
@@ -79,11 +84,15 @@ export class PhpCodeLensProvider implements CodeLensProvider {
 
     if (codeLenses.length > 0) {
         const classCodeLensRange = new Range(node.loc!.start.line - 1, 0, node.loc!.start.line - 1, 0);
+        const className = typeof node.name === 'string' ? node.name : (node.name as Identifier).name;
 
         codeLenses.push(new CodeLens(classCodeLensRange, {
             command: 'phpunit.Test',
             title: "Run tests",
-            arguments: ["AdditionTest"],
+            arguments: [
+              new PhpunitArgBuilder()
+                .withFilter(className)
+            ],
         }));
     }
 
@@ -107,7 +116,10 @@ export class PhpCodeLensProvider implements CodeLensProvider {
     return new CodeLens(codeLensRange, {
         command: 'phpunit.Test',
         title: 'Run test',
-        arguments: [methodName],
+        arguments: [
+          new PhpunitArgBuilder()
+            .withFilter(methodName)
+        ],
     });
   }
 }
