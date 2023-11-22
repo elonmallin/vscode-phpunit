@@ -19,7 +19,7 @@ type RunType =
   | "nearest-test";
 
 export class TestRunner {
-  public lastContextArgs?: string[];
+  public lastArgBuilder?: PhpunitArgBuilder;
   public channel: vscode.OutputChannel;
   public lastCommand?: Command;
   public childProcess?: ChildProcess;
@@ -65,181 +65,137 @@ export class TestRunner {
 
   public async resolveContextArgs(
     type: RunType,
-    configArgs: string[],
+    argBuilder: PhpunitArgBuilder,
     config: any,
-  ): Promise<string[] | undefined> {
-    let args = configArgs.slice();
+  ): Promise<boolean> {
 
-    switch (type) {
-      case "test": {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-          if (
-            "xml" === editor.document.languageId &&
-            editor.document.uri.path.match(/phpunit\.xml(\.dist)?$/)
-          ) {
-            if (
-              await this.resolveSuiteArgsAsync(
-                args,
-                editor.document.uri.fsPath,
-                editor.document.getText()
-              )
-            ) {
-              break;
-            }
-          }
+    const editor = vscode.window.activeTextEditor;
+    if (type === "test" && editor) {
+      if (
+        "xml" === editor.document.languageId &&
+        editor.document.uri.path.match(/phpunit\.xml(\.dist)?$/)
+      ) {
+        argBuilder.withConfig(editor.document.uri.fsPath);
 
-          const range = editor.document.getWordRangeAtPosition(
-            editor.selection.active
-          );
-          if (range) {
-            const line = editor.document.lineAt(range.start.line);
-            const wordOnCursor = editor.document.getText(range);
-            const isFunction = line.text.indexOf("function") !== -1;
+        return await this.resolveSuiteArgsAsync(argBuilder, editor.document.getText());
+      }
 
-            if (isFunction && wordOnCursor != null) {
-              // Test a specific function in this file
-              args.push(`'${editor.document.uri.fsPath}'`);
-              args.push("--filter");
-              args.push(wordOnCursor);
-              break;
-            } else if (line.text.indexOf("class") !== -1) {
-              // Test the class.
-              args.push(`'${editor.document.uri.fsPath}'`);
-              break;
-            }
-          }
+      const range = editor.document.getWordRangeAtPosition(
+        editor.selection.active
+      );
+      if (range) {
+        const line = editor.document.lineAt(range.start.line);
+        const wordOnCursor = editor.document.getText(range);
+        const isFunction = line.text.indexOf("function") !== -1;
 
-          if (!config.preferRunClassTestOverQuickPickWindow) {
-            let testableList = [];
-            // Gather the class and functions to show in the quick pick window.
-            {
-              const closestMethod = this.getClosestMethodAboveActiveLine(
-                editor
-              );
-              if (closestMethod) {
-                testableList.push("function - " + closestMethod);
-              }
+        if (isFunction && wordOnCursor != null) {
+          argBuilder.addDirectoryOrFile(editor.document.uri.fsPath);
+          argBuilder.addFilter(wordOnCursor);
 
-              const parsedPhpClass = await parsePhpToObject(
-                editor.document.fileName
-              );
-              testableList.push("class - " + parsedPhpClass.name);
-              testableList = testableList.concat(
-                parsedPhpClass.methods.public.map(m => "function - " + m)
-              );
-            }
+          return true;
+        } else if (line.text.indexOf("class") !== -1) {
+          argBuilder.addDirectoryOrFile(editor.document.uri.fsPath);
 
-            const selectedTest = await vscode.window.showQuickPick(
-              testableList
-            );
-            if (selectedTest) {
-              if (selectedTest.indexOf("function - ") !== -1) {
-                // Test the function.
-                args.push(`'${editor.document.uri.fsPath}'`);
-                args.push("--filter");
-                args.push(selectedTest.replace("function - ", ""));
-                break;
-              } else if (selectedTest.indexOf("class - ") !== -1) {
-                // Test the class.
-                args.push(`'${editor.document.uri.fsPath}'`);
-                break;
-              }
-            } else {
-              // Make sure to return null args to indicate that we should not run any test.
-              return undefined;
-            }
-          }
-
-          // NOTE: No `break` statement here, we will fall-through to `nearest-test`.
-        } else {
-          break;
+          return true;
         }
       }
 
-      // eslint-disable-next-line no-fallthrough
-      case "nearest-test": {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-          const closestMethod = this.getClosestMethodAboveActiveLine(editor);
+      if (!config.preferRunClassTestOverQuickPickWindow) {
+        let testableList = [];
+        // Gather the class and functions to show in the quick pick window.
+        {
+          const closestMethod = this.getClosestMethodAboveActiveLine(
+            editor
+          );
           if (closestMethod) {
-            // Test the function.
-            args.push(`'${editor.document.uri.fsPath}'`);
-            args.push("--filter");
-            args.push(closestMethod);
-          } else {
-            console.error(
-              "No method found above the cursor. Make sure the cursor is close to a method."
-            );
+            testableList.push("function - " + closestMethod);
           }
-        }
-        break;
-      }
 
-      case "suite": {
-        const files = await vscode.workspace.findFiles(
-          "**/phpunit.xml**",
-          "**/vendor/**"
+          const parsedPhpClass = await parsePhpToObject(
+            editor.document.fileName
+          );
+          testableList.push("class - " + parsedPhpClass.name);
+          testableList = testableList.concat(
+            parsedPhpClass.methods.public.map(m => "function - " + m)
+          );
+        }
+
+        const selectedTest = await vscode.window.showQuickPick(
+          testableList
         );
-        let selectedSuiteFile = files && files.length === 1 ? files[0].fsPath : undefined;
-
-        if (files && files.length > 1) {
-          selectedSuiteFile = await vscode.window.showQuickPick(
-            files.map(f => f.fsPath),
-            { placeHolder: "Choose test suite file..." }
-          );
+        if (!selectedTest) {
+          return false;
         }
 
-        if (selectedSuiteFile) {
-          const selectedSuiteFileContent = await new Promise<string>(
-            (resolve, reject) => {
-              fs.readFile(selectedSuiteFile!, "utf8", (err, data) => {
-                if (err) {
-                  reject(err);
-                } else {
-                  resolve(data);
-                }
-              });
+        if (selectedTest.indexOf("function - ") !== -1) {
+          argBuilder.addDirectoryOrFile(editor.document.uri.fsPath);
+          argBuilder.addFilter(selectedTest.replace("function - ", ""));
+
+          return true;
+        } else if (selectedTest.indexOf("class - ") !== -1) {
+          argBuilder.addDirectoryOrFile(editor.document.uri.fsPath);
+
+          return true;
+        }
+      }
+    } else if (type === "nearest-test" && editor) {
+      const closestMethod = this.getClosestMethodAboveActiveLine(editor);
+      if (!closestMethod) {
+        console.error("No method found above the cursor. Make sure the cursor is close to a method.");
+
+        return false;
+      }
+
+      argBuilder.addDirectoryOrFile(editor.document.uri.fsPath);
+      argBuilder.addFilter(closestMethod);
+
+      return true;
+    } else if (type === "suite") {
+      const files = await vscode.workspace.findFiles(
+        "**/phpunit.xml**",
+        "**/vendor/**"
+      );
+      let selectedSuiteFile = files && files.length === 1 ? files[0].fsPath : undefined;
+      if (files && files.length > 1) {
+        selectedSuiteFile = await vscode.window.showQuickPick(
+          files.map(f => f.fsPath),
+          { placeHolder: "Choose test suite file..." }
+        );
+      }
+
+      if (!selectedSuiteFile) {
+        return false;
+      }
+
+      const selectedSuiteFileContent = await new Promise<string>(
+        (resolve, reject) => {
+          fs.readFile(selectedSuiteFile!, "utf8", (err, data) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(data);
             }
-          );
-
-          if (
-            await this.resolveSuiteArgsAsync(
-              args,
-              selectedSuiteFile,
-              selectedSuiteFileContent
-            )
-          ) {
-            break;
-          }
+          });
         }
+      );
 
-        return undefined; // Don't run since user escaped out of quick pick.
+      argBuilder.withConfig(selectedSuiteFile);
+
+      return await this.resolveSuiteArgsAsync(argBuilder, selectedSuiteFileContent);
+    } else if (type === "directory") {
+      if (!editor) {
+        console.error("Please open a file in the directory you want to test.");
+
+        return false;
       }
 
-      case "directory": {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-          const currentDir = editor.document.uri.fsPath.replace(
-            /(\/|\\)\w*\.php$/i,
-            ""
-          );
-          args.push(`'${currentDir}'`);
-        } else {
-          console.error(
-            "Please open a file in the directory you want to test."
-          );
-        }
-        break;
-      }
+      const currentDir = editor.document.uri.fsPath.replace(/(\/|\\)\w*\.php$/i, "");
+      argBuilder.addDirectoryOrFile(currentDir);
 
-      case "rerun-last-test": {
-        args = args.concat(this.lastContextArgs!.slice());
-        break;
-      }
+      return true;
     }
 
-    return args;
+    return false;
   }
 
   public async getDriver(order?: string[]): Promise<IPhpUnitDriver | undefined> {
@@ -332,6 +288,8 @@ export class TestRunner {
   }
 
   public async run(type: RunType) {
+    let argBuilder = new PhpunitArgBuilder();
+
     const config = vscode.workspace.getConfiguration("phpunit");
     const order = config.get<string[]>("driverPriority");
 
@@ -341,49 +299,43 @@ export class TestRunner {
       return;
     }
 
+    if (type === "rerun-last-test" && this.lastArgBuilder) {
+      argBuilder = this.lastArgBuilder;
+    } else {
+      const configArgs = config.get<string[]>("args", []);
+      argBuilder.addArgs(configArgs);
+  
+      const colors = config.get<string>("colors");
+      if (colors && (configArgs.indexOf(colors) === -1)) {
+        argBuilder.withColors(colors.replace(/--colors=?/i, '') as 'never' | 'auto' | 'always');
+      }
+  
+      const pathMappings = config.get<{ [key: string]: string }>("paths");
+      if (pathMappings) {
+        argBuilder.withPathMappings(pathMappings, vscode.workspace.workspaceFolders![0].uri.fsPath);
+      }
+  
+      const preferRunClassTestOverQuickPickWindow = config.get<boolean>(
+        "preferRunClassTestOverQuickPickWindow",
+        false
+      );
+      const shouldRun = await this.resolveContextArgs(type, argBuilder, {
+        preferRunClassTestOverQuickPickWindow
+      });
+
+      if (!shouldRun) {
+        return;
+      }
+
+      this.lastArgBuilder = argBuilder;
+    }
+
     if (config.get<string>("clearOutputOnRun")) {
       this.channel.clear();
     }
-
-    const configArgs = config.get<string[]>("args", []);
-    const preferRunClassTestOverQuickPickWindow = config.get<boolean>(
-      "preferRunClassTestOverQuickPickWindow",
-      false
-    );
-    const colors = config.get<string>("colors");
-    if (colors && (configArgs.indexOf(colors) === -1)) {
-      configArgs.push(colors);
-    }
-
-    const contextArgs = await this.resolveContextArgs(type, configArgs, {
-      preferRunClassTestOverQuickPickWindow
-    });
-    if (!contextArgs) {
-      return;
-    }
-
-    const runArgs = (this.lastContextArgs = contextArgs);
-
     this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
 
-    const runConfig = await driver.run(runArgs);
-
-    runConfig.command = runConfig.command.replace(/\\/gi, "/");
-
-    const pathMappings = config.get<{ [key: string]: string }>("paths");
-    if (pathMappings) {
-      for (const key of Object.keys(pathMappings)) {
-        const localPath = key
-          .replace(/\$\{workspaceFolder\}/gi, vscode.workspace.workspaceFolders![0].uri.fsPath)
-          .replace(/\\/gi, "/");
-
-        runConfig.command = runConfig.command.replace(
-          new RegExp(escapeStringRegexp(localPath), "ig"),
-          pathMappings[key]
-        );
-      }
-    }
-
+    const runConfig = await driver.run(argBuilder.buildArgs());
     this.channel.appendLine(runConfig.command);
 
     this.bootstrapBridge.setTaskCommand(
@@ -401,13 +353,6 @@ export class TestRunner {
       "phpunit: run"
     );
 
-    /*this.childProcess.stderr.on('data', (buffer: Buffer) => {
-                this.channel.append(buffer.toString());
-            });
-            this.childProcess.stdout.on('data', (buffer: Buffer) => {
-                this.channel.append(buffer.toString());
-            });*/
-
     this.channel.show(true);
   }
 
@@ -416,80 +361,40 @@ export class TestRunner {
       "workbench.action.tasks.terminate",
       "phpunit: run"
     );
-
-    /*if (this.childProcess !== undefined)
-        {
-            this.childProcess.kill('SIGINT');
-            this.channel.append("\nTesting Stop\n");
-            this.channel.show();
-        }*/
   }
 
   private async resolveSuiteArgsAsync(
-    args: string[],
-    filePath: string,
+    argBuilder: PhpunitArgBuilder,
     fileContent: string
   ): Promise<boolean> {
     const testSuitesMatch = fileContent.match(/<testsuite[^>]+name="[^"]+">/g);
-    let testSuites;
-    if (testSuitesMatch) {
-      testSuites = testSuitesMatch.map(v => v.match(/name="([^"]+)"/)![1]);
-    }
-    if (testSuites) {
-      if (testSuites.length > 1) {
-        const selectedSuite = await vscode.window.showQuickPick(
-          ["Run All Test Suites...", ...testSuites],
-          { placeHolder: "Choose test suite..." }
-        );
+    const testSuites = testSuitesMatch ? testSuitesMatch.map(v => v.match(/name="([^"]+)"/)![1]) : null;
 
-        if (selectedSuite) {
-          const configArgsIdx = args.findIndex(
-            a => /^(--configuration|-c)$/i.test(a)
-          );
-
-          if (configArgsIdx !== -1) {
-            this.channel.appendLine(
-              `(--configuration|-c) already exists with ${
-                args[configArgsIdx + 1]
-              }, replacing with ${filePath}`
-            );
-            args[configArgsIdx + 1] = filePath;
-          } else {
-            args.push("-c");
-            args.push(`'${filePath}'`);
-          }
-
-          if (selectedSuite !== "Run All Test Suites...") {
-            args.push("--testsuite");
-            args.push(`'${selectedSuite}'`);
-          }
-
-          return true;
-        }
-      } else if (testSuites.length === 1) {
-        const configArgsIdx = args.findIndex(
-          a => /^(--configuration|-c)$/i.test(a)
-        );
-
-        if (configArgsIdx !== -1) {
-          this.channel.appendLine(
-            `(--configuration|-c) already exists with ${
-              args[configArgsIdx + 1]
-            }, replacing with ${filePath}`
-          );
-          args[configArgsIdx + 1] = filePath;
-        } else {
-          args.push("-c");
-          args.push(`'${filePath}'`);
-        }
-
-        args.push("--testsuite");
-        args.push(`'${testSuites[0]}'`);
-
-        return true;
-      }
+    if (!testSuites || testSuites.length === 0) {
+      return false;
     }
 
-    return false;
+    if (testSuites.length === 1) {
+      argBuilder.addSuite(testSuites[0]);
+
+      return true;
+    } 
+
+    const selectedSuite = await vscode.window.showQuickPick(
+      ["Run All Test Suites...", ...testSuites],
+      { placeHolder: "Choose test suite..." }
+    );
+
+    if (!selectedSuite) {
+      return false;
+    }
+
+    if (selectedSuite === "Run All Test Suites...") {
+      return true;
+    }
+
+    argBuilder.addSuite(selectedSuite);
+
+    return true;
   }
 }
