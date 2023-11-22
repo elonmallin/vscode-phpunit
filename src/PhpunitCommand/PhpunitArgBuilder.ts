@@ -11,37 +11,37 @@ export class PhpunitArgBuilder {
   private pathMappings?: { [key: string]: string };
   private workspaceFolder?: string;
 
-  public withDirectoryOrFile(directoryOrFile: string): PhpunitArgBuilder {
+  public addDirectoryOrFile(directoryOrFile: string): PhpunitArgBuilder {
     this.directoryOrFiles.push(directoryOrFile.replace(/\\/gi, "/"));
 
     return this;
   }
 
-  public withSuite(suiteName: string): PhpunitArgBuilder {
+  public addSuite(suiteName: string): PhpunitArgBuilder {
     this.suites.push(suiteName);
     
     return this;
   }
 
-  public withSuites(suiteNames: Array<string>): PhpunitArgBuilder {
+  public addSuites(suiteNames: Array<string>): PhpunitArgBuilder {
     this.suites.push(...suiteNames);
     
     return this;
   }
 
-  public withFilter(filter: string): PhpunitArgBuilder {
+  public addFilter(filter: string): PhpunitArgBuilder {
     this.filters.push(filter);
 
     return this;
   }
 
-  public withGroup(group: string): PhpunitArgBuilder {
+  public addGroup(group: string): PhpunitArgBuilder {
     this.groups.push(group);
 
     return this;
   }
 
-  public withGroups(groups: Array<string>): PhpunitArgBuilder {
+  public addGroups(groups: Array<string>): PhpunitArgBuilder {
     this.groups.push(...groups);
 
     return this;
@@ -59,7 +59,7 @@ export class PhpunitArgBuilder {
     return this;
   }
 
-  public withArgs(args: string[]): PhpunitArgBuilder {
+  public addArgs(args: string[]): PhpunitArgBuilder {
     this.args.push(...args);
 
     return this;

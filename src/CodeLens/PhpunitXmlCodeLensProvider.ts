@@ -43,7 +43,7 @@ export class PhpunitXmlCodeLensProvider implements CodeLensProvider {
 
     for (const child of node.subElements) {
       if (child.name === 'testsuite') {
-        codeLenses.push(this.parseTestSuite(child));
+        codeLenses.push(this.parseTestSuite(child, fileName));
       }
     }
 
@@ -63,7 +63,7 @@ export class PhpunitXmlCodeLensProvider implements CodeLensProvider {
     return codeLenses;
   }
 
-  private parseTestSuite(node: XMLElement): CodeLens {
+  private parseTestSuite(node: XMLElement, fileName: string): CodeLens {
     const codeLensRange = new Range(node.position.startLine - 1, 0, node.position.startLine - 1, 0);
     const name = node.attributes.find((attribute) => attribute.key === 'name')!.value!;
 
@@ -72,7 +72,8 @@ export class PhpunitXmlCodeLensProvider implements CodeLensProvider {
         title: 'Run test',
         arguments: [
           new PhpunitArgBuilder()
-            .withSuite(name)
+            .withConfig(fileName)
+            .addSuite(name)
         ]
     });
   }

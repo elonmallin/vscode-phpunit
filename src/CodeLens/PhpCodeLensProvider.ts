@@ -42,7 +42,7 @@ export class PhpCodeLensProvider implements CodeLensProvider {
     }
 
     for (const codeLens of codeLenses) {
-      (codeLens.command!.arguments![0] as PhpunitArgBuilder).withDirectoryOrFile(document.fileName);
+      (codeLens.command!.arguments![0] as PhpunitArgBuilder).addDirectoryOrFile(document.fileName);
     }
 
     lastDocumentText = document.getText();
@@ -91,7 +91,7 @@ export class PhpCodeLensProvider implements CodeLensProvider {
             title: "Run tests",
             arguments: [
               new PhpunitArgBuilder()
-                .withFilter(className)
+                .addFilter(className)
             ],
         }));
     }
@@ -118,7 +118,7 @@ export class PhpCodeLensProvider implements CodeLensProvider {
         title: 'Run test',
         arguments: [
           new PhpunitArgBuilder()
-            .withFilter(methodName)
+            .addFilter(methodName)
         ],
     });
   }
