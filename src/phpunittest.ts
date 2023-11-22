@@ -293,7 +293,7 @@ export class TestRunner {
     }
 
     const configArgs = config.get<string[]>("args", []);
-    argBuilder.withArgs(configArgs);
+    argBuilder.addArgs(configArgs);
 
     const colors = config.get<string>("colors");
     if (colors && (configArgs.indexOf(colors) === -1)) {
