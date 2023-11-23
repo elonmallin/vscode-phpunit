@@ -139,6 +139,11 @@
         "phpunit.envVars": {
           "type": "object",
           "title": "Set environment variables before running the phpunit command"
+        },
+        "phpunit.codeLens.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "Enable/disable code lens for phpunit tests"
         }
       }
     },

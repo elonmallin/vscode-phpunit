@@ -1,4 +1,4 @@
-import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range } from 'vscode';
+import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range, workspace } from 'vscode';
 import { Class, CommentBlock, Engine, Identifier, Method, Namespace } from 'php-parser';
 import { PhpunitArgBuilder } from '../PhpunitCommand/PhpunitArgBuilder';
 
@@ -7,6 +7,10 @@ let lastCodeLenses: Array<CodeLens> = [];
 
 export class PhpCodeLensProvider implements CodeLensProvider {
   public provideCodeLenses(document: TextDocument, token: CancellationToken): Array<CodeLens> | Thenable<Array<CodeLens>> {
+    if (!workspace.getConfiguration("phpunit").get<boolean>("codeLens.enabled")) {
+      return [];
+    }
+
     if (document.getText() === lastDocumentText) {
       return lastCodeLenses;
     }

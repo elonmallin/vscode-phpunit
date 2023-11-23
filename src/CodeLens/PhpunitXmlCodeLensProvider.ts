@@ -1,4 +1,4 @@
-import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range } from 'vscode';
+import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range, workspace } from 'vscode';
 import { parse, DocumentCstNode } from '@xml-tools/parser';
 import { buildAst, XMLElement, } from '@xml-tools/ast';
 import { PhpunitArgBuilder } from '../PhpunitCommand/PhpunitArgBuilder';
@@ -8,6 +8,10 @@ let lastCodeLenses: Array<CodeLens> = [];
 
 export class PhpunitXmlCodeLensProvider implements CodeLensProvider {
   public provideCodeLenses(document: TextDocument, token: CancellationToken): Array<CodeLens> | Thenable<Array<CodeLens>> {
+    if (!workspace.getConfiguration("phpunit").get<boolean>("codeLens.enabled")) {
+      return [];
+    }
+
     if (!/phpunit\.xml(\.dist)?/.test(document.fileName)) {
       return [];
     }
