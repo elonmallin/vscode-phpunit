@@ -2,7 +2,7 @@
 # PHPUnit for VSCode
 This extension aims to need zero config and to be highly configurable. If you have `php` in environment path and `phpunit` installed with `composer` or anywhere in your workspace as `phpunit*.phar`, zero config is needed. It will even fallback to spinning up a self-removing `docker` container to try and run your tests if it can't find `php` on your machine.
 
-![vscode-phpunit-demo](images/vscode-phpunit-demo.gif)
+![vscode-phpunit-demo](images/vscode-phpunit-demo-with-codelens.gif)
 
 ## Features
   - Run tests with one **command** or **hotkey** based on **open file** (`*.php` or `phpunit.xml`) and **cursor position**
