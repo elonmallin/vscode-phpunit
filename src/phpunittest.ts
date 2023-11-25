@@ -260,6 +260,7 @@ export class TestRunner {
       argBuilder.withPathMappings(pathMappings, vscode.workspace.workspaceFolders![0].uri.fsPath);
     }
     
+    this.lastArgBuilder = argBuilder;
     const runConfig = await driver.run(argBuilder.buildArgs());
 
     if (config.get<string>("clearOutputOnRun")) {
