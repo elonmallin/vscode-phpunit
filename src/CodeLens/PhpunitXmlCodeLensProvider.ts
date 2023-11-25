@@ -1,4 +1,4 @@
-import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range, workspace } from 'vscode';
+import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range } from 'vscode';
 import { parse, DocumentCstNode } from '@xml-tools/parser';
 import { buildAst, XMLElement, } from '@xml-tools/ast';
 import { PhpunitArgBuilder } from '../PhpunitCommand/PhpunitArgBuilder';

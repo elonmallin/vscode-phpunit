@@ -1,4 +1,4 @@
-import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range, workspace } from 'vscode';
+import { CodeLensProvider, CodeLens, CancellationToken, TextDocument, Range } from 'vscode';
 import { Class, CommentBlock, Engine, Identifier, Method, Namespace } from 'php-parser';
 import { PhpunitArgBuilder } from '../PhpunitCommand/PhpunitArgBuilder';
 
