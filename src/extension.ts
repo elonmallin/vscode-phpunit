@@ -5,8 +5,7 @@ import { TestRunner } from "./phpunittest";
 import { IMyExtensionApi } from "./MyExtensionApi";
 import path = require("path");
 import { PhpunitArgBuilder } from "./PhpunitCommand/PhpunitArgBuilder";
-import { PhpCodeLensProvider } from "./CodeLens/PhpCodeLensProvider";
-import { PhpunitXmlCodeLensProvider } from "./CodeLens/PhpunitXmlCodeLensProvider";
+import { addCodeLensFeature } from "./CodeLens/CodeLensFeature";
 
 export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
   const testOutputFile = path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'test-output.txt');
@@ -96,16 +95,7 @@ export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
     })
   );
 
-  context.subscriptions.push(vscode.languages.registerCodeLensProvider({
-    language: 'php',
-    scheme: 'file',
-    pattern: '**/test*/**/*.php'
-  }, new PhpCodeLensProvider()));
-  context.subscriptions.push(vscode.languages.registerCodeLensProvider({
-    language: 'xml',
-    scheme: 'file',
-    pattern: '**/phpunit.xml*'
-  }, new PhpunitXmlCodeLensProvider()));
+  addCodeLensFeature(context);
 
   return myExtensionApi;
 }
