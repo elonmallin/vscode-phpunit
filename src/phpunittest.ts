@@ -263,9 +263,6 @@ export class TestRunner {
     this.lastArgBuilder = argBuilder;
     const runConfig = await driver.run(argBuilder.buildArgs());
 
-    if (config.get<string>("clearOutputOnRun")) {
-      this.channel.clear();
-    }
     this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
     this.channel.appendLine(runConfig.command);
 
@@ -283,8 +280,6 @@ export class TestRunner {
       "workbench.action.tasks.runTask",
       "phpunit: run"
     );
-
-    this.channel.show(true);
   }
 
   public async run(type: RunType) {
@@ -330,12 +325,8 @@ export class TestRunner {
       this.lastArgBuilder = argBuilder;
     }
 
-    if (config.get<string>("clearOutputOnRun")) {
-      this.channel.clear();
-    }
-    this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
-
     const runConfig = await driver.run(argBuilder.buildArgs());
+    this.channel.appendLine(`Running phpunit with driver: ${driver.name}`);
     this.channel.appendLine(runConfig.command);
 
     this.bootstrapBridge.setTaskCommand(
@@ -352,8 +343,6 @@ export class TestRunner {
       "workbench.action.tasks.runTask",
       "phpunit: run"
     );
-
-    this.channel.show(true);
   }
 
   public async stop() {

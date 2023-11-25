@@ -108,11 +108,6 @@
           "default": false,
           "description": "If we should test the whole class instead of showing the quick pick window when cursor is on anything but a function name."
         },
-        "phpunit.clearOutputOnRun": {
-          "type": "boolean",
-          "default": true,
-          "description": "True will clear the output when we run a new test. False will leave the output after every test."
-        },
         "phpunit.colors": {
           "type": "string",
           "default": "--colors=always",
