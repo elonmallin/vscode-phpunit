@@ -127,10 +127,6 @@
           "type": "object",
           "description": "Path mappings for your virtual/remote environments. Ex: { \"local/workspace/folder\": \"docker/workspace/folder\" }"
         },
-        "phpunit.execPath": {
-          "type": "string",
-          "description": "DEPRECATED: Use phpunit.php and phpunit.phpunit instead."
-        },
         "phpunit.envVars": {
           "type": "object",
           "title": "Set environment variables before running the phpunit command"
