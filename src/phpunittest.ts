@@ -1,6 +1,6 @@
 "use strict";
 
-import { ChildProcess } from "child_process";
+import { ChildProcess, spawnSync } from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import Command from "./Command";
@@ -89,7 +89,7 @@ export class TestRunner {
 
         if (isFunction && wordOnCursor != null) {
           argBuilder.addDirectoryOrFile(editor.document.uri.fsPath);
-          argBuilder.addFilter(wordOnCursor);
+          argBuilder.withFilter(wordOnCursor);
 
           return true;
         } else if (line.text.indexOf("class") !== -1) {
@@ -128,7 +128,7 @@ export class TestRunner {
 
         if (selectedTest.indexOf("function - ") !== -1) {
           argBuilder.addDirectoryOrFile(editor.document.uri.fsPath);
-          argBuilder.addFilter(selectedTest.replace("function - ", ""));
+          argBuilder.withFilter(selectedTest.replace("function - ", ""));
 
           return true;
         } else if (selectedTest.indexOf("class - ") !== -1) {
@@ -146,7 +146,7 @@ export class TestRunner {
       }
 
       argBuilder.addDirectoryOrFile(editor.document.uri.fsPath);
-      argBuilder.addFilter(closestMethod);
+      argBuilder.withFilter(closestMethod);
 
       return true;
     } else if (type === "suite") {
@@ -237,7 +237,7 @@ export class TestRunner {
     return undefined;
   }
 
-  public async runArgs(argBuilder: PhpunitArgBuilder) {
+  public async runArgs(argBuilder: PhpunitArgBuilder, childProcess = false) {
     const config = vscode.workspace.getConfiguration("phpunit");
     const order = config.get<string[]>("driverPriority");
 
@@ -275,11 +275,20 @@ export class TestRunner {
       console.debug(runConfig.command);
     }
 
-    await vscode.commands.executeCommand("workbench.action.terminal.clear");
-    await vscode.commands.executeCommand(
-      "workbench.action.tasks.runTask",
-      "phpunit: run"
-    );
+    if (childProcess) {
+      if (runConfig.args.length > 0) {
+        if (runConfig.args[0].startsWith("'")) {
+          runConfig.args[0] = runConfig.args[0].replace(/^'/g, '').replace(/'$/g, '');
+        }
+      }
+      return await new Promise(r => r(spawnSync(runConfig.exec, runConfig.args, { encoding: "utf8" })));
+    } else {
+      await vscode.commands.executeCommand("workbench.action.terminal.clear");
+      await vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "phpunit: run"
+      );
+    }
   }
 
   public async run(type: RunType) {
