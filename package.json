@@ -2,7 +2,7 @@
   "name": "phpunit",
   "displayName": "PHPUnit",
   "description": "Run PHPUnit tests from VSCode.",
-  "version": "4.10.0",
+  "version": "4.11.0",
   "publisher": "emallin",
   "icon": "images/phpunit.png",
   "engines": {
@@ -135,6 +135,12 @@
           "type": "boolean",
           "default": true,
           "title": "Enable/disable code lens for phpunit tests"
+        },
+        "phpunit.testExplorer.enabled": {
+          "type": "boolean",
+          "default": false,
+          "title": "PREVIEW: Enable/disable the test explorer",
+          "description": "This is a preview feature and may change in the future.\nRestart VSCode for changes to take effect."
         }
       }
     },

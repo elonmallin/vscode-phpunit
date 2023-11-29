@@ -6,6 +6,9 @@ import { IMyExtensionApi } from "./MyExtensionApi";
 import path = require("path");
 import { PhpunitArgBuilder } from "./PhpunitCommand/PhpunitArgBuilder";
 import { addCodeLensFeature } from "./CodeLens/CodeLensFeature";
+import { addTestExplorerFeature } from "./TestProvider/TestExplorerFeature";
+
+export let PHPUnitTestRunner: TestRunner;
 
 export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
   const testOutputFile = path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'test-output.txt');
@@ -16,7 +19,7 @@ export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
   let taskCommand: string;
   let problemMatcher: string | undefined;
   const outputChannel = vscode.window.createOutputChannel("phpunit");
-  const PHPUnitTestRunner: TestRunner = new TestRunner(outputChannel, {
+  PHPUnitTestRunner = new TestRunner(outputChannel, {
     setTaskCommand: (command: string, matcher?: string) => {
       if (process.env.VSCODE_PHPUNIT_TEST === 'true') {
         taskCommand = command + ' > ' + testOutputFile;
@@ -96,6 +99,7 @@ export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
   );
 
   addCodeLensFeature(context);
+  addTestExplorerFeature(context);
 
   return myExtensionApi;
 }
