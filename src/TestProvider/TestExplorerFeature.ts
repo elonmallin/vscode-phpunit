@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { testData, TestFile } from './PhpunitTestFile';
 import { TestCase } from './PhpunitTestCase';
 
-export async function addTestProviderFeature(context: vscode.ExtensionContext) {
+export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
 	const ctrl = vscode.tests.createTestController('phpunitTestController', 'Phpunit');
 	context.subscriptions.push(ctrl);
 
