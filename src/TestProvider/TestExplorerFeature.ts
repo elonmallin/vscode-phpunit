@@ -3,6 +3,11 @@ import { testData, TestFile } from './PhpunitTestFile';
 import { TestCase } from './PhpunitTestCase';
 
 export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
+  const testExplorerEnabled = vscode.workspace.getConfiguration('phpunit').get<boolean>('testExplorer.enabled', false);
+  if (!testExplorerEnabled) {
+    return;
+  }
+
 	const ctrl = vscode.tests.createTestController('phpunitTestController', 'Phpunit');
 	context.subscriptions.push(ctrl);
 
