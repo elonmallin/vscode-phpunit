@@ -23,6 +23,8 @@ export default class DockerContainer implements IPhpUnitDriver {
 
     return {
       command: command,
+      exec: "docker",
+      args: params as string[],
       problemMatcher: "$phpunit-app"
     };
   }

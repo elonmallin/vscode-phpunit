@@ -17,7 +17,9 @@ export default class Path implements IPhpUnitDriver {
     const command = `${execPath} ${args.join(" ")}`;
 
     return {
-      command: command
+      command: command,
+      exec: execPath,
+      args: args,
     };
   }
 

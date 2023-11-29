@@ -12,7 +12,9 @@ export default class Legacy implements IPhpUnitDriver {
     const command = `${execPath} ${args.join(" ")}`;
 
     return {
-      command: command
+      command: command,
+      exec: execPath,
+      args: args,
     };
   }
 

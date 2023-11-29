@@ -21,7 +21,9 @@ export default class Composer implements IPhpUnitDriver {
     const command = `${execPath} ${args.join(" ")}`;
 
     return {
-      command: command
+      command: command,
+      exec: execPath,
+      args: args,
     };
   }
 

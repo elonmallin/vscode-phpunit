@@ -14,6 +14,8 @@ export default class Command implements IPhpUnitDriver {
 
     return {
       command: command,
+      exec: await this.command(),
+      args: args,
       problemMatcher: "$phpunit-app"
     };
   }
