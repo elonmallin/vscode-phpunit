@@ -91,7 +91,7 @@ export class PhpCodeLensProvider implements CodeLensProvider {
             title: "Run tests",
             arguments: [
               new PhpunitArgBuilder()
-                .addFilter(className)
+                .withFilter(className)
             ],
         }));
     }
@@ -118,7 +118,7 @@ export class PhpCodeLensProvider implements CodeLensProvider {
         title: 'Run test',
         arguments: [
           new PhpunitArgBuilder()
-            .addFilter(methodName)
+            .withFilter(methodName)
         ],
     });
   }

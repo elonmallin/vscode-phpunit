@@ -3,7 +3,7 @@ import escapeStringRegexp from "../Utils/escape-string-regexp";
 export class PhpunitArgBuilder {
   private directoryOrFiles: Array<string> = [];
   private suites: Array<string> = [];
-  private filters: Array<string> = [];
+  private filter?: string;
   private groups: Array<string> = [];
   private configFile?: string;
   private color?: string;
@@ -29,8 +29,8 @@ export class PhpunitArgBuilder {
     return this;
   }
 
-  public addFilter(filter: string): PhpunitArgBuilder {
-    this.filters.push(filter);
+  public withFilter(filter: string): PhpunitArgBuilder {
+    this.filter = filter;
 
     return this;
   }
@@ -74,13 +74,13 @@ export class PhpunitArgBuilder {
 
   public buildArgs(): Array<string> {
     let args = [
-      this.configFile ? `--configuration ${this.configFile}` : '',
-      this.color ? `--colors=${this.color}` : '',
-      this.suites.length > 0 ? `--testsuite ${this.suites.join(',')}` : '',
-      this.filters.map(filter => `--filter ${filter}`).join(' '),
-      this.groups.length > 0 ? `--group ${this.groups.join(',')}` : '',
-      this.args.join(' '),
-      this.directoryOrFiles.join(' '),
+      ...(this.configFile ? ['--configuration', this.configFile] : []),
+      ...(this.color ? [`--colors=${this.color}`] : []),
+      ...(this.suites.length > 0 ? ['--testsuite', this.suites.join(',')] : []),
+      ...(this.filter ? ['--filter', `'${this.filter}'`] : []),
+      ...(this.groups.length > 0 ? ['--group', this.groups.join(',')] : []),
+      ...this.args,
+      ...this.directoryOrFiles,
     ]
       .filter(part => part);
 
