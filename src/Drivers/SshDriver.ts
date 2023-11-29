@@ -14,6 +14,9 @@ export default class Ssh implements IPhpUnitDriver {
 
     return {
       command: `${this.ssh!.replace("<command>", argsString)}`,
+      // TODO: ssh might be more than the ssh executable here, so we need to split it up.
+      exec: this.ssh!,
+      args: args,
     };
   }
 

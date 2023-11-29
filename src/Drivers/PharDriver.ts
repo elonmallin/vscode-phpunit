@@ -12,13 +12,15 @@ export default class Phar implements IPhpUnitDriver {
   public hasPharExtensionCache?: boolean;
 
   public async run(args: string[]): Promise<IRunConfig> {
-    const execPath = await this.phpPath();
+    const execPath = (await this.phpPath())!;
     args = [await this.phpUnitPath()].concat(args);
 
     const command = `${execPath} ${args.join(" ")}`;
 
     return {
-      command: command
+      command: command,
+      exec: execPath,
+      args: args
     };
   }
 

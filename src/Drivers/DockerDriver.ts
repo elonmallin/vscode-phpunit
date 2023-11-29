@@ -38,6 +38,8 @@ export default class Docker implements IPhpUnitDriver {
 
     return {
       command: command,
+      exec: "docker",
+      args: args,
       problemMatcher: "$phpunit-app"
     };
   }
