@@ -132,10 +132,15 @@ Create a PR linking an issue and add [tests](src/test/suite/extension.test.ts) t
 
 If you already have VS Code and Docker installed, you can click the badge above or [here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/microsoft/vscode-remote-try-java) to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
 
-### Development dependencies
+### Local development
 
-If you prefer to work locally, install this on your machine:
-
+Install this on your machine:
 - Node
 - PHP
 - Composer
+
+Run:
+`npm install && npm run build`
+
+## Debug
+Start an extension host with the extension installed and a debugger attached with F5.
