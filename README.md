@@ -1,4 +1,10 @@
-[![Latest Release](https://vsmarketplacebadges.dev/version/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit) [![Installs](https://vsmarketplacebadges.dev/installs-short/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit) [![Rating](https://vsmarketplacebadges.dev/rating-short/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit)
+[![Latest Release](https://vsmarketplacebadges.dev/version-short/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit)
+[![Installs](https://vsmarketplacebadges.dev/installs-short/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit)
+[![Rating](https://vsmarketplacebadges.dev/rating-short/emallin.phpunit.svg)](https://marketplace.visualstudio.com/items?itemName=emallin.phpunit)
+
+[![test workflow](https://github.com/elonmallin/vscode-phpunit/actions/workflows/test.yml/badge.svg)](https://github.com/elonmallin/vscode-phpunit/actions/workflows/test.yml)
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/elonmallin/vscode-phpunit)
+
 # PHPUnit for VSCode
 This extension aims to need zero config and to be highly configurable. If you have `php` in environment path and `phpunit` installed with `composer` or anywhere in your workspace as `phpunit*.phar`, zero config is needed. It will even fallback to spinning up a self-removing `docker` container to try and run your tests if it can't find `php` on your machine.
 
@@ -111,6 +117,25 @@ Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execu
 * **Rerun last Test**: Run the `PHPUnit Rerun Last Test` command.
 
 ## Keybinding example:
+
 ```json5
 { "key": "cmd+shift+t", "command": "phpunit.Test", "when": "editorFocus" }
 ```
+
+# Contribute
+
+Create a PR linking an issue and add [tests](src/test/suite/extension.test.ts) to make the merging go smoother.
+
+## Development
+
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/elonmallin/vscode-phpunit)
+
+If you already have VS Code and Docker installed, you can click the badge above or [here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/microsoft/vscode-remote-try-java) to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
+
+### Development dependencies
+
+If you prefer to work locally, install this on your machine:
+
+- Node
+- PHP
+- Composer
