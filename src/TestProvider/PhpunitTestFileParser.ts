@@ -1,6 +1,6 @@
 import { Range, Uri } from "vscode";
 import { Class, CommentBlock, Engine, Identifier, Method, Namespace } from 'php-parser';
-import { TestCase } from "./PhpunitTestCase";
+import { ITestCase, TestClass, TestMethod } from "./TestCases";
 
 const engine = new Engine({
   ast: {
@@ -21,10 +21,10 @@ const engine = new Engine({
 });
 
 export class ParsePhpunitTestFile {
-  public parsePhpunitTestFile = (text: string, uri: Uri): Array<TestCase> => {
+  public parsePhpunitTestFile = (text: string, uri: Uri): Array<ITestCase> => {
     const ast = engine.parseCode(text, uri.fsPath);
   
-    const testCases = new Array<TestCase>();
+    const testCases = new Array<ITestCase>();
     for (const node of ast.children) {
       if (node.kind === 'class') {
         testCases.push(...this.parseClass(node as Class, uri));
@@ -36,8 +36,8 @@ export class ParsePhpunitTestFile {
     return testCases;
   };
   
-  private parseNamespace(node: Namespace, uri: Uri): TestCase[] {
-    const testCases: Array<TestCase> = [];
+  private parseNamespace(node: Namespace, uri: Uri): ITestCase[] {
+    const testCases: Array<ITestCase> = [];
   
     for (const child of node.children) {
       if (child.kind === 'class') {
@@ -48,7 +48,7 @@ export class ParsePhpunitTestFile {
     return testCases;
   }
   
-  private parseClass(node: Class, uri: Uri): TestCase[] {
+  private parseClass(node: Class, uri: Uri): ITestCase[] {
     const testCases = [];
   
     for (const child of node.body) {
@@ -66,13 +66,13 @@ export class ParsePhpunitTestFile {
         const range = new Range(node.loc!.start.line - 1, 0, node.loc!.end.line - 1, 0);
         const className = typeof node.name === 'string' ? node.name : (node.name as Identifier).name;
   
-        testCases.push(new TestCase(uri.fsPath, className, '', range, 0));
+        testCases.push(new TestClass(uri.fsPath, className, range));
     }
   
     return testCases;
   }
   
-  private parseMethod(node: Method, uri: Uri): TestCase | null {
+  private parseMethod(node: Method, uri: Uri): ITestCase | null {
     const leadingComments = node.leadingComments || [];
     const hasTestAnnotation = leadingComments.find((comment: CommentBlock) => {
         return comment.kind === 'commentblock' && comment.value.indexOf('* @test') != -1;
@@ -86,7 +86,6 @@ export class ParsePhpunitTestFile {
   
     const range = new Range(node.loc!.start.line - 1, 0, node.loc!.end.line - 1, 0);
   
-    return new TestCase(uri.fsPath, '', methodName, range, 0);
+    return new TestMethod(uri.fsPath, methodName, range);
   }
 }
-
