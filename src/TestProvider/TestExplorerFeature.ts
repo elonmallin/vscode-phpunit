@@ -1,6 +1,13 @@
 import * as vscode from 'vscode';
-import { testData, TestFile } from './PhpunitTestFile';
-import { TestCase } from './PhpunitTestCase';
+import { ITestCase, TestClass, TestDirectory, TestMethod } from './TestCases';
+import path = require('path');
+import * as fs from 'fs';
+import * as util from 'util';
+import { getOrCreate } from './TestCases';
+
+const readdir = util.promisify(fs.readdir);
+
+export const testData = new WeakMap<vscode.TestItem, ITestCase>();
 
 export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
   const testExplorerEnabled = vscode.workspace.getConfiguration('phpunit').get<boolean>('testExplorer.enabled', false);
@@ -49,10 +56,8 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
 	};
 
 	const startTestRun = (request: vscode.TestRunRequest) => {
-		const queue: { test: vscode.TestItem; data: TestFile | TestCase }[] = [];
+		const queue: { test: vscode.TestItem; data: ITestCase }[] = [];
 		const run = ctrl.createTestRun(request);
-		// map of file uris to statements on each line:
-		// const coveredLines = new Map</* file uri */ string, (vscode.StatementCoverage | undefined)[]>();
 
 		const discoverTests = async (tests: Iterable<vscode.TestItem>) => {
 			for (const test of tests) {
@@ -60,32 +65,14 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
 					continue;
 				}
 
-				const data = testData.get(test);
-				if (data instanceof TestCase) {
-					run.enqueued(test);
-					queue.push({ test, data });
-				}
-        else if (data instanceof TestFile) {
-          run.enqueued(test);
-					queue.push({ test, data });
-        }
-
-				// 	await discoverTests(gatherTestItems(test.children));
-				// }
-
-				// if (test.uri && !coveredLines.has(test.uri.toString())) {
-				// 	try {
-				// 		const lines = (await getContentFromFilesystem(test.uri)).split('\n');
-				// 		coveredLines.set(
-				// 			test.uri.toString(),
-				// 			lines.map((lineText, lineNo) =>
-				// 				lineText.trim().length ? new vscode.StatementCoverage(0, new vscode.Position(lineNo, 0)) : undefined
-				// 			)
-				// 		);
-				// 	} catch {
-				// 		// ignored
-				// 	}
-				// }
+				const data = testData.get(test)!;
+        // if (!data.isResolved) {
+        //   if (data instanceof TestDirectory) {
+        //     await findTestsInDirectory(ctrl, test.uri!, test);
+        //   }
+        // }
+        run.enqueued(test);
+        queue.push({ test, data });
 			}
 		};
 
@@ -99,40 +86,17 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
 					await data.run(test, run);
 				}
 
-				// const lineNo = test.range!.start.line;
-				// const fileCoverage = coveredLines.get(test.uri!.toString());
-				// const lineInfo = fileCoverage?.[lineNo];
-				// if (lineInfo) {
-				// 	lineInfo.executionCount++;
-				// }
-
 				run.appendOutput(`Completed ${test.id}\r\n`);
 			}
 
 			run.end();
 		};
 
-		// run.coverageProvider = {
-		// 	provideFileCoverage() {
-		// 		const coverage: vscode.FileCoverage[] = [];
-		// 		for (const [uri, statements] of coveredLines) {
-		// 			coverage.push(
-		// 				vscode.FileCoverage.fromDetails(
-		// 					vscode.Uri.parse(uri),
-		// 					statements.filter((s): s is vscode.StatementCoverage => !!s)
-		// 				)
-		// 			);
-		// 		}
-
-		// 		return coverage;
-		// 	},
-		// };
-
 		discoverTests(request.include ?? gatherTestItems(ctrl.items)).then(runTestQueue);
 	};
 
 	ctrl.refreshHandler = async () => {
-		await Promise.all(getWorkspaceTestPatterns().map(({ pattern, exclude }) => findInitialFiles(ctrl, pattern, exclude)));
+		await Promise.all(getWorkspaceTestPatterns().map(({ pattern, exclude }) => findInitialTests(ctrl, pattern, exclude)));
 	};
 
 	ctrl.createRunProfile('Run Tests', vscode.TestRunProfileKind.Run, runHandler, true, undefined, true);
@@ -143,50 +107,53 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		const data = testData.get(item);
-		if (data instanceof TestFile) {
-			await data.updateFromDisk(ctrl, item);
-		}
+		// const data = testData.get(item)!;
+    // if (item.canResolveChildren) {
+    //   await findTestsInDirectory(ctrl, item.uri!, item);
+    // }
+    // TODO: implement this
+    // await data.updateFromDisk(ctrl, item);
 	};
 
-	function updateNodeForDocument(e: vscode.TextDocument) {
-		if (e.uri.scheme !== 'file') {
-			return;
-		}
+	// function updateNodeForDocument(e: vscode.TextDocument) {
+	// 	if (e.uri.scheme !== 'file') {
+	// 		return;
+	// 	}
 
-		if (!e.uri.path.endsWith('Test.php')) {
-			return;
-		}
+	// 	if (!e.uri.path.endsWith('Test.php')) {
+	// 		return;
+	// 	}
 
-		const { file, data } = getOrCreateFile(ctrl, e.uri);
-		data.updateFromContents(ctrl, e.getText(), file);
-	}
+	// 	const { file, data } = getOrCreateFile(ctrl, e.uri);
+	// 	data.updateFromContents(ctrl, e.getText(), file);
+	// }
 
-	for (const document of vscode.workspace.textDocuments) {
-		updateNodeForDocument(document);
-	}
+	// for (const document of vscode.workspace.textDocuments) {
+	// 	updateNodeForDocument(document);
+	// }
 
-	context.subscriptions.push(
-		vscode.workspace.onDidOpenTextDocument(updateNodeForDocument),
-		vscode.workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
-	);
+	// context.subscriptions.push(
+	// 	vscode.workspace.onDidOpenTextDocument(updateNodeForDocument),
+	// 	vscode.workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
+	// );
 }
 
-function getOrCreateFile(controller: vscode.TestController, uri: vscode.Uri) {
-	const existing = controller.items.get(uri.toString());
-	if (existing) {
-		return { file: existing, data: testData.get(existing) as TestFile };
-	}
+// function getOrCreateFile(controller: vscode.TestController, uri: vscode.Uri) {
+// 	const existing = controller.items.get(uri.toString());
+// 	if (existing) {
+// 		return { file: existing, data: testData.get(existing) as TestFile };
+// 	}
 
-	const file = controller.createTestItem(uri.toString(), uri.path.split('/').pop()!, uri);
-	controller.items.add(file);
 
-	const data = new TestFile(uri.toString());
-	testData.set(file, data);
+// 	const file = controller.createTestItem(uri.toString(), uri.path.split('/').pop()!, uri);
+// 	controller.items.add(file);
 
-	file.canResolveChildren = true;
-	return { file, data };
-}
+// 	const data = new TestFile(uri.toString());
+// 	testData.set(file, data);
+
+// 	file.canResolveChildren = true;
+// 	return { file, data };
+// }
 
 function gatherTestItems(collection: vscode.TestItemCollection) {
 	const items: vscode.TestItem[] = [];
@@ -206,30 +173,38 @@ function getWorkspaceTestPatterns() {
 	}));
 }
 
-async function findInitialFiles(controller: vscode.TestController, pattern: vscode.GlobPattern, exclude: vscode.GlobPattern) {
-	for (const file of await vscode.workspace.findFiles(pattern, exclude)) {
-		getOrCreateFile(controller, file);
-	}
+async function findInitialTests(controller: vscode.TestController, pattern: vscode.GlobPattern, exclude: vscode.GlobPattern) {
+  const files = await vscode.workspace.findFiles(pattern, exclude);
+  const directories = files.map(file => path.dirname(file.fsPath));
+  const commonDirectory = directories.reduce((common, dir) => {
+      let i = 0;
+      while (i < common.length && common[i] === dir[i]) {
+          i++;
+      }
+      return common.substring(0, i);
+  }, directories[0]);
+
+  await getOrCreate(controller, vscode.Uri.parse(`file:///${commonDirectory}`));
 }
 
 function startWatchingWorkspace(controller: vscode.TestController, fileChangedEmitter: vscode.EventEmitter<vscode.Uri>) {
 	return getWorkspaceTestPatterns().map(({ workspaceFolder, pattern, exclude }) => {
 		const watcher = vscode.workspace.createFileSystemWatcher(pattern);
 
-		watcher.onDidCreate(uri => {
-			getOrCreateFile(controller, uri);
-			fileChangedEmitter.fire(uri);
-		});
-		watcher.onDidChange(async uri => {
-			const { file, data } = getOrCreateFile(controller, uri);
-			if (data.didResolve) {
-				await data.updateFromDisk(controller, file);
-			}
-			fileChangedEmitter.fire(uri);
-		});
-		watcher.onDidDelete(uri => controller.items.delete(uri.toString()));
+		// watcher.onDidCreate(uri => {
+		// 	findTestsInFile(controller, uri);
+		// 	fileChangedEmitter.fire(uri);
+		// });
+		// watcher.onDidChange(async uri => {
+		// 	const { file, data } = findTestsInFile(controller, uri);
+		// 	if (data.didResolve) {
+		// 		await data.updateFromDisk(controller, file);
+		// 	}
+		// 	fileChangedEmitter.fire(uri);
+		// });
+		// watcher.onDidDelete(uri => controller.items.delete(uri.toString()));
 
-		findInitialFiles(controller, pattern, exclude);
+		findInitialTests(controller, pattern, exclude);
 
 		return watcher;
 	});
