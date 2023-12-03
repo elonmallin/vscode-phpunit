@@ -1,6 +1,6 @@
 import { Range, Uri } from "vscode";
 import { Class, CommentBlock, Engine, Identifier, Method, Namespace } from 'php-parser';
-import { ITestCase, TestClass, TestMethod } from "./TestCases";
+import { ITestCase, TestCaseNode, TestClass, TestMethod } from "./TestCases";
 
 const engine = new Engine({
   ast: {
@@ -20,59 +20,53 @@ const engine = new Engine({
   },
 });
 
-export class ParsePhpunitTestFile {
-  public parsePhpunitTestFile = (text: string, uri: Uri): Array<ITestCase> => {
+export class TestFileParser {
+  public parse = (text: string, uri: Uri): Array<TestCaseNode> => {
     const ast = engine.parseCode(text, uri.fsPath);
   
-    const testCases = new Array<ITestCase>();
+    const testCaseNodes = new Array<TestCaseNode>();
     for (const node of ast.children) {
       if (node.kind === 'class') {
-        testCases.push(...this.parseClass(node as Class, uri));
+        testCaseNodes.push(this.parseClass(node as Class, uri));
       } else if (node.kind === 'namespace') {
-        testCases.push(...this.parseNamespace(node as Namespace, uri));
+        testCaseNodes.push(this.parseNamespace(node as Namespace, uri));
       }
     }
   
-    return testCases;
+    return testCaseNodes;
   };
   
-  private parseNamespace(node: Namespace, uri: Uri): ITestCase[] {
-    const testCases: Array<ITestCase> = [];
+  private parseNamespace(node: Namespace, uri: Uri): TestCaseNode {
+    const testCaseNode = new TestCaseNode('namespace', node.name, new Range(node.loc!.start.line - 1, 0, node.loc!.end.line - 1, 0));
   
     for (const child of node.children) {
       if (child.kind === 'class') {
-        testCases.push(...this.parseClass(child as Class, uri));
+        testCaseNode.children.push(this.parseClass(child as Class, uri));
       }
     }
   
-    return testCases;
+    return testCaseNode;
   }
   
-  private parseClass(node: Class, uri: Uri): ITestCase[] {
-    const testCases = [];
+  private parseClass(node: Class, uri: Uri): TestCaseNode {
+    const className = typeof node.name === 'string' ? node.name : (node.name as Identifier).name;
+    const testCaseNode = new TestCaseNode('class', className, new Range(node.loc!.start.line - 1, 0, node.loc!.end.line - 1, 0));
   
     for (const child of node.body) {
         if (child.kind !== 'method') {
             continue;
         }
   
-        const testCase = this.parseMethod(child as Method, uri);
-        if (testCase) {
-          testCases.push(testCase);
+        const testCaseMethodNode = this.parseMethod(child as Method, uri);
+        if (testCaseMethodNode) {
+          testCaseNode.children.push(testCaseMethodNode);
         }
     }
   
-    if (testCases.length > 0) {
-        const range = new Range(node.loc!.start.line - 1, 0, node.loc!.end.line - 1, 0);
-        const className = typeof node.name === 'string' ? node.name : (node.name as Identifier).name;
-  
-        testCases.push(new TestClass(uri.fsPath, className, range));
-    }
-  
-    return testCases;
+    return testCaseNode;
   }
   
-  private parseMethod(node: Method, uri: Uri): ITestCase | null {
+  private parseMethod(node: Method, uri: Uri): TestCaseNode | null {
     const leadingComments = node.leadingComments || [];
     const hasTestAnnotation = leadingComments.find((comment: CommentBlock) => {
         return comment.kind === 'commentblock' && comment.value.indexOf('* @test') != -1;
@@ -86,6 +80,6 @@ export class ParsePhpunitTestFile {
   
     const range = new Range(node.loc!.start.line - 1, 0, node.loc!.end.line - 1, 0);
   
-    return new TestMethod(uri.fsPath, methodName, range);
+    return new TestCaseNode('method', methodName, range);
   }
 }
