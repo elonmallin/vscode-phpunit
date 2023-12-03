@@ -1,12 +1,7 @@
-import { Location, Position, Range, TestController, TestItem, TestMessage, TestRun, Uri } from "vscode";
+import { Location, Position, TestItem, TestMessage, TestRun } from "vscode";
 import { ITestCase } from "./ITestCase";
 import * as path from "path";
-import * as fs from 'fs';
-import * as util from 'util';
-import { TestClass } from "./TestClass";
 import { testData } from "./TestCaseRepository";
-
-const readdir = util.promisify(fs.readdir);
 
 export class TestDirectory implements ITestCase {
   private readonly testItem: TestItem | undefined;
@@ -31,38 +26,6 @@ export class TestDirectory implements ITestCase {
   getTestItem() {
     return this.testItem;
   }
-
-  // async resolve(lazy: boolean): Promise<void> {
-  //   if (this.isResolved) {
-  //     return;
-  //   }
-
-  //   const dirents = await readdir(this.uri.fsPath, { withFileTypes: true });
-
-  //   for (const dirent of dirents) {
-  //     const childUri = Uri.parse(`file:///${path.join(this.uri.fsPath, dirent.name)}`);
-
-  //     const existing = this.parent?.children.get(childUri.toString()) || this.controller.items.get(childUri.toString());
-  //     if (existing) {
-  //       continue;
-  //     }
-
-  //     if (dirent.isDirectory()) {
-  //       const testCase = new TestDirectory(this.controller, childUri, this.testItem, dirent.name);
-  //       if (!lazy) {
-  //         await testCase.resolve(lazy);
-  //       }
-  //     }
-  //     else if (dirent.isFile()) {
-  //       const testCase = new TestClass(this.controller, childUri, this.testItem, dirent.name, );
-  //       if (!lazy) {
-  //         await testCase.resolve(lazy);
-  //       }
-  //     }
-  //   }
-
-  //   this.isResolved = !lazy;
-  // }
 
 	async run(item: TestItem, options: TestRun): Promise<boolean> {
 		const start = Date.now();

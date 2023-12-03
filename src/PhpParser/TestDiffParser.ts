@@ -19,7 +19,7 @@ export function getTestFailedDiff(output: string): TestDiffParser {
 
     return new TestDiffParser(message, expected, actual);
   } else {
-    const [, expected, ,actual] = /^Failed asserting that (.*) (is|are) (.*)\.$/im.exec(output)!;
+    const [, expected, ,actual] = /^Failed asserting that (.*) (is|are|matches expected) (.*)\.$/im.exec(output)!;
 
     return new TestDiffParser(message, expected, actual);
   }

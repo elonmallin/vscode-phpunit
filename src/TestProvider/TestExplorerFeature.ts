@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import { ITestCase, TestClass, TestDirectory, TestMethod, createOrUpdateFromPath, gatherTestItems, testData, uriToTestItem } from './TestCases';
+import { ITestCase, createOrUpdateFromPath, deleteFromUri, gatherTestItems, testData } from './TestCases';
 import path = require('path');
-import { getOrCreate } from './TestCases';
 
 let controller: vscode.TestController;
 
@@ -118,7 +117,10 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.workspace.onDidOpenTextDocument(updateNodeForDocument),
-		vscode.workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
+		vscode.workspace.onDidChangeTextDocument(async (e) => {
+      deleteFromUri(controller, controller.items, e.document.uri);
+      await updateNodeForDocument(e.document);
+    }),
 	);
 }
 
@@ -159,7 +161,6 @@ async function findInitialTests(controller: vscode.TestController, pattern: vsco
   for (const file of files) {
     await createOrUpdateFromPath(controller, file.fsPath, commonDirectory);
   }
-  // await getOrCreate(controller, vscode.Uri.parse(`file:///${commonDirectory}`));
 }
 
 async function getFilesAndCommonDirectory(pattern: vscode.GlobPattern, exclude: vscode.GlobPattern) {
@@ -186,13 +187,14 @@ function startWatchingWorkspace(controller: vscode.TestController, fileChangedEm
       fileChangedEmitter.fire(uri);
     });
     watcher.onDidChange(async uri => {
-    	const { file, data } = findTestsInFile(controller, uri);
-    	if (data.didResolve) {
-    		await data.updateFromDisk(controller, file);
-    	}
-    	fileChangedEmitter.fire(uri);
+      deleteFromUri(controller, controller.items, uri);
+
+      const document = await vscode.workspace.openTextDocument(uri);
+      await updateNodeForDocument(document);
+
+      fileChangedEmitter.fire(uri);
     });
-		// watcher.onDidDelete(uri => controller.items.delete(uri.toString()));
+		watcher.onDidDelete(uri => deleteFromUri(controller, controller.items, uri));
 
 		findInitialTests(controller, pattern, exclude);
 
