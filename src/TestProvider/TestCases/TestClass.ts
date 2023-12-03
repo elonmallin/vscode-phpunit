@@ -1,6 +1,6 @@
 import { Location, Position, Range, TestController, TestItem, TestMessage, TestRun, Uri } from "vscode";
 import { ITestCase } from "./ITestCase";
-import { testData } from "../TestExplorerFeature";
+import { testData } from "./TestCaseRepository";
 
 export class TestClass implements ITestCase {
 	constructor(

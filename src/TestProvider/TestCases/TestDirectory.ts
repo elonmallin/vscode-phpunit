@@ -1,10 +1,10 @@
 import { Location, Position, Range, TestController, TestItem, TestMessage, TestRun, Uri } from "vscode";
 import { ITestCase } from "./ITestCase";
-import { testData } from "../TestExplorerFeature";
 import * as path from "path";
 import * as fs from 'fs';
 import * as util from 'util';
 import { TestClass } from "./TestClass";
+import { testData } from "./TestCaseRepository";
 
 const readdir = util.promisify(fs.readdir);
 

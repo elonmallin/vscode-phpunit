@@ -1,13 +1,7 @@
 import * as vscode from 'vscode';
-import { ITestCase, TestClass, TestDirectory, TestMethod } from './TestCases';
+import { ITestCase, TestClass, TestDirectory, TestMethod, gatherTestItems, testData, uriToTestItem } from './TestCases';
 import path = require('path');
-import * as fs from 'fs';
-import * as util from 'util';
 import { getOrCreate } from './TestCases';
-
-const readdir = util.promisify(fs.readdir);
-
-export const testData = new WeakMap<vscode.TestItem, ITestCase>();
 
 export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
   const testExplorerEnabled = vscode.workspace.getConfiguration('phpunit').get<boolean>('testExplorer.enabled', false);
@@ -115,50 +109,28 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
     // await data.updateFromDisk(ctrl, item);
 	};
 
-	// function updateNodeForDocument(e: vscode.TextDocument) {
-	// 	if (e.uri.scheme !== 'file') {
-	// 		return;
-	// 	}
+	async function updateNodeForDocument(e: vscode.TextDocument) {
+		if (e.uri.scheme !== 'file') {
+			return;
+		}
 
-	// 	if (!e.uri.path.endsWith('Test.php')) {
-	// 		return;
-	// 	}
+		if (!e.uri.path.endsWith('Test.php')) {
+			return;
+		}
 
-	// 	const { file, data } = getOrCreateFile(ctrl, e.uri);
-	// 	data.updateFromContents(ctrl, e.getText(), file);
-	// }
+    if (uriToTestItem.get(e.uri.toString())) {
+      await getOrCreate(ctrl, e.uri, true);
+    }
+	}
 
-	// for (const document of vscode.workspace.textDocuments) {
-	// 	updateNodeForDocument(document);
-	// }
+	for (const document of vscode.workspace.textDocuments) {
+		updateNodeForDocument(document);
+	}
 
-	// context.subscriptions.push(
-	// 	vscode.workspace.onDidOpenTextDocument(updateNodeForDocument),
-	// 	vscode.workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
-	// );
-}
-
-// function getOrCreateFile(controller: vscode.TestController, uri: vscode.Uri) {
-// 	const existing = controller.items.get(uri.toString());
-// 	if (existing) {
-// 		return { file: existing, data: testData.get(existing) as TestFile };
-// 	}
-
-
-// 	const file = controller.createTestItem(uri.toString(), uri.path.split('/').pop()!, uri);
-// 	controller.items.add(file);
-
-// 	const data = new TestFile(uri.toString());
-// 	testData.set(file, data);
-
-// 	file.canResolveChildren = true;
-// 	return { file, data };
-// }
-
-function gatherTestItems(collection: vscode.TestItemCollection) {
-	const items: vscode.TestItem[] = [];
-	collection.forEach(item => items.push(item));
-	return items;
+	context.subscriptions.push(
+		vscode.workspace.onDidOpenTextDocument(updateNodeForDocument),
+		vscode.workspace.onDidChangeTextDocument(e => updateNodeForDocument(e.document)),
+	);
 }
 
 function getWorkspaceTestPatterns() {
