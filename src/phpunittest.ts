@@ -13,6 +13,8 @@ import { PhpunitArgBuilder } from "./PhpunitCommand/PhpunitArgBuilder";
 type RunType =
   | "test"
   | "directory"
+  | "directory2"
+  | "directory3"
   | "suite"
   | "rerun-last-test"
   | "nearest-test";
@@ -189,6 +191,34 @@ export class TestRunner {
       }
 
       const currentDir = editor.document.uri.fsPath.replace(/(\/|\\)\w*\.php$/i, "");
+      argBuilder.addDirectoryOrFile(currentDir);
+
+      return true;
+    } else if (type === "directory2") {
+      if (!editor) {
+        console.error("Please open a file in the directory you want to test.");
+
+        return false;
+      }
+
+      const currentDir = editor.document.uri.fsPath.replace(
+        /(\/|\\)[^/\\]+(\/|\\)\w*\.php$/i,
+        ""
+      );
+      argBuilder.addDirectoryOrFile(currentDir);
+
+      return true;
+    } else if (type === "directory3") {
+      if (!editor) {
+        console.error("Please open a file in the directory you want to test.");
+
+        return false;
+      }
+
+      const currentDir = editor.document.uri.fsPath.replace(
+        /(\/|\\)[^/\\]+(\/|\\)[^/\\]+(\/|\\)\w*\.php$/i,
+        ""
+      );
       argBuilder.addDirectoryOrFile(currentDir);
 
       return true;

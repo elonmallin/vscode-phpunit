@@ -61,6 +61,18 @@ export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
   );
 
   context.subscriptions.push(
+    vscode.commands.registerCommand("phpunit.TestDirectory2", async () => {
+      return PHPUnitTestRunner.run("directory2");
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("phpunit.TestDirectory3", async () => {
+      return PHPUnitTestRunner.run("directory3");
+    })
+  );
+
+  context.subscriptions.push(
     vscode.commands.registerCommand("phpunit.RerunLastTest", async () => {
       return PHPUnitTestRunner.run("rerun-last-test");
     })

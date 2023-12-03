@@ -113,6 +113,34 @@ suite('php-project e2e', () => {
     assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
     assert.equal(task.exitCode, 0);
     assert.ok(parseInt((task.output).match(/(\d+) \/ \d+ \(100%\)/)![1]) >= 2);
+  });
+  
+  test('phpunit.TestDirectory2', async () => {
+    const uri = vscode.Uri.file(path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'tests/Science/Weather-1/Weather2Test.php'));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document);
+
+    const taskOutputPromise = getOnDidEndTaskProcessPromise(myExtensionApi.testRedirectedOutputFile);
+    const res = await vscode.commands.executeCommand('phpunit.TestDirectory2');
+    const task = await taskOutputPromise;
+
+    assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
+    assert.equal(task.exitCode, 0);
+    assert.ok(parseInt((task.output).match(/(\d+) \/ \d+ \(100%\)/)![1]) == 4);
+  });
+  
+  test('phpunit.TestDirectory3', async () => {
+    const uri = vscode.Uri.file(path.resolve(vscode.workspace.workspaceFolders![0].uri.fsPath, 'tests/Science2/Weather-1/Weather/Weather3Test.php'));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document);
+
+    const taskOutputPromise = getOnDidEndTaskProcessPromise(myExtensionApi.testRedirectedOutputFile);
+    const res = await vscode.commands.executeCommand('phpunit.TestDirectory3');
+    const task = await taskOutputPromise;
+
+    assert.match(task.output, /PHPUnit .* by Sebastian Bergmann and contributors./);
+    assert.equal(task.exitCode, 0);
+    assert.ok(parseInt((task.output).match(/(\d+) \/ \d+ \(100%\)/)![1]) == 4);
 	});
 
 	test('phpunit.TestSuite', async () => {
