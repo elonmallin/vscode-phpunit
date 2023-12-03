@@ -41,7 +41,9 @@ export class TestFileParser {
   
     for (const child of node.children) {
       if (child.kind === 'class') {
-        testCaseNode.children.push(this.parseClass(child as Class, uri));
+        const testCaseClassNode = this.parseClass(child as Class, uri);
+        testCaseClassNode.parent = testCaseNode;
+        testCaseNode.children.push(testCaseClassNode);
       }
     }
   
@@ -59,6 +61,7 @@ export class TestFileParser {
   
         const testCaseMethodNode = this.parseMethod(child as Method, uri);
         if (testCaseMethodNode) {
+          testCaseMethodNode.parent = testCaseNode;
           testCaseNode.children.push(testCaseMethodNode);
         }
     }

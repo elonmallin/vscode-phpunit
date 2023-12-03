@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
-import { ITestCase, TestClass, TestDirectory, TestMethod, gatherTestItems, testData, uriToTestItem } from './TestCases';
+import { ITestCase, TestClass, TestDirectory, TestMethod, createOrUpdateFromPath, gatherTestItems, testData, uriToTestItem } from './TestCases';
 import path = require('path');
 import { getOrCreate } from './TestCases';
+
+let controller: vscode.TestController;
 
 export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
   const testExplorerEnabled = vscode.workspace.getConfiguration('phpunit').get<boolean>('testExplorer.enabled', false);
@@ -10,6 +12,7 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
   }
 
 	const ctrl = vscode.tests.createTestController('phpunitTestController', 'Phpunit');
+  controller = ctrl;
 	context.subscriptions.push(ctrl);
 
 	const fileChangedEmitter = new vscode.EventEmitter<vscode.Uri>();
@@ -109,20 +112,6 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
     // await data.updateFromDisk(ctrl, item);
 	};
 
-	async function updateNodeForDocument(e: vscode.TextDocument) {
-		if (e.uri.scheme !== 'file') {
-			return;
-		}
-
-		if (!e.uri.path.endsWith('Test.php')) {
-			return;
-		}
-
-    if (uriToTestItem.get(e.uri.toString())) {
-      await getOrCreate(ctrl, e.uri, true);
-    }
-	}
-
 	for (const document of vscode.workspace.textDocuments) {
 		updateNodeForDocument(document);
 	}
@@ -145,7 +134,35 @@ function getWorkspaceTestPatterns() {
 	}));
 }
 
+async function updateNodeForDocument(e: vscode.TextDocument) {
+  if (e.uri.scheme !== 'file') {
+    return;
+  }
+
+  if (!e.uri.path.endsWith('Test.php')) {
+    return;
+  }
+
+  const wsPattern = getWorkspaceTestPatterns()
+    .find(({ workspaceFolder }) => e.uri.fsPath.startsWith(workspaceFolder.uri.fsPath));
+  if (!wsPattern) {
+    return;
+  }
+
+  const { commonDirectory } = await getFilesAndCommonDirectory(wsPattern.pattern, wsPattern.exclude);
+  await createOrUpdateFromPath(controller, e.uri.fsPath, commonDirectory);
+}
+
 async function findInitialTests(controller: vscode.TestController, pattern: vscode.GlobPattern, exclude: vscode.GlobPattern) {
+  const { files, commonDirectory } = await getFilesAndCommonDirectory(pattern, exclude);
+
+  for (const file of files) {
+    await createOrUpdateFromPath(controller, file.fsPath, commonDirectory);
+  }
+  // await getOrCreate(controller, vscode.Uri.parse(`file:///${commonDirectory}`));
+}
+
+async function getFilesAndCommonDirectory(pattern: vscode.GlobPattern, exclude: vscode.GlobPattern) {
   const files = await vscode.workspace.findFiles(pattern, exclude);
   const directories = files.map(file => path.dirname(file.fsPath));
   const commonDirectory = directories.reduce((common, dir) => {
@@ -156,24 +173,25 @@ async function findInitialTests(controller: vscode.TestController, pattern: vsco
       return common.substring(0, i);
   }, directories[0]);
 
-  await getOrCreate(controller, vscode.Uri.parse(`file:///${commonDirectory}`));
+  return { files, commonDirectory };
 }
 
 function startWatchingWorkspace(controller: vscode.TestController, fileChangedEmitter: vscode.EventEmitter<vscode.Uri>) {
 	return getWorkspaceTestPatterns().map(({ workspaceFolder, pattern, exclude }) => {
 		const watcher = vscode.workspace.createFileSystemWatcher(pattern);
 
-		// watcher.onDidCreate(uri => {
-		// 	findTestsInFile(controller, uri);
-		// 	fileChangedEmitter.fire(uri);
-		// });
-		// watcher.onDidChange(async uri => {
-		// 	const { file, data } = findTestsInFile(controller, uri);
-		// 	if (data.didResolve) {
-		// 		await data.updateFromDisk(controller, file);
-		// 	}
-		// 	fileChangedEmitter.fire(uri);
-		// });
+    watcher.onDidCreate(async uri => {
+      const document = await vscode.workspace.openTextDocument(uri);
+      updateNodeForDocument(document);
+      fileChangedEmitter.fire(uri);
+    });
+    watcher.onDidChange(async uri => {
+    	const { file, data } = findTestsInFile(controller, uri);
+    	if (data.didResolve) {
+    		await data.updateFromDisk(controller, file);
+    	}
+    	fileChangedEmitter.fire(uri);
+    });
 		// watcher.onDidDelete(uri => controller.items.delete(uri.toString()));
 
 		findInitialTests(controller, pattern, exclude);

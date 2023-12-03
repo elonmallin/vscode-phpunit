@@ -7,11 +7,12 @@ export class TestClass implements ITestCase {
 		private readonly fileName: string,
     private readonly className: string,
     public readonly range: Range,
+    public readonly namespace: string | undefined = undefined,
     public isResolved: boolean = true
 	) { }
 
 	getId() {
-		return `${this.fileName} ${this.className}`;
+		return `${this.fileName}${this.namespace ? `/${this.namespace}` : ''}/${this.className}`;
 	}
 
 	getLabel() {
