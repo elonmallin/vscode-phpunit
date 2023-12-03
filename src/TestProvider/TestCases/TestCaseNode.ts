@@ -7,6 +7,7 @@ export class TestCaseNode {
     public kind: TestCaseNodeKind,
     public name: string,
     public range: Range,
+    public parent: TestCaseNode | undefined = undefined,
     public tags: string[] = [],
     public children: TestCaseNode[] = [],
   ) {}

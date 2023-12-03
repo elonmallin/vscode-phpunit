@@ -10,11 +10,13 @@ export class TestMethod implements ITestCase {
 		private readonly fileName: string,
     private readonly method: string,
     public readonly range: Range,
+    public readonly className: string | undefined = undefined,
+    public readonly namespace: string | undefined = undefined,
     public isResolved: boolean = true
 	) { }
 
 	getId() {
-		return `${this.fileName} ${this.method}`;
+		return `${this.fileName}${this.namespace ? `/${this.namespace}` : ''}${this.className ? `/${this.className}` : ''}/${this.method}`;
 	}
 
 	getLabel() {
