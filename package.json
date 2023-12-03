@@ -52,6 +52,14 @@
         "title": "PHPUnit Test Directory"
       },
       {
+        "command": "phpunit.TestDirectory2",
+        "title": "PHPUnit Test Directory (2 levels)"
+      },
+      {
+        "command": "phpunit.TestDirectory3",
+        "title": "PHPUnit Test Directory (3 levels)"
+      },
+      {
         "command": "phpunit.RerunLastTest",
         "title": "PHPUnit Rerun Last Test"
       },
