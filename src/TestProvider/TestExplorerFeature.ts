@@ -1,4 +1,19 @@
-import { CancellationToken, EventEmitter, ExtensionContext, GlobPattern, RelativePattern, TestController, TestItem, TestRunProfile, TestRunProfileKind, TestRunRequest, TextDocument, Uri, tests, workspace } from "vscode";
+import {
+  CancellationToken,
+  EventEmitter,
+  ExtensionContext,
+  GlobPattern,
+  RelativePattern,
+  TestController,
+  TestItem,
+  TestRunProfile,
+  TestRunProfileKind,
+  TestRunRequest,
+  TextDocument,
+  Uri,
+  tests,
+  workspace,
+} from "vscode";
 import {
   ITestCase,
   createOrUpdateFromPath,
@@ -13,7 +28,7 @@ class TestExplorerFeature {
     TestItem | "ALL",
     TestRunProfile | undefined
   >();
-  private subscriptions: { dispose(): any; }[] = [];
+  private subscriptions: { dispose(): any }[] = [];
 
   constructor(private ctrl: TestController) {
     this.subscriptions.push(this.ctrl);
@@ -25,7 +40,7 @@ class TestExplorerFeature {
         ),
       );
     };
-  
+
     this.ctrl.createRunProfile(
       "Run Tests",
       TestRunProfileKind.Run,
@@ -34,7 +49,7 @@ class TestExplorerFeature {
       undefined,
       true,
     );
-  
+
     const fileChangedEmitter = this.createFileChangeEmitter();
     this.ctrl.resolveHandler = async (item) => {
       if (!item) {
@@ -47,9 +62,11 @@ class TestExplorerFeature {
     for (const document of workspace.textDocuments) {
       updateNodeForDocument(this.ctrl, document);
     }
-  
+
     this.subscriptions.push(
-      workspace.onDidOpenTextDocument((d) => updateNodeForDocument(this.ctrl, d)),
+      workspace.onDidOpenTextDocument((d) =>
+        updateNodeForDocument(this.ctrl, d),
+      ),
       workspace.onDidChangeTextDocument(async (e) => {
         deleteFromUri(this.ctrl, this.ctrl.items, e.document.uri);
         await updateNodeForDocument(this.ctrl, e.document);
@@ -72,7 +89,7 @@ class TestExplorerFeature {
         );
         return;
       }
-  
+
       const include: TestItem[] = [];
       let profile: TestRunProfile | undefined;
       for (const [item, thisProfile] of this.watchingTests) {
@@ -82,7 +99,7 @@ class TestExplorerFeature {
           profile = thisProfile;
         }
       }
-  
+
       if (include.length) {
         this.startTestRun(
           new TestRunRequest(include, undefined, profile, true),
@@ -130,27 +147,26 @@ class TestExplorerFeature {
     );
   };
 
-  runHandler = (
-    request: TestRunRequest,
-    cancellation: CancellationToken,
-  ) => {
+  runHandler = (request: TestRunRequest, cancellation: CancellationToken) => {
     if (!request.continuous) {
       return this.startTestRun(request);
     }
 
     if (request.include === undefined) {
       this.watchingTests.set("ALL", request.profile);
-      cancellation.onCancellationRequested(() => this.watchingTests.delete("ALL"));
+      cancellation.onCancellationRequested(() =>
+        this.watchingTests.delete("ALL"),
+      );
     } else {
       request.include.forEach((item) =>
-      this.watchingTests.set(item, request.profile),
+        this.watchingTests.set(item, request.profile),
       );
       cancellation.onCancellationRequested(() =>
         request.include!.forEach((item) => this.watchingTests.delete(item)),
       );
     }
   };
-  
+
   dispose() {
     this.subscriptions.forEach((s) => s.dispose());
     this.ctrl.dispose();
@@ -164,10 +180,9 @@ export async function addTestExplorerFeature(context: ExtensionContext) {
     .getConfiguration("phpunit")
     .get<boolean>("testExplorer.enabled", false);
   if (testExplorerEnabled) {
-    testExplorerFeature = new TestExplorerFeature(tests.createTestController(
-      "phpunitTestController",
-      "Phpunit",
-    ));
+    testExplorerFeature = new TestExplorerFeature(
+      tests.createTestController("phpunitTestController", "Phpunit"),
+    );
     context.subscriptions.push(testExplorerFeature);
   }
 
@@ -177,13 +192,14 @@ export async function addTestExplorerFeature(context: ExtensionContext) {
         .getConfiguration("phpunit")
         .get("testExplorer.enabled");
       if (testExplorerEnabled && !testExplorerFeature) {
-        testExplorerFeature = new TestExplorerFeature(tests.createTestController(
-          "phpunitTestController",
-          "Phpunit",
-        ));
+        testExplorerFeature = new TestExplorerFeature(
+          tests.createTestController("phpunitTestController", "Phpunit"),
+        );
         context.subscriptions.push(testExplorerFeature);
       } else if (testExplorerFeature) {
-        const idx = context.subscriptions.findIndex(t => t == testExplorerFeature);
+        const idx = context.subscriptions.findIndex(
+          (t) => t == testExplorerFeature,
+        );
         context.subscriptions.splice(idx, 1);
         testExplorerFeature.dispose();
         testExplorerFeature = null;
@@ -203,10 +219,7 @@ function getWorkspaceTestPatterns() {
 
   return workspace.workspaceFolders.map((workspaceFolder) => ({
     workspaceFolder,
-    pattern: new RelativePattern(
-      workspaceFolder,
-      testExplorerPattern,
-    ),
+    pattern: new RelativePattern(workspaceFolder, testExplorerPattern),
     exclude: new RelativePattern(
       workspaceFolder,
       "**/{.git,node_modules,vendor}/**",
@@ -214,7 +227,10 @@ function getWorkspaceTestPatterns() {
   }));
 }
 
-async function updateNodeForDocument(controller: TestController, e: TextDocument) {
+async function updateNodeForDocument(
+  controller: TestController,
+  e: TextDocument,
+) {
   if (e.uri.scheme !== "file") {
     return;
   }
