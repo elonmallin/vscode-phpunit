@@ -10,7 +10,9 @@ export default class Ssh implements IPhpUnitDriver {
   private ssh?: string;
 
   public async run(args: string[]): Promise<IRunConfig> {
-    const argsString = `${this.phpPathCache} ${this.phpUnitPathCache} ${args.join(" ")}`;
+    const argsString = `${this.phpPathCache} ${
+      this.phpUnitPathCache
+    } ${args.join(" ")}`;
 
     return {
       command: `${this.ssh!.replace("<command>", argsString)}`,

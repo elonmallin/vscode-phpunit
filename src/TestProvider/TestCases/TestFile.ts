@@ -4,25 +4,25 @@ import path = require("path");
 import { testData } from "./TestCaseRepository";
 
 export class TestFile implements ITestCase {
-	constructor(
-		private readonly fileName: string,
-    public isResolved: boolean = true
-	) { }
+  constructor(
+    private readonly fileName: string,
+    public isResolved: boolean = true,
+  ) {}
 
-	getId() {
-		return `${this.fileName}`;
-	}
+  getId() {
+    return `${this.fileName}`;
+  }
 
-	getLabel() {
-		return path.basename(this.fileName);
-	}
+  getLabel() {
+    return path.basename(this.fileName);
+  }
 
   getRange() {
     return undefined;
   }
 
-	async run(item: TestItem, options: TestRun): Promise<boolean> {
-		const start = Date.now();
+  async run(item: TestItem, options: TestRun): Promise<boolean> {
+    const start = Date.now();
 
     const testCasePromises: Promise<boolean>[] = [];
     for (const [id, child] of item.children) {
@@ -37,14 +37,13 @@ export class TestFile implements ITestCase {
       options.passed(item, duration);
 
       return true;
-    }
-    catch (e) {
+    } catch (e) {
       const duration = Date.now() - start;
-      const message = new TestMessage('Failed');
+      const message = new TestMessage("Failed");
       message.location = new Location(item.uri!, new Position(0, 0));
-      options.failed(item, new TestMessage('Failed'), duration);
+      options.failed(item, new TestMessage("Failed"), duration);
 
       return false;
     }
-	}
+  }
 }

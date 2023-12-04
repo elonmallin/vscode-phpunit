@@ -1,6 +1,6 @@
 import { Range } from "vscode";
 
-export type TestCaseNodeKind = 'namespace' | 'class' | 'method';
+export type TestCaseNodeKind = "namespace" | "class" | "method";
 
 export class TestCaseNode {
   constructor(

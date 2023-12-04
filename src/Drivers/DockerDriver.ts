@@ -23,13 +23,16 @@ export default class Docker implements IPhpUnitDriver {
       "/app",
       dockerImage,
       "php",
-      await this.phpUnitPath()
+      await this.phpUnitPath(),
     ]
       .concat(args)
       .join(" ")
       .replace(
-        new RegExp(escapeStringRegexp(vscode.workspace.workspaceFolders![0].uri.fsPath), "ig"),
-        "/app"
+        new RegExp(
+          escapeStringRegexp(vscode.workspace.workspaceFolders![0].uri.fsPath),
+          "ig",
+        ),
+        "/app",
       )
       .replace(/\\/gi, "/")
       .split(" ");
@@ -40,7 +43,7 @@ export default class Docker implements IPhpUnitDriver {
       command: command,
       exec: "docker",
       args: args,
-      problemMatcher: "$phpunit-app"
+      problemMatcher: "$phpunit-app",
     };
   }
 

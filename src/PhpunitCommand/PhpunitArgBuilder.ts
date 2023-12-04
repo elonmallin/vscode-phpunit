@@ -19,13 +19,13 @@ export class PhpunitArgBuilder {
 
   public addSuite(suiteName: string): PhpunitArgBuilder {
     this.suites.push(suiteName);
-    
+
     return this;
   }
 
   public addSuites(suiteNames: Array<string>): PhpunitArgBuilder {
     this.suites.push(...suiteNames);
-    
+
     return this;
   }
 
@@ -53,7 +53,7 @@ export class PhpunitArgBuilder {
     return this;
   }
 
-  public withColors(color: 'never' | 'auto' | 'always'): PhpunitArgBuilder {
+  public withColors(color: "never" | "auto" | "always"): PhpunitArgBuilder {
     this.color = color;
 
     return this;
@@ -65,7 +65,10 @@ export class PhpunitArgBuilder {
     return this;
   }
 
-  public withPathMappings(pathMappings: { [key: string]: string }, workspaceFolder: string): PhpunitArgBuilder {
+  public withPathMappings(
+    pathMappings: { [key: string]: string },
+    workspaceFolder: string,
+  ): PhpunitArgBuilder {
     this.pathMappings = pathMappings;
     this.workspaceFolder = workspaceFolder;
 
@@ -74,15 +77,14 @@ export class PhpunitArgBuilder {
 
   public buildArgs(): Array<string> {
     let args = [
-      ...(this.configFile ? ['--configuration', this.configFile] : []),
+      ...(this.configFile ? ["--configuration", this.configFile] : []),
       ...(this.color ? [`--colors=${this.color}`] : []),
-      ...(this.suites.length > 0 ? ['--testsuite', this.suites.join(',')] : []),
-      ...(this.filter ? ['--filter', `'${this.filter}'`] : []),
-      ...(this.groups.length > 0 ? ['--group', this.groups.join(',')] : []),
+      ...(this.suites.length > 0 ? ["--testsuite", this.suites.join(",")] : []),
+      ...(this.filter ? ["--filter", `'${this.filter}'`] : []),
+      ...(this.groups.length > 0 ? ["--group", this.groups.join(",")] : []),
       ...this.args,
       ...this.directoryOrFiles,
-    ]
-      .filter(part => part);
+    ].filter((part) => part);
 
     if (this.pathMappings) {
       for (const key of Object.keys(this.pathMappings)) {
@@ -91,14 +93,19 @@ export class PhpunitArgBuilder {
           .replace(/\\/gi, "/");
         const remotePath = this.pathMappings[key];
 
-        args = args.map(arg => arg.replace(new RegExp(escapeStringRegexp(localPath), "ig"), remotePath));
+        args = args.map((arg) =>
+          arg.replace(
+            new RegExp(escapeStringRegexp(localPath), "ig"),
+            remotePath,
+          ),
+        );
       }
     }
 
-    return args.filter(part => part);
+    return args.filter((part) => part);
   }
 
   public build(): string {
-    return this.buildArgs().join(' ');
+    return this.buildArgs().join(" ");
   }
 }

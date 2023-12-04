@@ -20,7 +20,7 @@ export default class Phar implements IPhpUnitDriver {
     return {
       command: command,
       exec: execPath,
-      args: args
+      args: args,
     };
   }
 
@@ -44,9 +44,9 @@ export default class Phar implements IPhpUnitDriver {
           `${await this.phpPath()} -r "echo extension_loaded('phar');"`,
           (err, stdout, stderr) => {
             resolve(stdout === "1");
-          }
+          },
         );
-      }
+      },
     ));
   }
 
@@ -77,7 +77,7 @@ export default class Phar implements IPhpUnitDriver {
       const uris = await vscode.workspace.findFiles(
         "**/phpunit*.phar",
         "**/node_modules/**",
-        1
+        1,
       );
       this.phpUnitPharPathCache =
         uris && uris.length > 0 ? uris[0].fsPath : undefined;
@@ -90,14 +90,14 @@ export default class Phar implements IPhpUnitDriver {
     if (phpUnitPath && phpUnitPath.endsWith(".phar")) {
       this.phpUnitPharPathCache = await new Promise<string>(
         (resolve, reject) => {
-          fs.exists(phpUnitPath, exists => {
+          fs.exists(phpUnitPath, (exists) => {
             if (exists) {
               resolve(phpUnitPath);
             } else {
               reject();
             }
           });
-        }
+        },
       ).catch(findInWorkspace);
     } else {
       this.phpUnitPharPathCache = await findInWorkspace();

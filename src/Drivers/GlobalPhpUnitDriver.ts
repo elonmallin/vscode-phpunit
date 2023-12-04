@@ -15,7 +15,7 @@ export default class GlobalPhpUnit implements IPhpUnitDriver {
     return {
       command: command,
       exec: execPath,
-      args: args
+      args: args,
     };
   }
 

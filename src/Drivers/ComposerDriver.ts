@@ -63,12 +63,12 @@ export default class Composer implements IPhpUnitDriver {
           ? await vscode.workspace.findFiles(
               "**/vendor/phpunit/phpunit/phpunit",
               "**/node_modules/**",
-              1
+              1,
             )
           : await vscode.workspace.findFiles(
               "**/vendor/bin/phpunit",
               "**/node_modules/**",
-              1
+              1,
             );
 
       return (this.phpUnitPathCache =
@@ -79,7 +79,7 @@ export default class Composer implements IPhpUnitDriver {
     const phpUnitPath = config.get<string>("phpunit");
     if (phpUnitPath) {
       this.phpUnitPathCache = await new Promise<string>((resolve, reject) => {
-        fs.exists(phpUnitPath, exists => {
+        fs.exists(phpUnitPath, (exists) => {
           if (exists) {
             resolve(phpUnitPath);
           } else {
