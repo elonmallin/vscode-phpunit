@@ -4,29 +4,33 @@
 
 [![test workflow](https://github.com/elonmallin/vscode-phpunit/actions/workflows/test.yml/badge.svg)](https://github.com/elonmallin/vscode-phpunit/actions/workflows/test.yml)
 [![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/elonmallin/vscode-phpunit)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-round)](https://github.com/prettier/prettier)
 
 # PHPUnit for VSCode
+
 This extension aims to need zero config and to be highly configurable. If you have `php` in environment path and `phpunit` installed with `composer` or anywhere in your workspace as `phpunit*.phar`, zero config is needed. It will even fallback to spinning up a self-removing `docker` container to try and run your tests if it can't find `php` on your machine.
 
 ![vscode-phpunit-demo](images/vscode-phpunit-demo-with-codelens.gif)
 
 ## Features
-  - Run tests with one **command** or **hotkey** based on **open file** (`*.php` or `phpunit.xml`) and **cursor position**
-    - "quick pick" window is shown where more complicated selections are needed
-  - Problems pane is populated with errors
-  - Color output
-  - Available commands:
-    - PHPUnit Test
-      - Tries to do the right thing (test `class/method` where cursor is or suite if file is `phpunit.xml`)
-    - PHPUnit Test Nearest
-    - PHPUnit Test Suite
-    - PHPUnit Test Directory
-    - PHPUnit Rerun Last Test
-    - PHPUnit Stop Running Tests
+
+- Run tests with one **command** or **hotkey** based on **open file** (`*.php` or `phpunit.xml`) and **cursor position**
+- "quick pick" window is shown where more complicated selections are needed
+- Problems pane is populated with errors
+- Color output
+- Available commands:
+- PHPUnit Test
+  - Tries to do the right thing (test `class/method` where cursor is or suite if file is `phpunit.xml`)
+- PHPUnit Test Nearest
+- PHPUnit Test Suite
+- PHPUnit Test Directory
+- PHPUnit Rerun Last Test
+- PHPUnit Stop Running Tests
 
 ## Manual setup
-* Install [phpunit](https://phpunit.de/) in your workspace.
-* Common config options:
+
+- Install [phpunit](https://phpunit.de/) in your workspace.
+- Common config options:
 ```json5
 {
     "phpunit.php": "path/to/php",           // Skip to use php in env path
@@ -43,13 +47,16 @@ This extension aims to need zero config and to be highly configurable. If you ha
     }
 }
 ```
+
 > **Zero config needed** if you have **php** or **docker** in you environment path and **phpunit** in your project (composer vendor dir or *.phar file).
 See the configuration section in [package.json](package.json) for all values and their descriptions (highly recommened if you need advanced functionality).
 
 ## Remote configs
+
 For `docker`, `vagrant`, `laravel-homestead`, `WSL` or any other virtual/remote environment, **please consider the [Remote Development extension by Mircosoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)**. VSCode will run agains a remote directory and you can simply run your tests as you would locally.
 
 ### Manual ssh
+
 ```json5
 {
     "phpunit.ssh": "ssh root@localhost \"<command>\"",  // ssh command to connect to remote machine.
@@ -59,11 +66,13 @@ For `docker`, `vagrant`, `laravel-homestead`, `WSL` or any other virtual/remote 
     }
 }
 ```
+
 > `<command>` is populated by the extension. The final command could then be something like `ssh root@localhost "php ./phpunit.phar -c phpunit.xml"` depending on your settings.<br><br>
 **Setup public/private keys** (passwords won't work):<br>  - Windows powershell `ssh-keygen && cat $env:userprofile/.ssh/id_rsa.pub | ssh root@localhost 'cat >> .ssh/authorized_keys'`<br>  - Linux bash `ssh-keygen && ssh-copy-id root@localhost`<br><br>
 **OpenSSH** (`ssh` and `ssh-keygen`) is available on windows since late 2018. It's easy to [install](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse) with powershell if it's not enabled.
 
 ### Manual docker container
+
 ```json5
 {
     "phpunit.docker.container": "container_name",   // Skip to select from running containers
@@ -74,6 +83,7 @@ For `docker`, `vagrant`, `laravel-homestead`, `WSL` or any other virtual/remote 
 ```
 
 ### Manual docker image
+
 ```json5
 {
     "phpunit.command": "docker run --rm -t -v ${pwd}:/app -w /app php:latest php",
@@ -82,7 +92,9 @@ For `docker`, `vagrant`, `laravel-homestead`, `WSL` or any other virtual/remote 
     }
 }
 ```
+
 ### Manual docker-compose service
+
 ```json5
 {
     "phpunit.command": "docker-compose run --rm service_name",
@@ -93,28 +105,29 @@ For `docker`, `vagrant`, `laravel-homestead`, `WSL` or any other virtual/remote 
 ```
 
 # Examples
+
 Run with (`Cmd+Shift+P` on OSX or `Ctrl+Shift+P` on Windows and Linux) and execute the `PHPUnit Test` command.
-* **Test a function**: Place cursor on a function and run.
+- **Test a function**: Place cursor on a function and run.
 
 ![vscode-phpunit-test-function](images/vscode-phpunit-test-function.gif)
 
-* **Test a class**: Place cursor on class name and run.
+- **Test a class**: Place cursor on class name and run.
 
 ![vscode-phpunit-test-class](images/vscode-phpunit-test-class.gif)
 
-* **Pick test from a list**: Place cursor anywhere in class except on class name or on a function and run.
+- **Pick test from a list**: Place cursor anywhere in class except on class name or on a function and run.
 
 ![vscode-phpunit-quick-pick](images/vscode-phpunit-quick-pick.gif)
 
-* **Test everything according to --configuration**: Close editor window and run.
+- **Test everything according to --configuration**: Close editor window and run.
 
 ![vscode-phpunit-test-all](images/vscode-phpunit-test-all.gif)
 
-* **Test everything in a directory**: Open a file in the directory to test and run the `PHPUnit Test Directory` command.
+- **Test everything in a directory**: Open a file in the directory to test and run the `PHPUnit Test Directory` command.
 
 ![vscode-phpunit-test-directory](images/vscode-phpunit-test-directory.gif)
 
-* **Rerun last Test**: Run the `PHPUnit Rerun Last Test` command.
+- **Rerun last Test**: Run the `PHPUnit Rerun Last Test` command.
 
 ## Keybinding example:
 
