@@ -27,7 +27,7 @@ const getDrivers = (order?: string[]): IPhpUnitDriver[] => {
     new Path(),
     new Composer(),
     new Phar(),
-    new GlobalPhpUnit()
+    new GlobalPhpUnit(),
   ];
 
   function arrayUnique(array: any[]) {
@@ -42,7 +42,7 @@ const getDrivers = (order?: string[]): IPhpUnitDriver[] => {
 
     return a;
   }
-  order = arrayUnique((order || []).concat(drivers.map(d => d.name)));
+  order = arrayUnique((order || []).concat(drivers.map((d) => d.name)));
 
   const sortedDrivers = drivers.sort((a, b) => {
     return order!.indexOf(a.name) - order!.indexOf(b.name);

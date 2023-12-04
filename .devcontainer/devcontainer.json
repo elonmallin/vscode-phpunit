@@ -1,11 +1,11 @@
 {
-	"name": "vscode-phpunit",
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",
-	"features": {
-        "ghcr.io/devcontainers/features/php": {
-            "version": "latest",
-            "installComposer": true
-        }
-	},
-    "postStartCommand": "npm install && npm run build"
+  "name": "vscode-phpunit",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/php": {
+      "version": "latest",
+      "installComposer": true
+    }
+  },
+  "postStartCommand": "npm install && npm run build"
 }

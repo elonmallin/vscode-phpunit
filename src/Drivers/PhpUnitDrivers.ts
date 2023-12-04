@@ -19,5 +19,5 @@ export default {
   Legacy,
   Path,
   Phar,
-  Ssh
+  Ssh,
 };

@@ -65,16 +65,16 @@ export default class Path implements IPhpUnitDriver {
       ? undefined
       : await new Promise<string>((resolve, reject) => {
           try {
-            fs.exists(phpUnitPath, exists => {
+            fs.exists(phpUnitPath, (exists) => {
               if (exists) {
                 this.phpUnitPathCache = phpUnitPath;
                 resolve(this.phpUnitPathCache);
               } else {
                 const absPhpUnitPath = path.join(
                   vscode.workspace.workspaceFolders![0].uri.fsPath,
-                  phpUnitPath
+                  phpUnitPath,
                 );
-                fs.exists(absPhpUnitPath, absExists => {
+                fs.exists(absPhpUnitPath, (absExists) => {
                   if (absExists) {
                     this.phpUnitPathCache = absPhpUnitPath;
                     resolve(this.phpUnitPathCache);

@@ -6,7 +6,7 @@ permissions:
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+' # Minor version should be even for release and odd for pre-release
+      - "[0-9]+.[0-9]+.[0-9]+" # Minor version should be even for release and odd for pre-release
 
 jobs:
   create_release:

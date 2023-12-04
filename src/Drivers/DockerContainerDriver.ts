@@ -16,7 +16,7 @@ export default class DockerContainer implements IPhpUnitDriver {
       "-t",
       this.dockerContainer,
       "php",
-      await this.phpUnitPath()
+      await this.phpUnitPath(),
     ].concat(args);
 
     const command = `docker ${params.join(" ").replace(/\\/gi, "/")}`;
@@ -25,7 +25,7 @@ export default class DockerContainer implements IPhpUnitDriver {
       command: command,
       exec: "docker",
       args: params as string[],
-      problemMatcher: "$phpunit-app"
+      problemMatcher: "$phpunit-app",
     };
   }
 
@@ -40,16 +40,16 @@ export default class DockerContainer implements IPhpUnitDriver {
 
         if (containers.length > 0) {
           this.dockerContainer = await vscode.window.showQuickPick(
-            containers.map(r => r.NAMES),
+            containers.map((r) => r.NAMES),
             {
               placeHolder:
-                "Pick a running docker container to run phpunit test in..."
-            }
+                "Pick a running docker container to run phpunit test in...",
+            },
           );
 
           if (!this.dockerContainer) {
             vscode.window.showInformationMessage(
-              `No docker container selected. Skipping ${this.name} driver.`
+              `No docker container selected. Skipping ${this.name} driver.`,
             );
           }
         }

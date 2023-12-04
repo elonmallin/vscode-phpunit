@@ -1,36 +1,36 @@
-import * as path from 'path';
-import * as Mocha from 'mocha';
-import { glob } from 'glob';
+import * as path from "path";
+import * as Mocha from "mocha";
+import { glob } from "glob";
 
 export async function run(): Promise<void> {
-	// Create the mocha test
-	const mocha = new Mocha({
-		ui: 'tdd',
+  // Create the mocha test
+  const mocha = new Mocha({
+    ui: "tdd",
     timeout: 30000,
-    reporter: 'mocha-multi-reporters',
+    reporter: "mocha-multi-reporters",
     reporterOptions: {
-      reporterEnabled: 'spec, mocha-junit-reporter',
+      reporterEnabled: "spec, mocha-junit-reporter",
       mochaJunitReporterReporterOptions: {
-          mochaFile: path.resolve(__dirname, '../../../', 'test-results.xml'),
+        mochaFile: path.resolve(__dirname, "../../../", "test-results.xml"),
       },
-    }
-	});
- 
-	const testsRoot = path.resolve(__dirname, '..');
+    },
+  });
 
-  const files = await glob('**/**.test.js', { cwd: testsRoot });
+  const testsRoot = path.resolve(__dirname, "..");
+
+  const files = await glob("**/**.test.js", { cwd: testsRoot });
 
   // Add files to the test suite
-  files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
+  files.forEach((f) => mocha.addFile(path.resolve(testsRoot, f)));
 
   // Run the mocha test
   return new Promise((resolve, reject) => {
-    mocha.run(failures => {
-        if (failures > 0) {
-            reject(new Error(`${failures} tests failed.`));
-        } else {
-            resolve();
-        }
+    mocha.run((failures) => {
+      if (failures > 0) {
+        reject(new Error(`${failures} tests failed.`));
+      } else {
+        resolve();
+      }
     });
   });
 }

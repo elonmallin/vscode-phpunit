@@ -1,44 +1,38 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Launch Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"runtimeExecutable": "${execPath}",
-			"args": [
-				"--disable-extensions",
-				"--extensionDevelopmentPath=${workspaceRoot}",
-				"${workspaceRoot}/src/test/php-project"
-			],
-			"outFiles": [
-				"${workspaceFolder}/out/**/*.js",
-				"!**/node_modules/**"
-			],
-			"sourceMaps": true,
-			"preLaunchTask": "npm",
-			"smartStep": true
-		},
-		{
-			"name": "Launch Tests",
-			"type": "extensionHost",
-			"request": "launch",
-			"runtimeExecutable": "${execPath}",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceRoot}",
-				"--extensionTestsPath=${workspaceRoot}/out/test/suite/index",
-				"${workspaceRoot}/src/test/php-project"
-			],
-			"outFiles": [
-				"${workspaceFolder}/out/**/*.js",
-				"!**/node_modules/**"
-			],
-			"sourceMaps": true,
-			"preLaunchTask": "npm",
-			"env": {
-				"VSCODE_PHPUNIT_TEST": "true"
-			}
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "${workspaceRoot}/src/test/php-project"
+      ],
+      "outFiles": ["${workspaceFolder}/out/**/*.js", "!**/node_modules/**"],
+      "sourceMaps": true,
+      "preLaunchTask": "npm",
+      "smartStep": true
+    },
+    {
+      "name": "Launch Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--extensionTestsPath=${workspaceRoot}/out/test/suite/index",
+        "${workspaceRoot}/src/test/php-project"
+      ],
+      "outFiles": ["${workspaceFolder}/out/**/*.js", "!**/node_modules/**"],
+      "sourceMaps": true,
+      "preLaunchTask": "npm",
+      "env": {
+        "VSCODE_PHPUNIT_TEST": "true"
+      }
+    }
+  ]
 }
