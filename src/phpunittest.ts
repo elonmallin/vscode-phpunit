@@ -272,15 +272,8 @@ export class TestRunner {
     return undefined;
   }
 
-  public async runArgs(argBuilder: PhpunitArgBuilder, childProcess = false) {
+  populateArgBuilder(argBuilder: PhpunitArgBuilder) {
     const config = vscode.workspace.getConfiguration("phpunit");
-    const order = config.get<string[]>("driverPriority");
-
-    const driver = await this.getDriver(order);
-    if (!driver) {
-      console.error(`Wasn't able to start phpunit.`);
-      return;
-    }
 
     const configArgs = config.get<string[]>("args", []);
     argBuilder.addArgs(configArgs);
@@ -299,6 +292,18 @@ export class TestRunner {
         vscode.workspace.workspaceFolders![0].uri.fsPath,
       );
     }
+  }
+
+  public async runArgs(argBuilder: PhpunitArgBuilder, childProcess = false) {
+    const config = vscode.workspace.getConfiguration("phpunit");
+    const order = config.get<string[]>("driverPriority");
+    const driver = await this.getDriver(order);
+    if (!driver) {
+      console.error(`Wasn't able to start phpunit.`);
+      return;
+    }
+
+    this.populateArgBuilder(argBuilder);
 
     this.lastArgBuilder = argBuilder;
     const runConfig = await driver.run(argBuilder.buildArgs());
@@ -323,13 +328,15 @@ export class TestRunner {
             .replace(/'$/g, "");
         }
       }
-      return await new Promise((r) =>
+      const spawnResult = await new Promise((r) =>
         r(
           spawnSync(runConfig.exec, runConfig.args, {
             encoding: "utf8",
           }),
         ),
       );
+
+      return { spawnResult, runConfig };
     } else {
       await vscode.commands.executeCommand("workbench.action.terminal.clear");
       await vscode.commands.executeCommand(
@@ -340,37 +347,20 @@ export class TestRunner {
   }
 
   public async run(type: RunType) {
-    let argBuilder = new PhpunitArgBuilder();
-
     const config = vscode.workspace.getConfiguration("phpunit");
     const order = config.get<string[]>("driverPriority");
-
     const driver = await this.getDriver(order);
     if (!driver) {
       console.error(`Wasn't able to start phpunit.`);
       return;
     }
 
+    let argBuilder = new PhpunitArgBuilder();
+
     if (type === "rerun-last-test" && this.lastArgBuilder) {
       argBuilder = this.lastArgBuilder;
     } else {
-      const configArgs = config.get<string[]>("args", []);
-      argBuilder.addArgs(configArgs);
-
-      const colors = config.get<string>("colors");
-      if (colors && configArgs.indexOf(colors) === -1) {
-        argBuilder.withColors(
-          colors.replace(/--colors=?/i, "") as "never" | "auto" | "always",
-        );
-      }
-
-      const pathMappings = config.get<{ [key: string]: string }>("paths");
-      if (pathMappings) {
-        argBuilder.withPathMappings(
-          pathMappings,
-          vscode.workspace.workspaceFolders![0].uri.fsPath,
-        );
-      }
+      this.populateArgBuilder(argBuilder);
 
       const preferRunClassTestOverQuickPickWindow = config.get<boolean>(
         "preferRunClassTestOverQuickPickWindow",

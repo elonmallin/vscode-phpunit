@@ -128,15 +128,12 @@ class TestExplorerFeature {
 
     const runTestQueue = async () => {
       for (const { test, data } of queue) {
-        run.appendOutput(`Running ${test.id}\r\n`);
         if (run.token.isCancellationRequested) {
           run.skipped(test);
         } else {
           run.started(test);
           await data.run(test, run);
         }
-
-        run.appendOutput(`Completed ${test.id}\r\n`);
       }
 
       run.end();
