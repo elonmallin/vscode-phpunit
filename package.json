@@ -149,6 +149,12 @@
           "default": false,
           "title": "PREVIEW: Enable/disable the test explorer",
           "description": "This is a preview feature and may change in the future.\nRestart VSCode for changes to take effect."
+        },
+        "phpunit.testExplorer.include": {
+          "type": "string",
+          "default": "**/tests/**/*Test.php",
+          "title": "Glob pattern for test files",
+          "description": "Only tests matching this glob will be added to the test explorer. The top-most common directory will be the root in the test explorer."
         }
       }
     },

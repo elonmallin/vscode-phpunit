@@ -1,4 +1,4 @@
-import * as vscode from "vscode";
+import { CancellationToken, EventEmitter, ExtensionContext, GlobPattern, RelativePattern, TestController, TestItem, TestRunProfile, TestRunProfileKind, TestRunRequest, TextDocument, Uri, tests, workspace } from "vscode";
 import {
   ITestCase,
   createOrUpdateFromPath,
@@ -8,95 +8,102 @@ import {
 } from "./TestCases";
 import path = require("path");
 
-let controller: vscode.TestController;
-
-export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
-  const testExplorerEnabled = vscode.workspace
-    .getConfiguration("phpunit")
-    .get<boolean>("testExplorer.enabled", false);
-  if (!testExplorerEnabled) {
-    return;
-  }
-
-  const ctrl = vscode.tests.createTestController(
-    "phpunitTestController",
-    "Phpunit",
-  );
-  controller = ctrl;
-  context.subscriptions.push(ctrl);
-
-  const fileChangedEmitter = new vscode.EventEmitter<vscode.Uri>();
-  const watchingTests = new Map<
-    vscode.TestItem | "ALL",
-    vscode.TestRunProfile | undefined
+class TestExplorerFeature {
+  private watchingTests = new Map<
+    TestItem | "ALL",
+    TestRunProfile | undefined
   >();
-  fileChangedEmitter.event((uri) => {
-    if (watchingTests.has("ALL")) {
-      startTestRun(
-        new vscode.TestRunRequest(
-          undefined,
-          undefined,
-          watchingTests.get("ALL"),
-          true,
+  private subscriptions: { dispose(): any; }[] = [];
+
+  constructor(private ctrl: TestController) {
+    this.subscriptions.push(this.ctrl);
+
+    this.ctrl.refreshHandler = async () => {
+      await Promise.all(
+        getWorkspaceTestPatterns().map(({ pattern, exclude }) =>
+          findInitialTests(ctrl, pattern, exclude),
         ),
       );
-      return;
-    }
-
-    const include: vscode.TestItem[] = [];
-    let profile: vscode.TestRunProfile | undefined;
-    for (const [item, thisProfile] of watchingTests) {
-      const cast = item as vscode.TestItem;
-      if (cast.uri?.toString() == uri.toString()) {
-        include.push(cast);
-        profile = thisProfile;
+    };
+  
+    this.ctrl.createRunProfile(
+      "Run Tests",
+      TestRunProfileKind.Run,
+      this.runHandler,
+      true,
+      undefined,
+      true,
+    );
+  
+    const fileChangedEmitter = this.createFileChangeEmitter();
+    this.ctrl.resolveHandler = async (item) => {
+      if (!item) {
+        this.subscriptions.push(
+          ...startWatchingWorkspace(ctrl, fileChangedEmitter),
+        );
       }
+    };
+
+    for (const document of workspace.textDocuments) {
+      updateNodeForDocument(this.ctrl, document);
     }
+  
+    this.subscriptions.push(
+      workspace.onDidOpenTextDocument((d) => updateNodeForDocument(this.ctrl, d)),
+      workspace.onDidChangeTextDocument(async (e) => {
+        deleteFromUri(this.ctrl, this.ctrl.items, e.document.uri);
+        await updateNodeForDocument(this.ctrl, e.document);
+      }),
+    );
+  }
 
-    if (include.length) {
-      startTestRun(
-        new vscode.TestRunRequest(include, undefined, profile, true),
-      );
-    }
-  });
+  createFileChangeEmitter() {
+    const fileChangedEmitter = new EventEmitter<Uri>();
 
-  const runHandler = (
-    request: vscode.TestRunRequest,
-    cancellation: vscode.CancellationToken,
-  ) => {
-    if (!request.continuous) {
-      return startTestRun(request);
-    }
+    fileChangedEmitter.event((uri) => {
+      if (this.watchingTests.has("ALL")) {
+        this.startTestRun(
+          new TestRunRequest(
+            undefined,
+            undefined,
+            this.watchingTests.get("ALL"),
+            true,
+          ),
+        );
+        return;
+      }
+  
+      const include: TestItem[] = [];
+      let profile: TestRunProfile | undefined;
+      for (const [item, thisProfile] of this.watchingTests) {
+        const cast = item as TestItem;
+        if (cast.uri?.toString() == uri.toString()) {
+          include.push(cast);
+          profile = thisProfile;
+        }
+      }
+  
+      if (include.length) {
+        this.startTestRun(
+          new TestRunRequest(include, undefined, profile, true),
+        );
+      }
+    });
 
-    if (request.include === undefined) {
-      watchingTests.set("ALL", request.profile);
-      cancellation.onCancellationRequested(() => watchingTests.delete("ALL"));
-    } else {
-      request.include.forEach((item) =>
-        watchingTests.set(item, request.profile),
-      );
-      cancellation.onCancellationRequested(() =>
-        request.include!.forEach((item) => watchingTests.delete(item)),
-      );
-    }
-  };
+    return fileChangedEmitter;
+  }
 
-  const startTestRun = (request: vscode.TestRunRequest) => {
-    const queue: { test: vscode.TestItem; data: ITestCase }[] = [];
-    const run = ctrl.createTestRun(request);
+  startTestRun = (request: TestRunRequest) => {
+    const queue: { test: TestItem; data: ITestCase }[] = [];
+    const run = this.ctrl.createTestRun(request);
 
-    const discoverTests = async (tests: Iterable<vscode.TestItem>) => {
+    const discoverTests = async (tests: Iterable<TestItem>) => {
       for (const test of tests) {
         if (request.exclude?.includes(test)) {
           continue;
         }
 
         const data = testData.get(test)!;
-        // if (!data.isResolved) {
-        //   if (data instanceof TestDirectory) {
-        //     await findTestsInDirectory(ctrl, test.uri!, test);
-        //   }
-        // }
         run.enqueued(test);
         queue.push({ test, data });
       }
@@ -118,76 +125,96 @@ export async function addTestExplorerFeature(context: vscode.ExtensionContext) {
       run.end();
     };
 
-    discoverTests(request.include ?? gatherTestItems(ctrl.items)).then(
+    discoverTests(request.include ?? gatherTestItems(this.ctrl.items)).then(
       runTestQueue,
     );
   };
 
-  ctrl.refreshHandler = async () => {
-    await Promise.all(
-      getWorkspaceTestPatterns().map(({ pattern, exclude }) =>
-        findInitialTests(ctrl, pattern, exclude),
-      ),
-    );
-  };
-
-  ctrl.createRunProfile(
-    "Run Tests",
-    vscode.TestRunProfileKind.Run,
-    runHandler,
-    true,
-    undefined,
-    true,
-  );
-
-  ctrl.resolveHandler = async (item) => {
-    if (!item) {
-      context.subscriptions.push(
-        ...startWatchingWorkspace(ctrl, fileChangedEmitter),
-      );
-      return;
+  runHandler = (
+    request: TestRunRequest,
+    cancellation: CancellationToken,
+  ) => {
+    if (!request.continuous) {
+      return this.startTestRun(request);
     }
 
-    // const data = testData.get(item)!;
-    // if (item.canResolveChildren) {
-    //   await findTestsInDirectory(ctrl, item.uri!, item);
-    // }
-    // TODO: implement this
-    // await data.updateFromDisk(ctrl, item);
+    if (request.include === undefined) {
+      this.watchingTests.set("ALL", request.profile);
+      cancellation.onCancellationRequested(() => this.watchingTests.delete("ALL"));
+    } else {
+      request.include.forEach((item) =>
+      this.watchingTests.set(item, request.profile),
+      );
+      cancellation.onCancellationRequested(() =>
+        request.include!.forEach((item) => this.watchingTests.delete(item)),
+      );
+    }
   };
+  
+  dispose() {
+    this.subscriptions.forEach((s) => s.dispose());
+    this.ctrl.dispose();
+  }
+}
 
-  for (const document of vscode.workspace.textDocuments) {
-    updateNodeForDocument(document);
+export async function addTestExplorerFeature(context: ExtensionContext) {
+  let testExplorerFeature: TestExplorerFeature | null = null;
+
+  const testExplorerEnabled = workspace
+    .getConfiguration("phpunit")
+    .get<boolean>("testExplorer.enabled", false);
+  if (testExplorerEnabled) {
+    testExplorerFeature = new TestExplorerFeature(tests.createTestController(
+      "phpunitTestController",
+      "Phpunit",
+    ));
+    context.subscriptions.push(testExplorerFeature);
   }
 
-  context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument(updateNodeForDocument),
-    vscode.workspace.onDidChangeTextDocument(async (e) => {
-      deleteFromUri(controller, controller.items, e.document.uri);
-      await updateNodeForDocument(e.document);
-    }),
-  );
+  workspace.onDidChangeConfiguration((event) => {
+    if (event.affectsConfiguration("phpunit.testExplorer.enabled")) {
+      const testExplorerEnabled = workspace
+        .getConfiguration("phpunit")
+        .get("testExplorer.enabled");
+      if (testExplorerEnabled && !testExplorerFeature) {
+        testExplorerFeature = new TestExplorerFeature(tests.createTestController(
+          "phpunitTestController",
+          "Phpunit",
+        ));
+        context.subscriptions.push(testExplorerFeature);
+      } else if (testExplorerFeature) {
+        const idx = context.subscriptions.findIndex(t => t == testExplorerFeature);
+        context.subscriptions.splice(idx, 1);
+        testExplorerFeature.dispose();
+        testExplorerFeature = null;
+      }
+    }
+  });
 }
 
 function getWorkspaceTestPatterns() {
-  if (!vscode.workspace.workspaceFolders) {
+  if (!workspace.workspaceFolders) {
     return [];
   }
 
-  return vscode.workspace.workspaceFolders.map((workspaceFolder) => ({
+  const testExplorerPattern = workspace
+    .getConfiguration("phpunit")
+    .get("testExplorer.include", "**/tests/**/*Test.php");
+
+  return workspace.workspaceFolders.map((workspaceFolder) => ({
     workspaceFolder,
-    pattern: new vscode.RelativePattern(
+    pattern: new RelativePattern(
       workspaceFolder,
-      "**/tests/**/*Test.php",
+      testExplorerPattern,
     ),
-    exclude: new vscode.RelativePattern(
+    exclude: new RelativePattern(
       workspaceFolder,
       "**/{.git,node_modules,vendor}/**",
     ),
   }));
 }
 
-async function updateNodeForDocument(e: vscode.TextDocument) {
+async function updateNodeForDocument(controller: TestController, e: TextDocument) {
   if (e.uri.scheme !== "file") {
     return;
   }
@@ -211,9 +238,9 @@ async function updateNodeForDocument(e: vscode.TextDocument) {
 }
 
 async function findInitialTests(
-  controller: vscode.TestController,
-  pattern: vscode.GlobPattern,
-  exclude: vscode.GlobPattern,
+  controller: TestController,
+  pattern: GlobPattern,
+  exclude: GlobPattern,
 ) {
   const { files, commonDirectory } = await getFilesAndCommonDirectory(
     pattern,
@@ -226,10 +253,10 @@ async function findInitialTests(
 }
 
 async function getFilesAndCommonDirectory(
-  pattern: vscode.GlobPattern,
-  exclude: vscode.GlobPattern,
+  pattern: GlobPattern,
+  exclude: GlobPattern,
 ) {
-  const files = await vscode.workspace.findFiles(pattern, exclude);
+  const files = await workspace.findFiles(pattern, exclude);
   const directories = files.map((file) => path.dirname(file.fsPath));
   const commonDirectory = directories.reduce((common, dir) => {
     let i = 0;
@@ -243,23 +270,23 @@ async function getFilesAndCommonDirectory(
 }
 
 function startWatchingWorkspace(
-  controller: vscode.TestController,
-  fileChangedEmitter: vscode.EventEmitter<vscode.Uri>,
+  controller: TestController,
+  fileChangedEmitter: EventEmitter<Uri>,
 ) {
   return getWorkspaceTestPatterns().map(
     ({ workspaceFolder, pattern, exclude }) => {
-      const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+      const watcher = workspace.createFileSystemWatcher(pattern);
 
       watcher.onDidCreate(async (uri) => {
-        const document = await vscode.workspace.openTextDocument(uri);
-        updateNodeForDocument(document);
+        const document = await workspace.openTextDocument(uri);
+        updateNodeForDocument(controller, document);
         fileChangedEmitter.fire(uri);
       });
       watcher.onDidChange(async (uri) => {
         deleteFromUri(controller, controller.items, uri);
 
-        const document = await vscode.workspace.openTextDocument(uri);
-        await updateNodeForDocument(document);
+        const document = await workspace.openTextDocument(uri);
+        await updateNodeForDocument(controller, document);
 
         fileChangedEmitter.fire(uri);
       });
