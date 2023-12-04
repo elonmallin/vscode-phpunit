@@ -52,7 +52,7 @@ export class TestClass implements ITestCase {
       const duration = Date.now() - start;
       const message = new TestMessage("Failed");
       message.location = new Location(item.uri!, new Position(0, 0));
-      options.failed(item, new TestMessage("Failed"), duration);
+      options.failed(item, new TestMessage('Failed'), duration);
 
       return false;
     }
