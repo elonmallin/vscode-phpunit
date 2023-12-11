@@ -79,7 +79,9 @@ export class PhpunitArgBuilder {
     let args = [
       ...(this.configFile ? ["--configuration", this.configFile] : []),
       ...(this.color ? [`--colors=${this.color}`] : []),
-      ...(this.suites.length > 0 ? ["--testsuite", `'${this.suites.join(",")}'`] : []),
+      ...(this.suites.length > 0
+        ? ["--testsuite", `'${this.suites.join(",")}'`]
+        : []),
       ...(this.filter ? ["--filter", `'${this.filter}'`] : []),
       ...(this.groups.length > 0 ? ["--group", this.groups.join(",")] : []),
       ...this.args,
