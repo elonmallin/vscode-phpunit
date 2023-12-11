@@ -11,7 +11,7 @@
          failOnWarning="true"
          colors="true">
     <testsuites>
-        <testsuite name="Math">
+        <testsuite name="Math suite">
             <directory>tests/Math</directory>
         </testsuite>
         <testsuite name="Science">

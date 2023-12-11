@@ -61,14 +61,14 @@ suite("CodeLens Test Suite", () => {
     assert.equal(codeLenses[0].command?.title, "Run test");
     assert.match(
       (codeLenses[0].command?.arguments?.[0] as PhpunitArgBuilder).build(),
-      /--testsuite Math/i,
+      /--testsuite 'Math suite'/i,
     );
 
     assert.equal(codeLenses[1].command?.command, "phpunit.Test");
     assert.equal(codeLenses[1].command?.title, "Run test");
     assert.match(
       (codeLenses[1].command?.arguments?.[0] as PhpunitArgBuilder).build(),
-      /--testsuite Science/i,
+      /--testsuite 'Science'/i,
     );
 
     assert.equal(codeLenses[2].command?.command, "phpunit.Test");
