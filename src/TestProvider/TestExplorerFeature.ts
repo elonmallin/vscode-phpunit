@@ -2,6 +2,7 @@ import {
   CancellationToken,
   EventEmitter,
   ExtensionContext,
+  FileSystemWatcher,
   GlobPattern,
   RelativePattern,
   TestController,
@@ -21,9 +22,9 @@ import {
   gatherTestItems,
   testData,
 } from "./TestCases";
-import path = require("path");
+import * as path from "path";
 
-class TestExplorerFeature {
+export class TestExplorerFeature {
   private watchingTests = new Map<
     TestItem | "ALL",
     TestRunProfile | undefined
@@ -54,7 +55,7 @@ class TestExplorerFeature {
     this.ctrl.resolveHandler = async (item) => {
       if (!item) {
         this.subscriptions.push(
-          ...startWatchingWorkspace(ctrl, fileChangedEmitter),
+          ...(await startWatchingWorkspace(ctrl, fileChangedEmitter)),
         );
       }
     };
@@ -282,12 +283,12 @@ async function getFilesAndCommonDirectory(
   return { files, commonDirectory };
 }
 
-function startWatchingWorkspace(
+async function startWatchingWorkspace(
   controller: TestController,
   fileChangedEmitter: EventEmitter<Uri>,
-) {
-  return getWorkspaceTestPatterns().map(
-    ({ workspaceFolder, pattern, exclude }) => {
+): Promise<FileSystemWatcher[]> {
+  const fileWatcherPromises = getWorkspaceTestPatterns().map(
+    async ({ workspaceFolder, pattern, exclude }) => {
       const watcher = workspace.createFileSystemWatcher(pattern);
 
       watcher.onDidCreate(async (uri) => {
@@ -307,9 +308,11 @@ function startWatchingWorkspace(
         deleteFromUri(controller, controller.items, uri),
       );
 
-      findInitialTests(controller, pattern, exclude);
+      await findInitialTests(controller, pattern, exclude);
 
       return watcher;
     },
   );
+
+  return Promise.all(fileWatcherPromises);
 }
