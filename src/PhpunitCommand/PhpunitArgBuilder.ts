@@ -85,7 +85,7 @@ export class PhpunitArgBuilder {
       ...(this.filter ? ["--filter", `'${this.filter}'`] : []),
       ...(this.groups.length > 0 ? ["--group", this.groups.join(",")] : []),
       ...this.args,
-      ...this.directoryOrFiles,
+      ...this.directoryOrFiles.map((directoryOrFile) => `'${directoryOrFile}'`),
     ].filter((part) => part);
 
     if (this.pathMappings) {

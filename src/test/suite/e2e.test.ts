@@ -74,6 +74,35 @@ suite("php-project e2e", () => {
     assert.equal(task.exitCode, 0);
   });
 
+  test("phpunit.Test Class space in path", async () => {
+    const uri = vscode.Uri.file(
+      path.resolve(
+        vscode.workspace.workspaceFolders![0].uri.fsPath,
+        "tests/Space Test/SimpleTest.php",
+      ),
+    );
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document, {
+      selection: new vscode.Range(4, 0, 4, 0),
+    });
+
+    await vscode.workspace
+      .getConfiguration("phpunit")
+      .update("preferRunClassTestOverQuickPickWindow", true);
+
+    const taskOutputPromise = getOnDidEndTaskProcessPromise(
+      myExtensionApi.testRedirectedOutputFile,
+    );
+    const res = await vscode.commands.executeCommand("phpunit.Test");
+    const task = await taskOutputPromise;
+
+    assert.match(
+      task.output,
+      /PHPUnit .* by Sebastian Bergmann and contributors./,
+    );
+    assert.equal(task.exitCode, 0);
+  });
+
   test("phpunit.Test Function", async () => {
     const uri = vscode.Uri.file(
       path.resolve(
