@@ -1,5 +1,18 @@
 // Place your settings in this file to overwrite default and user settings.
 {
+  "mochaExplorer.files": "src/test/**/*test.ts",
+  "mochaExplorer.require": "ts-node/register",
+  // "mochaExplorer.files": "out/test/**/*.js",
+  // "mochaExplorer.require": "source-map-support/register",
+  // "mochaExplorer.watch": "out/**/*.js",
+  "mochaExplorer.launcherScript": "node_modules/mocha-explorer-launcher-scripts/vscode-test",
+  "mochaExplorer.autoload": false,
+  "mochaExplorer.ipcRole": "server",
+  "mochaExplorer.ipcTimeout": 10000,
+  "mochaExplorer.env": {
+    "VSCODE_VERSION": "insiders",
+    "ELECTRON_RUN_AS_NODE": null
+  },
   "files.exclude": {
     "out": false, // set this to true to hide the "out" folder with the compiled JS files
     "**/*.js": true,

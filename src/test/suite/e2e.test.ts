@@ -4,7 +4,7 @@ import * as assert from "assert";
 // as well as import your extension to test it
 import * as vscode from "vscode";
 // import * as myExtension from '../../extension';
-import path = require("path");
+import * as path from "path";
 import { before, beforeEach } from "mocha";
 import * as fs from "fs";
 import { IMyExtensionApi } from "../../MyExtensionApi";

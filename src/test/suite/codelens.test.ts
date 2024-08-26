@@ -4,7 +4,7 @@ import * as assert from "assert";
 // as well as import your extension to test it
 import * as vscode from "vscode";
 // import * as myExtension from '../../extension';
-import path = require("path");
+import * as path from "path";
 import { PhpCodeLensProvider } from "../../CodeLens/PhpCodeLensProvider";
 import { PhpunitXmlCodeLensProvider } from "../../CodeLens/PhpunitXmlCodeLensProvider";
 import { PhpunitArgBuilder } from "../../PhpunitCommand/PhpunitArgBuilder";
