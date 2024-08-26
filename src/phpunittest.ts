@@ -331,6 +331,7 @@ export class TestRunner {
       const spawnResult = await new Promise((r) =>
         r(
           spawnSync(runConfig.exec, runConfig.args, {
+            cwd: argBuilder.workspaceFolder,
             encoding: "utf8",
           }),
         ),
