@@ -92,6 +92,10 @@ export function activate(context: vscode.ExtensionContext): IMyExtensionApi {
   context.subscriptions.push(
     vscode.tasks.registerTaskProvider("phpunit", {
       provideTasks: () => {
+        // If taskCommand hasn't been initialized yet we aren't ready to register tasks yet. 
+        // Fail silently because this will be called again later once taskCommand has been initialized.
+        if (!taskCommand) return [];
+
         return [
           new vscode.Task(
             { type: "phpunit", task: "run" },
